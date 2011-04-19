@@ -4,7 +4,7 @@
  *
  * @author Tim Hunt and others.
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package quiz
+ * @package guidedquiz
  */
 
 if (empty($quiz)) {
@@ -14,7 +14,7 @@ if (!isset($currenttab)) {
     $currenttab = '';
 }
 if (!isset($cm)) {
-    $cm = get_coursemodule_from_instance('quiz', $quiz->id);
+    $cm = get_coursemodule_from_instance('guidedquiz', $quiz->id);
 }
 
 
@@ -28,17 +28,17 @@ $row  = array();
 $inactive = array();
 $activated = array();
 
-if (has_capability('mod/quiz:view', $context)) {
-    $row[] = new tabobject('info', "$CFG->wwwroot/mod/quiz/view.php?q=$quiz->id", get_string('info', 'quiz'));
+if (has_capability('mod/guidedquiz:view', $context)) {
+    $row[] = new tabobject('info', "$CFG->wwwroot/mod/guidedquiz/view.php?q=$quiz->id", get_string('info', 'quiz'));
 }
-if (has_capability('mod/quiz:viewreports', $context)) {
-    $row[] = new tabobject('reports', "$CFG->wwwroot/mod/quiz/report.php?q=$quiz->id", get_string('results', 'quiz'));
+if (has_capability('mod/guidedquiz:viewreports', $context)) {
+    $row[] = new tabobject('reports', "$CFG->wwwroot/mod/guidedquiz/report.php?q=$quiz->id", get_string('results', 'quiz'));
 }
-if (has_capability('mod/quiz:preview', $context)) {
-    $row[] = new tabobject('preview', "$CFG->wwwroot/mod/quiz/attempt.php?q=$quiz->id", get_string('preview', 'quiz'));
+if (has_capability('mod/guidedquiz:preview', $context)) {
+    $row[] = new tabobject('preview', "$CFG->wwwroot/mod/guidedquiz/attempt.php?q=$quiz->id", get_string('preview', 'quiz'));
 }
-if (has_capability('mod/quiz:manage', $context)) {
-    $row[] = new tabobject('edit', "$CFG->wwwroot/mod/quiz/edit.php?cmid=$cm->id", get_string('edit'));
+if (has_capability('mod/guidedquiz:manage', $context)) {
+    $row[] = new tabobject('edit', "$CFG->wwwroot/mod/guidedquiz/edit.php?cmid=$cm->id", get_string('edit'));
 }
 
 if ($currenttab == 'info' && count($row) == 1) {
@@ -54,11 +54,11 @@ if ($currenttab == 'reports' and isset($mode)) {
     $reportlist = array ('overview', 'regrade', 'grading', 'analysis');
     // Reports that are restricted by capability.
     $reportrestrictions = array(
-        'regrade' => 'mod/quiz:grade',
-        'grading' => 'mod/quiz:grade'
+        'regrade' => 'mod/guidedquiz:grade',
+        'grading' => 'mod/guidedquiz:grade'
     );
 
-    $allreports = get_list_of_plugins("mod/quiz/report");
+    $allreports = get_list_of_plugins("mod/guidedquiz/report");
     foreach ($allreports as $report) {
         if (!in_array($report, $reportlist)) {
             $reportlist[] = $report;
@@ -69,7 +69,7 @@ if ($currenttab == 'reports' and isset($mode)) {
     $currenttab = '';
     foreach ($reportlist as $report) {
         if (!isset($reportrestrictions[$report]) || has_capability($reportrestrictions[$report], $context)) {
-            $row[] = new tabobject($report, "$CFG->wwwroot/mod/quiz/report.php?q=$quiz->id&amp;mode=$report",
+            $row[] = new tabobject($report, "$CFG->wwwroot/mod/guidedquiz/report.php?q=$quiz->id&amp;mode=$report",
                                     get_string($report, 'quiz_'.$report));
             if ($report == $mode) {
                 $currenttab = $report;
@@ -88,8 +88,8 @@ if ($currenttab == 'edit' and isset($mode)) {
     $strquiz = get_string('modulename', 'quiz');
     $streditingquiz = get_string("editinga", "moodle", $strquiz);
 
-    if (has_capability('mod/quiz:manage', $context) && $contexts->have_one_edit_tab_cap('editq')) {
-        $row[] = new tabobject('editq', "$CFG->wwwroot/mod/quiz/edit.php?".$thispageurl->get_query_string(), $strquiz, $streditingquiz);
+    if (has_capability('mod/guidedquiz:manage', $context) && $contexts->have_one_edit_tab_cap('editq')) {
+        $row[] = new tabobject('editq', "$CFG->wwwroot/mod/guidedquiz/edit.php?".$thispageurl->get_query_string(), $strquiz, $streditingquiz);
     }
     questionbank_navigation_tabs($row, $contexts, $thispageurl->get_query_string());
     $tabs[] = $row;
