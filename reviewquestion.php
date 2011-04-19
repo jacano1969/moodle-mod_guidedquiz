@@ -7,7 +7,7 @@
  *         the Serving Mathematics project
  *         {@link http://maths.york.ac.uk/serving_maths}
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package quiz
+ * @package guidedquiz
  */
 
     require_once('../../config.php');
@@ -23,11 +23,11 @@
         if (! $state = get_record('question_states', 'id', $stateid)) {
             error('Invalid state id');
         }
-        if (! $attempt = get_record('quiz_attempts', 'uniqueid', $state->attempt)) {
+        if (! $attempt = get_record('guidedquiz_attempts', 'uniqueid', $state->attempt)) {
             error('No such attempt ID exists');
         }
     } elseif ($attemptid) {
-        if (! $attempt = get_record('quiz_attempts', 'id', $attemptid)) {
+        if (! $attempt = get_record('guidedquiz_attempts', 'id', $attemptid)) {
             error('No such attempt ID exists');
         }
         if (! $neweststateid = get_field('question_sessions', 'newest', 'attemptid', $attempt->uniqueid, 'questionid', $questionid)) {
@@ -46,24 +46,24 @@
     if (! $question = get_record('question', 'id', $state->question)) {
         error('Question for this state is missing');
     }
-    if (! $quiz = get_record('quiz', 'id', $attempt->quiz)) {
+    if (! $quiz = get_record('guidedquiz', 'id', $attempt->quiz)) {
         error('Course module is incorrect');
     }
     if (! $course = get_record('course', 'id', $quiz->course)) {
         error('Course is misconfigured');
     }
-    if (! $cm = get_coursemodule_from_instance('quiz', $quiz->id, $course->id)) {
+    if (! $cm = get_coursemodule_from_instance('guidedquiz', $quiz->id, $course->id)) {
         error('Course Module ID was incorrect');
     }
 
     require_login($course->id, false, $cm);
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 
-    if (!has_capability('mod/quiz:viewreports', $context)) {
+    if (!has_capability('mod/guidedquiz:viewreports', $context)) {
         if (!$attempt->timefinish) {
             redirect('attempt.php?q='.$quiz->id);
         }
-        require_capability('mod/quiz:reviewmyattempts', $context);
+        require_capability('mod/guidedquiz:reviewmyattempts', $context);
         // If not even responses are to be shown in review then we
         // don't allow any review
         if (!($quiz->review & QUIZ_REVIEW_RESPONSES)) {
@@ -98,7 +98,7 @@
 
     $strquizzes = get_string('modulenameplural', 'quiz');
 
-    $question->maxgrade = get_field('quiz_question_instances', 'grade', 'quiz', $quiz->id, 'question', $question->id);
+    $question->maxgrade = get_field('guidedquiz_question_instances', 'grade', 'quiz', $quiz->id, 'question', $question->id);
     // Some of the questions code is optimised to work with several questions
     // at once so it wants the question to be in an array. 
     $questions = array($question->id => &$question);
@@ -107,7 +107,7 @@
         error("Unable to load questiontype specific question information");
     }
 
-    $baseurl = $CFG->wwwroot . '/mod/quiz/reviewquestion.php?question=' . $question->id . '&amp;number=' . $number . '&amp;attempt=';
+    $baseurl = $CFG->wwwroot . '/mod/guidedquiz/reviewquestion.php?question=' . $question->id . '&amp;number=' . $number . '&amp;attempt=';
     $quiz->thispageurl = $baseurl . $attempt->id;
     $quiz->cmid = $cm->id;
 
@@ -117,9 +117,9 @@
     restore_question_state($question, $state);
     $state->last_graded = $state;
 
-    $options = quiz_get_reviewoptions($quiz, $attempt, $context);
+    $options = guidedquiz_get_reviewoptions($quiz, $attempt, $context);
     $options->validation = ($state->event == QUESTION_EVENTVALIDATE);
-    $options->history = (has_capability('mod/quiz:viewreports', $context) and !$attempt->preview) ? 'all' : 'graded';
+    $options->history = (has_capability('mod/guidedquiz:viewreports', $context) and !$attempt->preview) ? 'all' : 'graded';
 
     $questionids = array($question->id);
     $states = array($question->id => &$state);
@@ -141,7 +141,7 @@
     }
     // print quiz name
     $table->data[] = array(get_string('modulename', 'quiz').':', format_string($quiz->name));
-    if (has_capability('mod/quiz:viewreports', $context) and count($attempts = get_records_select('quiz_attempts', "quiz = '$quiz->id' AND userid = '$attempt->userid'", 'attempt ASC')) > 1) {
+    if (has_capability('mod/guidedquiz:viewreports', $context) and count($attempts = get_records_select('guidedquiz_attempts', "quiz = '$quiz->id' AND userid = '$attempt->userid'", 'attempt ASC')) > 1) {
         // print list of attempts
         $attemptlist = '';
         foreach ($attempts as $at) {

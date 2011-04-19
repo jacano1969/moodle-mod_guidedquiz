@@ -7,7 +7,7 @@
  *         the Serving Mathematics project
  *         {@link http://maths.york.ac.uk/serving_maths}
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package quiz
+ * @package guidedquiz
  */
 
     require_once("../../config.php");
@@ -17,33 +17,33 @@
     $page = optional_param('page', 0, PARAM_INT); // The required page
     $showall = optional_param('showall', 0, PARAM_BOOL);
 
-    if (! $attempt = get_record("quiz_attempts", "id", $attempt)) {
+    if (! $attempt = get_record("guidedquiz_attempts", "id", $attempt)) {
         error("No such attempt ID exists");
     }
-    if (! $quiz = get_record("quiz", "id", $attempt->quiz)) {
+    if (! $quiz = get_record("guidedquiz", "id", $attempt->quiz)) {
         error("The quiz with id $attempt->quiz belonging to attempt $attempt is missing");
     }
     if (! $course = get_record("course", "id", $quiz->course)) {
         error("The course with id $quiz->course that the quiz with id $quiz->id belongs to is missing");
     }
-    if (! $cm = get_coursemodule_from_instance("quiz", $quiz->id, $course->id)) {
+    if (! $cm = get_coursemodule_from_instance("guidedquiz", $quiz->id, $course->id)) {
         error("The course module for the quiz with id $quiz->id is missing");
     }
 
     if (!count_records('question_sessions', 'attemptid', $attempt->uniqueid)) {
         // this question has not yet been upgraded to the new model
-        quiz_upgrade_states($attempt);
+        guidedquiz_upgrade_states($attempt);
     }
 
     require_login($course->id, false, $cm);
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
     $coursecontext = get_context_instance(CONTEXT_COURSE, $cm->course);
-    $isteacher = has_capability('mod/quiz:preview', $context);
-    $options = quiz_get_reviewoptions($quiz, $attempt, $context);
+    $isteacher = has_capability('mod/guidedquiz:preview', $context);
+    $options = guidedquiz_get_reviewoptions($quiz, $attempt, $context);
     $popup = $isteacher ? 0 : $quiz->popup; // Controls whether this is shown in a javascript-protected window or with a safe browser.
 
     $timenow = time();
-    if (!has_capability('mod/quiz:viewreports', $context)) {
+    if (!has_capability('mod/guidedquiz:viewreports', $context)) {
         // Can't review during the attempt.
         if (!$attempt->timefinish) {
             redirect('attempt.php?q=' . $quiz->id);
@@ -54,9 +54,9 @@
         }
         // Check capabilities.
         if ($options->quizstate == QUIZ_STATE_IMMEDIATELY) {
-            require_capability('mod/quiz:attempt', $context);
+            require_capability('mod/guidedquiz:attempt', $context);
         } else {
-            require_capability('mod/quiz:reviewmyattempts', $context);
+            require_capability('mod/guidedquiz:reviewmyattempts', $context);
         }
         // Can't review if Student's may review ... Responses is turned on.
         if (!$options->responses) {
@@ -98,15 +98,15 @@
         $urloptions .= '&amp;page=' . $page;
     }
 
-    add_to_log($course->id, 'quiz', 'review', 'review.php?attempt=' . $attempt->id . $urloptions, $quiz->id, $cm->id);
+    add_to_log($course->id, 'guidedquiz', 'review', 'review.php?attempt=' . $attempt->id . $urloptions, $quiz->id, $cm->id);
 
 /// Load all the questions and states needed by this script
 
     // load the questions needed by page
-    $pagelist = $showall ? quiz_questions_in_quiz($attempt->layout) : quiz_questions_on_page($attempt->layout, $page);
+    $pagelist = $showall ? guidedquiz_questions_in_quiz($attempt->layout) : guidedquiz_questions_on_page($attempt->layout, $page);
     $sql = "SELECT q.*, i.grade AS maxgrade, i.id AS instance".
            "  FROM {$CFG->prefix}question q,".
-           "       {$CFG->prefix}quiz_question_instances i".
+           "       {$CFG->prefix}guidedquiz_question_instances i".
            " WHERE i.quiz = '$quiz->id' AND q.id = i.question".
            "   AND q.id IN ($pagelist)";
     if (!$questions = get_records_sql($sql)) {
@@ -169,7 +169,7 @@
         $buttonoptions['q'] = $quiz->id;
         $buttonoptions['forcenew'] = true;
         echo '<div class="controls">';
-        print_single_button($CFG->wwwroot.'/mod/quiz/attempt.php', $buttonoptions, get_string('startagain', 'quiz'));
+        print_single_button($CFG->wwwroot.'/mod/guidedquiz/attempt.php', $buttonoptions, get_string('startagain', 'quiz'));
         echo '</div>';
     }
     print_heading($strreviewtitle);
@@ -208,8 +208,8 @@
                 $CFG->wwwroot . '/user/view.php?id=' . $student->id . '&amp;course=' . $course->id . '">' .
                 fullname($student, true) . '</a></td></tr>';
     }
-    if (has_capability('mod/quiz:viewreports', $context) &&
-            count($attempts = get_records_select('quiz_attempts', "quiz = '$quiz->id' AND userid = '$attempt->userid'", 'attempt ASC')) > 1) {
+    if (has_capability('mod/guidedquiz:viewreports', $context) &&
+            count($attempts = get_records_select('guidedquiz_attempts', "quiz = '$quiz->id' AND userid = '$attempt->userid'", 'attempt ASC')) > 1) {
     /// List of all this user's attempts for people who can see reports.
         $attemptlist = array();
         foreach ($attempts as $at) {
@@ -237,7 +237,7 @@
     }
 
 /// Show scores (if the user is allowed to see scores at the moment).
-    $grade = quiz_rescale_grade($attempt->sumgrades, $quiz);
+    $grade = guidedquiz_rescale_grade($attempt->sumgrades, $quiz);
     if ($options->scores) {
         if ($quiz->grade and $quiz->sumgrades) {
             if($overtime) {
@@ -265,7 +265,7 @@
     }
 
 /// Feedback if there is any, and the user is allowed to see it now.
-    $feedback = quiz_feedback_for_grade(quiz_rescale_grade(
+    $feedback = guidedquiz_feedback_for_grade(guidedquiz_rescale_grade(
             $attempt->sumgrades, $quiz, false), $attempt->quiz);
     if ($options->overallfeedback && $feedback) {
         $rows[] = '<tr><th scope="row" class="cell">' . get_string('feedback', 'quiz') .
@@ -280,7 +280,7 @@
     }
 
 /// Print the navigation panel if required
-    $numpages = quiz_number_of_pages($attempt->layout);
+    $numpages = guidedquiz_number_of_pages($attempt->layout);
     if ($numpages > 1 and !$showall) {
         print_paging_bar($numpages, $page, 1, 'review.php?attempt='.$attempt->id.'&amp;');
         echo '<div class="controls"><a href="review.php?attempt='.$attempt->id.'&amp;showall=true">';
@@ -289,9 +289,9 @@
     }
 
 /// Print all the questions
-    $quiz->thispageurl = $CFG->wwwroot . '/mod/quiz/review.php?attempt=' . $attempt->id . $urloptions;
+    $quiz->thispageurl = $CFG->wwwroot . '/mod/guidedquiz/review.php?attempt=' . $attempt->id . $urloptions;
     $quiz->cmid = $cm->id;
-    $number = quiz_first_questionnumber($attempt->layout, $pagelist);
+    $number = guidedquiz_first_questionnumber($attempt->layout, $pagelist);
     foreach ($pagequestions as $i) {
         if (!isset($questions[$i])) {
             print_simple_box_start('center', '90%');
