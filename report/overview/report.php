@@ -9,9 +9,9 @@
  *//** */
 
 require_once($CFG->libdir.'/tablelib.php');
-require_once($CFG->dirroot.'/mod/quiz/report/overview/overviewsettings_form.php');
+require_once($CFG->dirroot.'/mod/guidedquiz/report/overview/overviewsettings_form.php');
 
-class quiz_report extends quiz_default_report {
+class guidedquiz_report extends guidedquiz_default_report {
 
     /**
      * Display the report.
@@ -30,11 +30,11 @@ class quiz_report extends quiz_default_report {
         }
 
         // Work out some display options - whether there is feedback, and whether scores should be shown.
-        $hasfeedback = quiz_has_feedback($quiz->id) && $quiz->grade > 1.e-7 && $quiz->sumgrades > 1.e-7;
+        $hasfeedback = guidedquiz_has_feedback($quiz->id) && $quiz->grade > 1.e-7 && $quiz->sumgrades > 1.e-7;
         $fakeattempt = new stdClass();
         $fakeattempt->preview = false;
         $fakeattempt->timefinish = $quiz->timeopen;
-        $reviewoptions = quiz_get_reviewoptions($quiz, $fakeattempt, $context);
+        $reviewoptions = guidedquiz_get_reviewoptions($quiz, $fakeattempt, $context);
         $showgrades = $quiz->grade && $quiz->sumgrades && $reviewoptions->scores;
 
         $pageoptions = array();
@@ -45,9 +45,9 @@ class quiz_report extends quiz_default_report {
         /// find out current groups mode
         $currentgroup = groups_get_activity_group($cm, true);
 
-        $reporturl = new moodle_url($CFG->wwwroot.'/mod/quiz/report.php', $pageoptions);
-        $qmsubselect = quiz_report_qm_filter_select($quiz);
-        $mform = new mod_quiz_report_overview_settings($reporturl, compact('qmsubselect', 'quiz', 'currentgroup'));
+        $reporturl = new moodle_url($CFG->wwwroot.'/mod/guidedquiz/report.php', $pageoptions);
+        $qmsubselect = guidedquiz_report_qm_filter_select($quiz);
+        $mform = new mod_guidedquiz_report_overview_settings($reporturl, compact('qmsubselect', 'quiz', 'currentgroup'));
         if ($fromform = $mform->get_data()) {
             $attemptsmode = $fromform->attemptsmode;
             if ($qmsubselect) {
@@ -81,13 +81,13 @@ class quiz_report extends quiz_default_report {
         }
         // We only want to show the checkbox to delete attempts
         // if the user has permissions and if the report mode is showing attempts.
-        $candelete = has_capability('mod/quiz:deleteattempts', $context)
+        $candelete = has_capability('mod/guidedquiz:deleteattempts', $context)
                 && ($attemptsmode != QUIZ_REPORT_ATTEMPTS_STUDENTS_WITH_NO);
 
         $displayoptions = array();
         $displayoptions['attemptsmode'] = $attemptsmode;
         $displayoptions['qmfilter'] = $qmfilter;
-        $reporturlwithdisplayoptions = new moodle_url($CFG->wwwroot.'/mod/quiz/report.php', $pageoptions + $displayoptions);
+        $reporturlwithdisplayoptions = new moodle_url($CFG->wwwroot.'/mod/guidedquiz/report.php', $pageoptions + $displayoptions);
 
         if ($groupmode = groups_get_activity_groupmode($cm)) {   // Groups are being used
             if (!$download) {
@@ -97,12 +97,12 @@ class quiz_report extends quiz_default_report {
 
         // Print information on the number of existing attempts
         if (!$download) { //do not print notices when downloading
-            if ($strattemptnum = quiz_num_attempt_summary($quiz, $cm, true, $currentgroup)) {
+            if ($strattemptnum = guidedquiz_num_attempt_summary($quiz, $cm, true, $currentgroup)) {
                 echo '<div class="quizattemptcounts">' . $strattemptnum . '</div>';
             }
         }
         $nostudents = false;
-        if (!$students = get_users_by_capability($context, array('mod/quiz:reviewmyattempts', 'mod/quiz:attempt'),'u.id,1','','','','','',false)) {
+        if (!$students = get_users_by_capability($context, array('mod/guidedquiz:reviewmyattempts', 'mod/guidedquiz:attempt'),'u.id,1','','','','','',false)) {
             if (!$download) {
                 notify(get_string('nostudentsyet'));
             }
@@ -119,7 +119,7 @@ class quiz_report extends quiz_default_report {
             $allowedlist = $studentslist;
         } else {
             // all users who can attempt quizzes and who are in the currently selected group
-            if (!$groupstudents = get_users_by_capability($context, array('mod/quiz:reviewmyattempts', 'mod/quiz:attempt'),'u.id,1','','','',$currentgroup,'',false)) {
+            if (!$groupstudents = get_users_by_capability($context, array('mod/guidedquiz:reviewmyattempts', 'mod/guidedquiz:attempt'),'u.id,1','','','',$currentgroup,'',false)) {
                 if (!$download) {
                     notify(get_string('nostudentsingroup'));
                 }
@@ -132,9 +132,9 @@ class quiz_report extends quiz_default_report {
 
         if (($attemptids = optional_param('attemptid', array(), PARAM_INT)) && confirm_sesskey()) {
             //attempts need to be deleted
-            require_capability('mod/quiz:deleteattempts', $context);
+            require_capability('mod/guidedquiz:deleteattempts', $context);
             foreach ($attemptids as $attemptid) {
-                $attempt = get_record('quiz_attempts', 'id', $attemptid);
+                $attempt = get_record('guidedquiz_attempts', 'id', $attemptid);
                 if (!$attempt || $attempt->quiz != $quiz->id || $attempt->preview != 0) {
                     // Ensure the attempt exists, and belongs to this quiz. If not skip.
                     continue;
@@ -147,9 +147,9 @@ class quiz_report extends quiz_default_report {
                     // Additional check in groups mode.
                     continue;
                 }
-                add_to_log($course->id, 'quiz', 'delete attempt', 'report.php?id=' . $cm->id,
+                add_to_log($course->id, 'guidedquiz', 'delete attempt', 'report.php?id=' . $cm->id,
                         $attemptid, $cm->id);
-                quiz_delete_attempt($attempt, $quiz);
+                guidedquiz_delete_attempt($attempt, $quiz);
             }
             //No need for a redirect, any attemptids that do not exist are ignored.
             //So no problem if the user refreshes and tries to delete the same attempts
@@ -159,7 +159,7 @@ class quiz_report extends quiz_default_report {
         if (!$nostudents || $attemptsmode == QUIZ_REPORT_ATTEMPTS_ALL) {
             // Print information on the grading method and whether we are displaying
             if (!$download) { //do not print notices when downloading
-                if ($strattempthighlight = quiz_report_highlighting_grading_method($quiz, $qmsubselect, $qmfilter)) {
+                if ($strattempthighlight = guidedquiz_report_highlighting_grading_method($quiz, $qmsubselect, $qmfilter)) {
                     echo '<div class="quizattemptcounts">' . $strattempthighlight . '</div>';
                 }
             }
@@ -207,7 +207,7 @@ class quiz_report extends quiz_default_report {
 
             if ($detailedmarks) {
                 // we want to display marks for all questions
-                $questions = quiz_report_load_questions($quiz);
+                $questions = guidedquiz_report_load_questions($quiz);
                 foreach ($questions as $id => $question) {
                     // Ignore questions of zero length
                     $columns[] = 'qsgrade'.$id;
@@ -354,7 +354,7 @@ class quiz_report extends quiz_default_report {
 
             // This part is the same for all cases - join users and quiz_attempts tables
             $from = 'FROM '.$CFG->prefix.'user u ';
-            $from .= 'LEFT JOIN '.$CFG->prefix.'quiz_attempts qa ON qa.userid = u.id AND qa.quiz = '.$quiz->id;
+            $from .= 'LEFT JOIN '.$CFG->prefix.'guidedquiz_attempts qa ON qa.userid = u.id AND qa.quiz = '.$quiz->id;
             if ($qmsubselect && $qmfilter) {
                 $from .= ' AND '.$qmsubselect;
             }
@@ -455,7 +455,7 @@ class quiz_report extends quiz_default_report {
                             $attemptids[] = $attempt->attemptuniqueid;
                         }
                     }
-                    $gradedstatesbyattempt = quiz_get_newgraded_states($attemptids, true, 'qs.id, qs.grade, qs.event, qs.question, qs.attempt');
+                    $gradedstatesbyattempt = guidedquiz_get_newgraded_states($attemptids, true, 'qs.id, qs.grade, qs.event, qs.question, qs.attempt');
                 }
                 foreach ($attempts as $attempt) {
 
@@ -515,7 +515,7 @@ class quiz_report extends quiz_default_report {
                     // Grades columns.
                     if ($showgrades) {
                         if ($attempt->timefinish) {
-                            $grade = quiz_rescale_grade($attempt->sumgrades, $quiz);
+                            $grade = guidedquiz_rescale_grade($attempt->sumgrades, $quiz);
                             if (!$download) {
                                 $gradehtml = '<a href="review.php?q='.$quiz->id.'&amp;attempt='.$attempt->attempt.'">'.$grade.'</a>';
                                 if ($qmsubselect && $attempt->gradedattempt) {
@@ -540,13 +540,13 @@ class quiz_report extends quiz_default_report {
                             foreach($questions as $questionid => $question) {
                                 $stateforqinattempt = $gradedstatesbyattempt[$attempt->attemptuniqueid][$questionid];
                                 if (question_state_is_graded($stateforqinattempt)) {
-                                    $grade = quiz_rescale_grade($stateforqinattempt->grade, $quiz);
+                                    $grade = guidedquiz_rescale_grade($stateforqinattempt->grade, $quiz);
                                 } else {
                                     $grade = '--';
                                 }
                                 if (!$download) {
-                                    $grade = $grade.'/'.quiz_rescale_grade($question->grade, $quiz);
-                                    $row[] = link_to_popup_window('/mod/quiz/reviewquestion.php?state='.
+                                    $grade = $grade.'/'.guidedquiz_rescale_grade($question->grade, $quiz);
+                                    $row[] = link_to_popup_window('/mod/guidedquiz/reviewquestion.php?state='.
                                             $stateforqinattempt->id.'&amp;number='.$question->number,
                                             'reviewquestion', $grade, 450, 650, get_string('reviewresponsetoq', 'quiz', $question->formattedname), 'none', true);
                                 } else {
@@ -559,7 +559,7 @@ class quiz_report extends quiz_default_report {
                     // Feedback column.
                     if ($hasfeedback) {
                         if ($attempt->timefinish) {
-                            $row[] = quiz_report_feedback_for_grade(quiz_rescale_grade($attempt->sumgrades, $quiz, false), $quiz->id);
+                            $row[] = guidedquiz_report_feedback_for_grade(guidedquiz_rescale_grade($attempt->sumgrades, $quiz, false), $quiz->id);
                         } else {
                             $row[] = '-';
                         }
@@ -583,7 +583,7 @@ class quiz_report extends quiz_default_report {
                 if (!$download && $attempts) {
 
                     $averagesql = "SELECT AVG(qg.grade) AS grade " .
-                            "FROM {$CFG->prefix}quiz_grades qg " .
+                            "FROM {$CFG->prefix}guidedquiz_grades qg " .
                             "WHERE quiz=".$quiz->id;
 
                     $table->add_separator();
@@ -592,20 +592,20 @@ class quiz_report extends quiz_default_report {
                         $groupaverage = get_record_sql($groupaveragesql);
                         $groupaveragerow = array('fullname' => get_string('groupavg', 'grades'),
                                 'sumgrades' => round($groupaverage->grade, $quiz->decimalpoints),
-                                'feedbacktext'=> quiz_report_feedback_for_grade($groupaverage->grade, $quiz->id));
+                                'feedbacktext'=> guidedquiz_report_feedback_for_grade($groupaverage->grade, $quiz->id));
                         if($detailedmarks && ($qmsubselect || $quiz->attempts == 1)) {
-                            $avggradebyq = quiz_get_average_grade_for_questions($quiz, $groupstudentslist);
-                            $groupaveragerow += quiz_format_average_grade_for_questions($avggradebyq, $questions, $quiz, $download);
+                            $avggradebyq = guidedquiz_get_average_grade_for_questions($quiz, $groupstudentslist);
+                            $groupaveragerow += guidedquiz_format_average_grade_for_questions($avggradebyq, $questions, $quiz, $download);
                         }
                         $table->add_data_keyed($groupaveragerow);
                     }
                     $overallaverage = get_record_sql($averagesql." AND qg.userid IN ($studentslist)");
                     $overallaveragerow = array('fullname' => get_string('overallaverage', 'grades'),
                                 'sumgrades' => round($overallaverage->grade, $quiz->decimalpoints),
-                                'feedbacktext'=> quiz_report_feedback_for_grade($overallaverage->grade, $quiz->id));
+                                'feedbacktext'=> guidedquiz_report_feedback_for_grade($overallaverage->grade, $quiz->id));
                     if($detailedmarks && ($qmsubselect || $quiz->attempts == 1)) {
-                        $avggradebyq = quiz_get_average_grade_for_questions($quiz, $studentslist);
-                        $overallaveragerow += quiz_format_average_grade_for_questions($avggradebyq, $questions, $quiz, $download);
+                        $avggradebyq = guidedquiz_get_average_grade_for_questions($quiz, $studentslist);
+                        $overallaveragerow += guidedquiz_format_average_grade_for_questions($avggradebyq, $questions, $quiz, $download);
                     }
                     $table->add_data_keyed($overallaveragerow);
                 }
@@ -676,8 +676,8 @@ class quiz_report extends quiz_default_report {
             $mform->set_data($displayoptions + compact('detailedmarks', 'pagesize'));
             $mform->display();
             //should be quicker than a COUNT to test if there is at least one record :
-            if ($showgrades && record_exists('quiz_grades', 'quiz', $quiz->id)) {
-                $imageurl = $CFG->wwwroot.'/mod/quiz/report/overview/overviewgraph.php?id='.$quiz->id;
+            if ($showgrades && record_exists('guidedquiz_grades', 'quiz', $quiz->id)) {
+                $imageurl = $CFG->wwwroot.'/mod/guidedquiz/report/overview/overviewgraph.php?id='.$quiz->id;
                 print_heading(get_string('overviewreportgraph', 'quiz_overview'));
                 echo '<div class="mdl-align"><img src="'.$imageurl.'" alt="'.get_string('overviewreportgraph', 'quiz_overview').'" /></div>';
             }
