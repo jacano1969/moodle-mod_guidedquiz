@@ -5,31 +5,31 @@
     require_once("../../config.php");
     require_once($CFG->libdir.'/blocklib.php');
     require_once($CFG->libdir.'/gradelib.php');
-    require_once($CFG->dirroot.'/mod/quiz/locallib.php');
-    require_once($CFG->dirroot.'/mod/quiz/pagelib.php');
+    require_once($CFG->dirroot.'/mod/guidedquiz/locallib.php');
+    require_once($CFG->dirroot.'/mod/guidedquiz/pagelib.php');
 
     $id   = optional_param('id', 0, PARAM_INT); // Course Module ID, or
     $q    = optional_param('q',  0, PARAM_INT);  // quiz ID
     $edit = optional_param('edit', -1, PARAM_BOOL);
 
     if ($id) {
-        if (! $cm = get_coursemodule_from_id('quiz', $id)) {
+        if (! $cm = get_coursemodule_from_id('guidedquiz', $id)) {
             error("There is no coursemodule with id $id");
         }
         if (! $course = get_record("course", "id", $cm->course)) {
             error("Course is misconfigured");
         }
-        if (! $quiz = get_record("quiz", "id", $cm->instance)) {
+        if (! $quiz = get_record("guidedquiz", "id", $cm->instance)) {
             error("The quiz with id $cm->instance corresponding to this coursemodule $id is missing");
         }
     } else {
-        if (! $quiz = get_record("quiz", "id", $q)) {
+        if (! $quiz = get_record("guidedquiz", "id", $q)) {
             error("There is no quiz with id $q");
         }
         if (! $course = get_record("course", "id", $quiz->course)) {
             error("The course with id $quiz->course that the quiz with id $q belongs to is missing");
         }
-        if (! $cm = get_coursemodule_from_instance("quiz", $quiz->id, $course->id)) {
+        if (! $cm = get_coursemodule_from_instance("guidedquiz", $quiz->id, $course->id)) {
             error("The course module for the quiz with id $q is missing");
         }
     }
@@ -39,11 +39,11 @@
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
 
     // if no questions have been set up yet redirect to edit.php
-    if (!$quiz->questions and has_capability('mod/quiz:manage', $context)) {
-        redirect($CFG->wwwroot . '/mod/quiz/edit.php?cmid=' . $cm->id);
+    if (!$quiz->questions and has_capability('mod/guidedquiz:manage', $context)) {
+        redirect($CFG->wwwroot . '/mod/guidedquiz/edit.php?cmid=' . $cm->id);
     }
 
-    add_to_log($course->id, "quiz", "view", "view.php?id=$cm->id", $quiz->id, $cm->id);
+    add_to_log($course->id, "guidedquiz", "view", "view.php?id=$cm->id", $quiz->id, $cm->id);
 
     // Initialize $PAGE, compute blocks
     $PAGE       = page_create_instance($quiz->id);
@@ -57,7 +57,7 @@
 
     //only check pop ups if the user is not a teacher, and popup is set
 
-    $bodytags = (has_capability('mod/quiz:attempt', $context) && $quiz->popup == 1)?'onload="popupchecker(\'' . get_string('popupblockerwarning', 'quiz') . '\');"':'';
+    $bodytags = (has_capability('mod/guidedquiz:attempt', $context) && $quiz->popup == 1)?'onload="popupchecker(\'' . get_string('popupblockerwarning', 'quiz') . '\');"':'';
     $PAGE->print_header($course->shortname.': %fullname%','',$bodytags);
 
     echo '<table id="layout-table"><tr>';
@@ -83,7 +83,7 @@
 
     print_heading(format_string($quiz->name));
 
-    if (has_capability('mod/quiz:view', $context)) {
+    if (has_capability('mod/guidedquiz:view', $context)) {
 
         // Print quiz description
         if (trim(strip_tags($quiz->intro))) {
@@ -99,7 +99,7 @@
             echo "<p>".get_string("attemptsallowed", "quiz").": $quiz->attempts</p>";
         }
         if ($quiz->attempts != 1) {
-            echo "<p>".get_string("grademethod", "quiz").": ".quiz_get_grading_option_name($quiz->grademethod)."</p>";
+            echo "<p>".get_string("grademethod", "quiz").": ".guidedquiz_get_grading_option_name($quiz->grademethod)."</p>";
         }
 
         // Print information about timings.
@@ -121,14 +121,14 @@
             echo "<p>".get_string("quizclosed", "quiz", userdate($quiz->timeclose))."</p>";
         }
         echo '</div>';
-        $available = $available && has_any_capability(array('mod/quiz:attempt', 'mod/quiz:preview'), $context);
+        $available = $available && has_any_capability(array('mod/guidedquiz:attempt', 'mod/guidedquiz:preview'), $context);
     } else {
         $available = false;
     }
 
     // Show number of attempts summary to those who can view reports.
-    if (has_capability('mod/quiz:viewreports', $context)) {
-        if ($strattemptnum = quiz_num_attempt_summary($quiz, $cm)) {
+    if (has_capability('mod/guidedquiz:viewreports', $context)) {
+        if ($strattemptnum = guidedquiz_num_attempt_summary($quiz, $cm)) {
             echo '<div class="quizattemptcounts"><a href="report.php?mode=overview&amp;id=' .
                     $cm->id . '">' . $strattemptnum . '</a></div>';
         }
@@ -143,31 +143,31 @@
 
         notice_yesno('<p>' . get_string('guestsno', 'quiz') . "</p>\n\n</p>" .
                 get_string('liketologin') . '</p>', $loginurl, get_referer(false));
-        finish_page($course);
+        guidedquiz_finish_page($course);
     }
 
-    if (!has_any_capability(array('mod/quiz:reviewmyattempts', 'mod/quiz:attempt', 'mod/quiz:preview'), $context)) {
+    if (!has_any_capability(array('mod/guidedquiz:reviewmyattempts', 'mod/guidedquiz:attempt', 'mod/guidedquiz:preview'), $context)) {
         print_box('<p>' . get_string('youneedtoenrol', 'quiz') . '</p><p>' .
                 print_continue($CFG->wwwroot . '/course/view.php?id=' . $course->id, true) .
                 '</p>', 'generalbox', 'notice');
-        finish_page($course);
+        guidedquiz_finish_page($course);
     }
 
     // Get this user's attempts.
-    $attempts = quiz_get_user_attempts($quiz->id, $USER->id);
+    $attempts = guidedquiz_get_user_attempts($quiz->id, $USER->id);
     $unfinished = false;
-    if ($unfinishedattempt = quiz_get_user_attempt_unfinished($quiz->id, $USER->id)) {
+    if ($unfinishedattempt = guidedquiz_get_user_attempt_unfinished($quiz->id, $USER->id)) {
         $attempts[] = $unfinishedattempt;
         $unfinished = true;
     }
     $numattempts = count($attempts);
 
     // Work out the final grade, checking whether it was overridden in the gradebook.
-    $mygrade = quiz_get_best_grade($quiz, $USER->id);
+    $mygrade = guidedquiz_get_best_grade($quiz, $USER->id);
     $mygradeoverridden = false;
     $gradebookfeedback = '';
 
-    $grading_info = grade_get_grades($course->id, 'mod', 'quiz', $quiz->id, $USER->id);
+    $grading_info = grade_get_grades($course->id, 'mod', 'guidedquiz', $quiz->id, $USER->id);
     if (!empty($grading_info->items)) {
         $item = $grading_info->items[0];
         if (isset($item->grades[$USER->id])) {
@@ -189,13 +189,13 @@
         print_heading(get_string('summaryofattempts', 'quiz'));
 
         // Work out which columns we need, taking account what data is available in each attempt.
-        list($someoptions, $alloptions) = quiz_get_combined_reviewoptions($quiz, $attempts, $context);
+        list($someoptions, $alloptions) = guidedquiz_get_combined_reviewoptions($quiz, $attempts, $context);
 
         $gradecolumn = $someoptions->scores && $quiz->grade && $quiz->sumgrades;
         $markcolumn = $gradecolumn && ($quiz->grade != $quiz->sumgrades);
         $overallstats = $alloptions->scores;
 
-        $feedbackcolumn = quiz_has_feedback($quiz->id);
+        $feedbackcolumn = guidedquiz_has_feedback($quiz->id);
         $overallfeedback = $feedbackcolumn && $alloptions->overallfeedback;
 
         // Prepare table header
@@ -226,14 +226,14 @@
 
         // One row for each attempt
         foreach ($attempts as $attempt) {
-            $attemptoptions = quiz_get_reviewoptions($quiz, $attempt, $context);
+            $attemptoptions = guidedquiz_get_reviewoptions($quiz, $attempt, $context);
             $row = array();
 
             // Add the attempt number, making it a link, if appropriate.
             if ($attempt->preview) {
-                $row[] = make_review_link(get_string('preview', 'quiz'), $quiz, $attempt, $context);
+                $row[] = guidedquiz_make_review_link(get_string('preview', 'quiz'), $quiz, $attempt, $context);
             } else {
-                $row[] = make_review_link($attempt->attempt, $quiz, $attempt, $context);
+                $row[] = guidedquiz_make_review_link($attempt->attempt, $quiz, $attempt, $context);
             }
 
             // prepare strings for time taken and date completed
@@ -260,14 +260,14 @@
 
             if ($markcolumn && $attempt->timefinish > 0) {
                 if ($attemptoptions->scores) {
-                    $row[] = make_review_link(round($attempt->sumgrades, $quiz->decimalpoints), $quiz, $attempt, $context);
+                    $row[] = guidedquiz_make_review_link(round($attempt->sumgrades, $quiz->decimalpoints), $quiz, $attempt, $context);
                 } else {
                     $row[] = '';
                 }
             }
 
             // Ouside the if because we may be showing feedback but not grades.
-            $attemptgrade = quiz_rescale_grade($attempt->sumgrades, $quiz, false);
+            $attemptgrade = guidedquiz_rescale_grade($attempt->sumgrades, $quiz, false);
 
             if ($gradecolumn) {
                 if ($attemptoptions->scores && $attempt->timefinish > 0) {
@@ -277,7 +277,7 @@
                         $table->rowclass[$attempt->attempt] = 'bestrow';
                     }
 
-                    $row[] = make_review_link($formattedgrade, $quiz, $attempt, $context);
+                    $row[] = guidedquiz_make_review_link($formattedgrade, $quiz, $attempt, $context);
                 } else {
                     $row[] = '';
                 }
@@ -285,7 +285,7 @@
 
             if ($feedbackcolumn && $attempt->timefinish > 0) {
                 if ($attemptoptions->overallfeedback) {
-                    $row[] = quiz_feedback_for_grade($attemptgrade, $quiz->id);
+                    $row[] = guidedquiz_feedback_for_grade($attemptgrade, $quiz->id);
                 } else {
                     $row[] = '';
                 }
@@ -312,7 +312,7 @@
         if ($overallstats) {
             if ($available && $moreattempts) {
                 $a = new stdClass;
-                $a->method = quiz_get_grading_option_name($quiz->grademethod);
+                $a->method = guidedquiz_get_grading_option_name($quiz->grademethod);
                 $a->mygrade = round($mygrade, $quiz->decimalpoints);
                 $a->quizgrade = $quiz->grade;
                 $resultinfo .= print_heading(get_string('gradesofar', 'quiz', $a), '', 2, 'main', true);
@@ -330,7 +330,7 @@
         }
         if ($overallfeedback) {
             $resultinfo .= print_heading(get_string('overallfeedback', 'quiz'), '', 3, 'main', true);
-            $resultinfo .= '<p class="quizgradefeedback">'.quiz_feedback_for_grade($mygrade, $quiz->id).'</p>';
+            $resultinfo .= '<p class="quizgradefeedback">'.guidedquiz_feedback_for_grade($mygrade, $quiz->id).'</p>';
         }
 
         if ($resultinfo) {
@@ -347,7 +347,7 @@
         echo "<div class=\"quizattempt\">";
 
         if ($unfinished) {
-            if (has_capability('mod/quiz:preview', $context)) {
+            if (has_capability('mod/guidedquiz:preview', $context)) {
                 $buttontext = get_string('continuepreview', 'quiz');
             } else {
                 $buttontext = get_string('continueattemptquiz', 'quiz');
@@ -355,7 +355,7 @@
         } else {
 
             // Work out the appropriate button caption.
-            if (has_capability('mod/quiz:preview', $context)) {
+            if (has_capability('mod/guidedquiz:preview', $context)) {
                 $buttontext = get_string('previewquiznow', 'quiz');
             } else if ($numattempts == 0) {
                 $buttontext = get_string('attemptquiznow', 'quiz');
@@ -424,7 +424,7 @@
                     echo "if (confirm('".addslashes_js($strconfirmstartattempt)."')) ";
                 }
                 echo "window.open('$attempturl','$window','$windowoptions');", '" />';
-            } else if ($quiz->popup == 2 && !quiz_check_safe_browser()) {
+            } else if ($quiz->popup == 2 && !guidedquiz_check_safe_browser()) {
                 notify(get_string('safebrowsererror', 'quiz'));
             }else {
                 print_single_button("attempt.php", array('id'=>$cm->id), $buttontext, 'get', '', false, '', false, $strconfirmstartattempt);
@@ -447,11 +447,11 @@
 
     // Should we not be seeing if we need to print right-hand-side blocks?
 
-    finish_page($course);
+    guidedquiz_finish_page($course);
 
 // Utility functions =================================================================
 
-function finish_page($course) {
+function guidedquiz_finish_page($course) {
     global $THEME;
     print_container_end();
     echo '</td></tr></table>';
@@ -460,10 +460,10 @@ function finish_page($course) {
 }
 
 /** Make some text into a link to review the quiz, if that is appropriate. */
-function make_review_link($linktext, $quiz, $attempt, $context) {
+function guidedquiz_make_review_link($linktext, $quiz, $attempt, $context) {
     static $canreview = null;
     if (is_null($canreview)) {
-        $canreview = has_capability('mod/quiz:reviewmyattempts', $context);
+        $canreview = has_capability('mod/guidedquiz:reviewmyattempts', $context);
     }
     // If not even responses are to be shown in review then we don't allow any review, or does not have review capability.
     if (!$canreview || !($quiz->review & QUIZ_REVIEW_RESPONSES)) {
@@ -490,7 +490,7 @@ function make_review_link($linktext, $quiz, $attempt, $context) {
     $url = "review.php?q=$quiz->id&amp;attempt=$attempt->id";
     if ($quiz->popup == 1) {
         $windowoptions = "left=0, top=0, channelmode=yes, fullscreen=yes, scrollbars=yes, resizeable=no, directories=no, toolbar=no, titlebar=no, location=no, status=no, menubar=no";
-        return link_to_popup_window('/mod/quiz/' . $url, 'quizpopup', $linktext, '+window.screen.height+', '+window.screen.width+', '', $windowoptions, true);
+        return link_to_popup_window('/mod/guidedquiz/' . $url, 'guidedquizpopup', $linktext, '+window.screen.height+', '+window.screen.width+', '', $windowoptions, true);
     } else {
         return "<a href='$url'>$linktext</a>";
     }
