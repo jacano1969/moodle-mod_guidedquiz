@@ -3,11 +3,11 @@
 require_once($CFG->libdir.'/pagelib.php');
 require_once($CFG->dirroot.'/course/lib.php'); // needed for some blocks
 
-define('PAGE_QUIZ_VIEW',   'mod-quiz-view');
+define('PAGE_GUIDEDQUIZ_VIEW',   'mod-guidedquiz-view');
 
-page_map_class(PAGE_QUIZ_VIEW, 'page_quiz');
+page_map_class(PAGE_GUIDEDQUIZ_VIEW, 'page_guidedquiz');
 
-$DEFINEDPAGES = array(PAGE_QUIZ_VIEW);
+$DEFINEDPAGES = array(PAGE_GUIDEDQUIZ_VIEW);
 
 /**
  * Class that models the behavior of a quiz
@@ -22,12 +22,12 @@ class page_guidedquiz extends page_generic_activity {
         if(empty($data->pageid)) {
             error('Cannot quickly initialize page: empty course id');
         }
-        $this->activityname = 'quiz';
+        $this->activityname = 'guidedquiz';
         parent::init_quick($data);
     }
   
     function get_type() {
-        return PAGE_QUIZ_VIEW;
+        return PAGE_GUIDEDQUIZ_VIEW;
     }
 }
 
