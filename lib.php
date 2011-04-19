@@ -11,48 +11,6 @@
 
 require_once($CFG->libdir.'/pagelib.php');
 
-/// CONSTANTS ///////////////////////////////////////////////////////////////////
-
-/**#@+
- * The different review options are stored in the bits of $quiz->review
- * These constants help to extract the options
- *
- * This is more of a mess than you might think necessary, because originally
- * it was though that 3x6 bits were enough, but then they ran out. PHP integers
- * are only reliably 32 bits signed, so the simplest solution was then to
- * add 4x3 more bits.
- */
-/**
- * The first 6 + 4 bits refer to the time immediately after the attempt
- */
-define('QUIZ_REVIEW_IMMEDIATELY', 0x3c003f);
-/**
- * the next 6 + 4 bits refer to the time after the attempt but while the quiz is open
- */
-define('QUIZ_REVIEW_OPEN',       0x3c00fc0);
-/**
- * the final 6 + 4 bits refer to the time after the quiz closes
- */
-define('QUIZ_REVIEW_CLOSED',    0x3c03f000);
-
-// within each group of 6 bits we determine what should be shown
-define('QUIZ_REVIEW_RESPONSES',       1*0x1041); // Show responses
-define('QUIZ_REVIEW_SCORES',          2*0x1041); // Show scores
-define('QUIZ_REVIEW_FEEDBACK',        4*0x1041); // Show question feedback
-define('QUIZ_REVIEW_ANSWERS',         8*0x1041); // Show correct answers
-// Some handling of worked solutions is already in the code but not yet fully supported
-// and not switched on in the user interface.
-define('QUIZ_REVIEW_SOLUTIONS',      16*0x1041); // Show solutions
-define('QUIZ_REVIEW_GENERALFEEDBACK',32*0x1041); // Show question general feedback
-define('QUIZ_REVIEW_OVERALLFEEDBACK', 1*0x4440000); // Show quiz overall feedback
-// Multipliers 2*0x4440000, 4*0x4440000 and 8*0x4440000 are still available
-/**#@-*/
-
-/**
- * If start and end date for the quiz are more than this many seconds apart
- * they will be represented by two separate events in the calendar
- */
-define("QUIZ_MAX_EVENT_LENGTH", 5*24*60*60);   // 5 days maximum
 
 /// FUNCTIONS ///////////////////////////////////////////////////////////////////
 
