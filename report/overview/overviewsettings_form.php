@@ -1,6 +1,6 @@
 <?php  // $Id: overviewsettings_form.php,v 1.1.2.7 2008/07/04 09:48:02 jamiesensei Exp $
 require_once "$CFG->libdir/formslib.php";
-class mod_quiz_report_overview_settings extends moodleform {
+class mod_guidedquiz_report_overview_settings extends moodleform {
 
     function definition() {
         global $COURSE;
@@ -20,7 +20,7 @@ class mod_quiz_report_overview_settings extends moodleform {
         }
         $mform->addElement('select', 'attemptsmode', get_string('show', 'quiz_overview'), $options);
         if ($this->_customdata['qmsubselect']){
-            $gm = '<span class="highlight">'.quiz_get_grading_option_name($this->_customdata['quiz']->grademethod).'</span>';
+            $gm = '<span class="highlight">'.guidedquiz_get_grading_option_name($this->_customdata['quiz']->grademethod).'</span>';
             $mform->addElement('advcheckbox', 'qmfilter', get_string('show', 'quiz_overview'), get_string('optonlygradedattempts', 'quiz_overview', $gm), null, array(0,1));
         }
 //-------------------------------------------------------------------------------
