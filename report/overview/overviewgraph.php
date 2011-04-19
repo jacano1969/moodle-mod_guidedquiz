@@ -1,7 +1,7 @@
 <?php  // $Id: overviewgraph.php,v 1.1.2.6 2009/01/14 07:03:14 tjhunt Exp $
 include '../../../../config.php';
 include $CFG->dirroot."/lib/graphlib.php";
-include $CFG->dirroot."/mod/quiz/report/reportlib.php";
+include $CFG->dirroot."/mod/guidedquiz/report/reportlib.php";
 function graph_get_new_colour(){
     static $colourindex = 0;
     $colours = array('red', 'green', 'yellow', 'orange', 'purple', 'black', 'maroon', 'blue', 'ltgreen', 'navy', 'ltred', 'ltltgreen', 'ltltorange', 'olive', 'gray', 'ltltred', 'ltorange', 'lime', 'ltblue', 'ltltblue');
@@ -15,17 +15,17 @@ function graph_get_new_colour(){
 define('QUIZ_REPORT_MAX_PARTICIPANTS_TO_SHOW_ALL_GROUPS', 500);
 $quizid = required_param('id', PARAM_INT);
 
-$quiz = get_record('quiz', 'id', $quizid);
+$quiz = get_record('guidedquiz', 'id', $quizid);
 $course = get_record('course', 'id', $quiz->course);
 require_login($course);
-$cm = get_coursemodule_from_instance('quiz', $quizid);
+$cm = get_coursemodule_from_instance('guidedquiz', $quizid);
 if ($groupmode = groups_get_activity_groupmode($cm)) {   // Groups are being used
     $groups = groups_get_activity_allowed_groups($cm);
 } else {
     $groups = false;
 }
 $modcontext = get_context_instance(CONTEXT_MODULE, $cm->id);
-require_capability('mod/quiz:viewreports', $modcontext);
+require_capability('mod/guidedquiz:viewreports', $modcontext);
 
 $line = new graph(800,600);
 $line->parameter['title']   = '';
@@ -73,7 +73,7 @@ $line->x_data          = $bandlabels;
 
 $line->y_format['allusers'] =
   array('colour' => graph_get_new_colour(), 'bar' => 'fill', 'shadow_offset' => 1, 'legend' => get_string('allparticipants'));
-$line->y_data['allusers'] = quiz_report_grade_bands($bandwidth, $bands, $quizid);
+$line->y_data['allusers'] = guidedquiz_report_grade_bands($bandwidth, $bands, $quizid);
 if (array_sum($line->y_data['allusers'])>QUIZ_REPORT_MAX_PARTICIPANTS_TO_SHOW_ALL_GROUPS ||
         count($groups)>4){
     if ($groups){
@@ -87,10 +87,10 @@ if (array_sum($line->y_data['allusers'])>QUIZ_REPORT_MAX_PARTICIPANTS_TO_SHOW_AL
 $line->y_order = array('allusers');
 if ($groups){
     foreach (array_keys($groups) as $group){
-        $useridingroup = get_users_by_capability($modcontext, array('mod/quiz:reviewmyattempts', 'mod/quiz:attempt'),'','','','',$group,'',false);
+        $useridingroup = get_users_by_capability($modcontext, array('mod/guidedquiz:reviewmyattempts', 'mod/guidedquiz:attempt'),'','','','',$group,'',false);
         if ($useridingroup){
             $useridingrouplist = join(',',array_keys($useridingroup));
-            $groupdata = quiz_report_grade_bands($bandwidth, $bands, $quizid, $useridingrouplist);
+            $groupdata = guidedquiz_report_grade_bands($bandwidth, $bands, $quizid, $useridingrouplist);
             if ($groupdata){
                 $line->parameter['bar_size']    = 1.2;
                 $line->y_data['groupusers'.$group] = $groupdata;
