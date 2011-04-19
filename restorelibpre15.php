@@ -92,11 +92,11 @@
     //    This step is the standard mod backup. (course dependent).
 
     //We are going to nedd quiz libs to be able to mimic the upgrade process
-    require_once("$CFG->dirroot/mod/quiz/locallib.php");
+    require_once("$CFG->dirroot/mod/guidedquiz/locallib.php");
 
     //STEP 1. Restore categories/questions and associated structures
     //    (course independent)
-    function quiz_restore_pre15_question_categories($category,$restore) {
+    function guidedquiz_restore_pre15_question_categories($category,$restore) {
 
         global $CFG;
 
@@ -150,7 +150,7 @@
                 backup_putid($restore->backup_unique_code,"question_categories",
                              $category->id, $newid);
                 //Now restore question
-                $status = quiz_restore_pre15_questions ($category->id, $newid,$info,$restore);
+                $status = guidedquiz_restore_pre15_questions ($category->id, $newid,$info,$restore);
             } else {
                 $status = false;
             }
@@ -162,7 +162,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_questions ($old_category_id,$new_category_id,$info,$restore) {
+    function guidedquiz_restore_pre15_questions ($old_category_id,$new_category_id,$info,$restore) {
 
         global $CFG;
 
@@ -270,34 +270,34 @@
             //If it's a new question in the DB, restore it
             if ($creatingnewquestion) {
                 //Now, restore every question_answers in this question
-                $status = quiz_restore_pre15_answers($oldid,$newid,$que_info,$restore);
+                $status = guidedquiz_restore_pre15_answers($oldid,$newid,$que_info,$restore);
                 //Now, depending of the type of questions, invoke different functions
                 if ($question->qtype == "1") {
-                    $status = quiz_restore_pre15_shortanswer($oldid,$newid,$que_info,$restore);
+                    $status = guidedquiz_restore_pre15_shortanswer($oldid,$newid,$que_info,$restore);
                 } else if ($question->qtype == "2") {
-                    $status = quiz_restore_pre15_truefalse($oldid,$newid,$que_info,$restore);
+                    $status = guidedquiz_restore_pre15_truefalse($oldid,$newid,$que_info,$restore);
                 } else if ($question->qtype == "3") {
-                    $status = quiz_restore_pre15_multichoice($oldid,$newid,$que_info,$restore);
+                    $status = guidedquiz_restore_pre15_multichoice($oldid,$newid,$que_info,$restore);
                 } else if ($question->qtype == "4") {
                     //Random question. Nothing to do.
                 } else if ($question->qtype == "5") {
-                    $status = quiz_restore_pre15_match($oldid,$newid,$que_info,$restore);
+                    $status = guidedquiz_restore_pre15_match($oldid,$newid,$que_info,$restore);
                 } else if ($question->qtype == "6") {
-                    $status = quiz_restore_pre15_randomsamatch($oldid,$newid,$que_info,$restore);
+                    $status = guidedquiz_restore_pre15_randomsamatch($oldid,$newid,$que_info,$restore);
                 } else if ($question->qtype == "7") {
                     //Description question. Nothing to do.
                 } else if ($question->qtype == "8") {
-                    $status = quiz_restore_pre15_numerical($oldid,$newid,$que_info,$restore);
+                    $status = guidedquiz_restore_pre15_numerical($oldid,$newid,$que_info,$restore);
                 } else if ($question->qtype == "9") {
-                    $status = quiz_restore_pre15_multianswer($oldid,$newid,$que_info,$restore);
+                    $status = guidedquiz_restore_pre15_multianswer($oldid,$newid,$que_info,$restore);
                 } else if ($question->qtype == "10") {
-                    $status = quiz_restore_pre15_calculated($oldid,$newid,$que_info,$restore);
+                    $status = guidedquiz_restore_pre15_calculated($oldid,$newid,$que_info,$restore);
                 }
             } else {
                 //We are NOT creating the question, but we need to know every question_answers
                 //map between the XML file and the database to be able to restore the responses
                 //in each attempt.
-                $status = quiz_restore_pre15_map_answers($oldid,$newid,$que_info,$restore);
+                $status = guidedquiz_restore_pre15_map_answers($oldid,$newid,$que_info,$restore);
                 //Now, depending of the type of questions, invoke different functions
                 //to create the necessary mappings in backup_ids, because we are not
                 //creating the question, but need some records in backup table
@@ -310,7 +310,7 @@
                 } else if ($question->qtype == "4") {
                     //Random question. Nothing to remap
                 } else if ($question->qtype == "5") {
-                    $status = quiz_restore_pre15_map_match($oldid,$newid,$que_info,$restore);
+                    $status = guidedquiz_restore_pre15_map_match($oldid,$newid,$que_info,$restore);
                 } else if ($question->qtype == "6") {
                     //Randomsamatch question. Nothing to remap
                 } else if ($question->qtype == "7") {
@@ -327,7 +327,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_answers ($old_question_id,$new_question_id,$info,$restore) {
+    function guidedquiz_restore_pre15_answers ($old_question_id,$new_question_id,$info,$restore) {
 
         global $CFG;
 
@@ -380,7 +380,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_map_answers ($old_question_id,$new_question_id,$info,$restore) {
+    function guidedquiz_restore_pre15_map_answers ($old_question_id,$new_question_id,$info,$restore) {
 
         global $CFG;
 
@@ -442,7 +442,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_shortanswer ($old_question_id,$new_question_id,$info,$restore,$restrictto = '') {
+    function guidedquiz_restore_pre15_shortanswer ($old_question_id,$new_question_id,$info,$restore,$restrictto = '') {
 
         global $CFG;
 
@@ -510,7 +510,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_truefalse ($old_question_id,$new_question_id,$info,$restore) {
+    function guidedquiz_restore_pre15_truefalse ($old_question_id,$new_question_id,$info,$restore) {
 
         global $CFG;
 
@@ -565,7 +565,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_multichoice ($old_question_id,$new_question_id,$info,$restore, $restrictto = '') {
+    function guidedquiz_restore_pre15_multichoice ($old_question_id,$new_question_id,$info,$restore, $restrictto = '') {
 
         global $CFG;
 
@@ -634,7 +634,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_match ($old_question_id,$new_question_id,$info,$restore) {
+    function guidedquiz_restore_pre15_match ($old_question_id,$new_question_id,$info,$restore) {
 
         global $CFG;
 
@@ -706,7 +706,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_map_match ($old_question_id,$new_question_id,$info,$restore) {
+    function guidedquiz_restore_pre15_map_match ($old_question_id,$new_question_id,$info,$restore) {
 
         global $CFG;
 
@@ -767,7 +767,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_randomsamatch ($old_question_id,$new_question_id,$info,$restore) {
+    function guidedquiz_restore_pre15_randomsamatch ($old_question_id,$new_question_id,$info,$restore) {
 
         global $CFG;
 
@@ -809,7 +809,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_numerical ($old_question_id,$new_question_id,$info,$restore, $restrictto = '') {
+    function guidedquiz_restore_pre15_numerical ($old_question_id,$new_question_id,$info,$restore, $restrictto = '') {
 
         global $CFG;
 
@@ -863,7 +863,7 @@
 
             //Now restore numerical_units
             if ($newid) {
-                $status = quiz_restore_pre15_numerical_units ($old_question_id,$new_question_id,$num_info,$restore);
+                $status = guidedquiz_restore_pre15_numerical_units ($old_question_id,$new_question_id,$num_info,$restore);
             }
 
             if (!$newid && !$restrictto) {
@@ -874,7 +874,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_calculated ($old_question_id,$new_question_id,$info,$restore) {
+    function guidedquiz_restore_pre15_calculated ($old_question_id,$new_question_id,$info,$restore) {
 
         global $CFG;
 
@@ -924,11 +924,11 @@
             }
 
             //Now restore numerical_units
-            $status = quiz_restore_pre15_numerical_units ($old_question_id,$new_question_id,$cal_info,$restore);
+            $status = guidedquiz_restore_pre15_numerical_units ($old_question_id,$new_question_id,$cal_info,$restore);
 
             //Now restore dataset_definitions
             if ($status && $newid) {
-                $status = quiz_restore_pre15_dataset_definitions ($old_question_id,$new_question_id,$cal_info,$restore);
+                $status = guidedquiz_restore_pre15_dataset_definitions ($old_question_id,$new_question_id,$cal_info,$restore);
             }
 
             if (!$newid) {
@@ -939,7 +939,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_multianswer ($old_question_id,$new_question_id,$info,$restore) {
+    function guidedquiz_restore_pre15_multianswer ($old_question_id,$new_question_id,$info,$restore) {
 
         global $CFG;
 
@@ -1033,11 +1033,11 @@
             //answertype, delegate the restore to every qtype function
             if ($newid) {
                 if ($multianswer->answertype == "1") {
-                    $status = quiz_restore_pre15_shortanswer ($old_question_id,$newid,$mul_info,$restore,$multianswer->answers);
+                    $status = guidedquiz_restore_pre15_shortanswer ($old_question_id,$newid,$mul_info,$restore,$multianswer->answers);
                 } else if ($multianswer->answertype == "3") {
-                    $status = quiz_restore_pre15_multichoice ($old_question_id,$newid,$mul_info,$restore,$multianswer->answers);
+                    $status = guidedquiz_restore_pre15_multichoice ($old_question_id,$newid,$mul_info,$restore,$multianswer->answers);
                 } else if ($multianswer->answertype == "8") {
-                    $status = quiz_restore_pre15_numerical ($old_question_id,$newid,$mul_info,$restore,$multianswer->answers);
+                    $status = guidedquiz_restore_pre15_numerical ($old_question_id,$newid,$mul_info,$restore,$multianswer->answers);
                 }
             } else {
                 $status = false;
@@ -1061,7 +1061,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_numerical_units ($old_question_id,$new_question_id,$info,$restore) {
+    function guidedquiz_restore_pre15_numerical_units ($old_question_id,$new_question_id,$info,$restore) {
 
         global $CFG;
 
@@ -1093,7 +1093,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_dataset_definitions ($old_question_id,$new_question_id,$info,$restore) {
+    function guidedquiz_restore_pre15_dataset_definitions ($old_question_id,$new_question_id,$info,$restore) {
 
         global $CFG;
 
@@ -1160,7 +1160,7 @@
                 $newid = insert_record ("question_dataset_definitions",$dataset_definition);
                 if ($newid) {
                     //Restore question_dataset_items
-                    $status = quiz_restore_pre15_dataset_items($newid,$dd_info,$restore);
+                    $status = guidedquiz_restore_pre15_dataset_items($newid,$dd_info,$restore);
                 }
             }
 
@@ -1180,7 +1180,7 @@
         return $status;
     }
 
-    function quiz_restore_pre15_dataset_items ($definitionid,$info,$restore) {
+    function guidedquiz_restore_pre15_dataset_items ($definitionid,$info,$restore) {
 
         global $CFG;
 
@@ -1214,7 +1214,7 @@
 
     //STEP 2. Restore quizzes and associated structures
     //    (course dependent)
-    function quiz_restore_pre15_mods($mod,$restore) {
+    function guidedquiz_restore_pre15_mods($mod,$restore) {
 
         global $CFG;
 
@@ -1274,7 +1274,7 @@
             $quiz->questions = implode (",", $newquestions);
 
             //Recalculate the questions field to include page breaks if necessary
-            $quiz->questions = quiz_repaginate($quiz->questions, $quiz->questionsperpage);
+            $quiz->questions = guidedquiz_repaginate($quiz->questions, $quiz->questionsperpage);
 
             //Calculate the new review field contents (logic extracted from upgrade)
             $review = (QUIZ_REVIEW_IMMEDIATELY & (QUIZ_REVIEW_RESPONSES + QUIZ_REVIEW_SCORES));
@@ -1306,16 +1306,16 @@
                 backup_putid($restore->backup_unique_code,$mod->modtype,
                              $mod->id, $newid);
                 //We have to restore the quiz_question_instances now (old quiz_question_grades, course level)
-                $status = quiz_question_instances_restore_pre15_mods($newid,$info,$restore);
+                $status = guidedquiz_question_instances_restore_pre15_mods($newid,$info,$restore);
                 //We have to restore the question_versions now (course level table)
-                $status = quiz_question_versions_restore_pre15_mods($newid,$info,$restore);
+                $status = guidedquiz_question_versions_restore_pre15_mods($newid,$info,$restore);
                 //Now check if want to restore user data and do it.
-                if (restore_userdata_selected($restore,'quiz',$mod->id)) {
+                if (restore_userdata_selected($restore,'guidedquiz',$mod->id)) {
                     //Restore quiz_attempts
-                    $status = quiz_attempts_restore_pre15_mods ($newid,$info,$restore, $quiz->questions);
+                    $status = guidedquiz_attempts_restore_pre15_mods ($newid,$info,$restore, $quiz->questions);
                     if ($status) {
                         //Restore quiz_grades
-                        $status = quiz_grades_restore_pre15_mods ($newid,$info,$restore);
+                        $status = guidedquiz_grades_restore_pre15_mods ($newid,$info,$restore);
                     }
                 }
             } else {
@@ -1329,7 +1329,7 @@
     }
 
     //This function restores the quiz_question_instances (old quiz_question_grades)
-    function quiz_question_instances_restore_pre15_mods($quiz_id,$info,$restore) {
+    function guidedquiz_question_instances_restore_pre15_mods($quiz_id,$info,$restore) {
 
         global $CFG;
 
@@ -1360,7 +1360,7 @@
             }
 
             //The structure is equal to the db, so insert the quiz_question_grades
-            $newid = insert_record ("quiz_question_instances",$grade);
+            $newid = insert_record ("guidedquiz_question_instances",$grade);
 
             //Do some output
             if (($i+1) % 10 == 0) {
@@ -1375,7 +1375,7 @@
 
             if ($newid) {
                 //We have the newid, update backup_ids
-                backup_putid($restore->backup_unique_code,"quiz_question_instances",$oldid,
+                backup_putid($restore->backup_unique_code,"guidedquiz_question_instances",$oldid,
                              $newid);
             } else {
                 $status = false;
@@ -1386,7 +1386,7 @@
     }
 
     //This function restores the quiz_question_versions
-    function quiz_question_versions_restore_pre15_mods($quiz_id,$info,$restore) {
+    function guidedquiz_question_versions_restore_pre15_mods($quiz_id,$info,$restore) {
 
         global $CFG, $USER;
 
@@ -1433,7 +1433,7 @@
             }
 
             //The structure is equal to the db, so insert the quiz_question_versions
-            $newid = insert_record ("quiz_question_versions",$version);
+            $newid = insert_record ("guidedquiz_question_versions",$version);
 
             //Do some output
             if (($i+1) % 10 == 0) {
@@ -1448,7 +1448,7 @@
 
             if ($newid) {
                 //We have the newid, update backup_ids
-                backup_putid($restore->backup_unique_code,"quiz_question_versions",$oldid,
+                backup_putid($restore->backup_unique_code,"guidedquiz_question_versions",$oldid,
                              $newid);
             } else {
                 $status = false;
@@ -1459,7 +1459,7 @@
     }
 
     //This function restores the quiz_attempts
-    function quiz_attempts_restore_pre15_mods($quiz_id,$info,$restore,$quizquestions) {
+    function guidedquiz_attempts_restore_pre15_mods($quiz_id,$info,$restore,$quizquestions) {
 
         global $CFG;
 
@@ -1498,8 +1498,8 @@
             $attempt->layout = $quizquestions;
 
             //Set the preview field (code from upgrade)
-            $cm = get_coursemodule_from_instance('quiz', $quiz_id);
-            if (has_capability('mod/quiz:preview', get_context_instance(CONTEXT_MODULE, $cm->id))) {
+            $cm = get_coursemodule_from_instance('guidedquiz', $quiz_id);
+            if (has_capability('mod/guidedquiz:preview', get_context_instance(CONTEXT_MODULE, $cm->id))) {
                 $attempt->preview = 1;
             }
 
@@ -1507,7 +1507,7 @@
             $attempt->uniqueid = question_new_attempt_uniqueid();
 
             //The structure is equal to the db, so insert the quiz_attempts
-            $newid = insert_record ("quiz_attempts",$attempt);
+            $newid = insert_record ("guidedquiz_attempts",$attempt);
 
             //Do some output
             if (($i+1) % 10 == 0) {
@@ -1522,10 +1522,10 @@
 
             if ($newid) {
                 //We have the newid, update backup_ids
-                backup_putid($restore->backup_unique_code,"quiz_attempts",$oldid,
+                backup_putid($restore->backup_unique_code,"guidedquiz_attempts",$oldid,
                              $newid);
                 //Now process question_states (old quiz_responses table)
-                $status = question_states_restore_pre15_mods($newid,$att_info,$restore);
+                $status = guidedquiz_question_states_restore_pre15_mods($newid,$att_info,$restore);
             } else {
                 $status = false;
             }
@@ -1535,7 +1535,7 @@
     }
 
     //This function restores the question_states (old quiz_responses)
-    function question_states_restore_pre15_mods($attempt_id,$info,$restore) {
+    function guidedquiz_question_states_restore_pre15_mods($attempt_id,$info,$restore) {
 
         global $CFG;
 
@@ -1783,7 +1783,7 @@
     }
 
     //This function restores the quiz_grades
-    function quiz_grades_restore_pre15_mods($quiz_id,$info,$restore) {
+    function guidedquiz_grades_restore_pre15_mods($quiz_id,$info,$restore) {
 
         global $CFG;
 
@@ -1816,7 +1816,7 @@
             }
 
             //The structure is equal to the db, so insert the quiz_grades
-            $newid = insert_record ("quiz_grades",$grade);
+            $newid = insert_record ("guidedquiz_grades",$grade);
 
             //Do some output
             if (($i+1) % 10 == 0) {
@@ -1831,7 +1831,7 @@
 
             if ($newid) {
                 //We have the newid, update backup_ids
-                backup_putid($restore->backup_unique_code,"quiz_grades",$oldid,
+                backup_putid($restore->backup_unique_code,"guidedquiz_grades",$oldid,
                              $newid);
             } else {
                 $status = false;
@@ -1843,7 +1843,7 @@
 
     //This function converts texts in FORMAT_WIKI to FORMAT_MARKDOWN for
     //some texts in the module
-    function quiz_restore_pre15_wiki2markdown ($restore) {
+    function guidedquiz_restore_pre15_wiki2markdown ($restore) {
 
         global $CFG;
 
@@ -1883,7 +1883,7 @@
 
     //This function returns a log record with all the necessay transformations
     //done. It's used by restore_log_module() to restore modules log.
-    function quiz_restore_pre15_logs($restore,$log) {
+    function guidedquiz_restore_pre15_logs($restore,$log) {
 
         $status = false;
 
@@ -1945,7 +1945,7 @@
                     //Extract the attempt id from the url field
                     $attid = substr(strrchr($log->url,"="),1);
                     //Get the new_id of the attempt (to recode the url field)
-                    $att = backup_getid($restore->backup_unique_code,"quiz_attempts",$attid);
+                    $att = backup_getid($restore->backup_unique_code,"guidedquiz_attempts",$attid);
                     if ($att) {
                         $log->url = "review.php?id=".$log->cmid."&attempt=".$att->new_id;
                         $log->info = $mod->new_id;
@@ -1962,7 +1962,7 @@
                     //Extract the attempt id from the url field
                     $attid = substr(strrchr($log->url,"="),1);
                     //Get the new_id of the attempt (to recode the url field)
-                    $att = backup_getid($restore->backup_unique_code,"quiz_attempts",$attid);
+                    $att = backup_getid($restore->backup_unique_code,"guidedquiz_attempts",$attid);
                     if ($att) {
                         $log->url = "review.php?id=".$log->cmid."&attempt=".$att->new_id;
                         $log->info = $mod->new_id;
@@ -1979,7 +1979,7 @@
                     //Extract the attempt id from the url field
                     $attid = substr(strrchr($log->url,"="),1);
                     //Get the new_id of the attempt (to recode the url field)
-                    $att = backup_getid($restore->backup_unique_code,"quiz_attempts",$attid);
+                    $att = backup_getid($restore->backup_unique_code,"guidedquiz_attempts",$attid);
                     if ($att) {
                         $log->url = "review.php?id=".$log->cmid."&attempt=".$att->new_id;
                         $log->info = $mod->new_id;

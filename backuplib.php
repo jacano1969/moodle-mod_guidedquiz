@@ -38,23 +38,23 @@
      *     all categories and questions in contexts of quiz module instances which have been selected for backup
      *     all categories and questions in contexts above course level that are used by quizzes that have been selected for backup
      */
-    function quiz_insert_category_and_question_ids($course, $backup_unique_code, $instances = null) {
+    function guidedquiz_insert_category_and_question_ids($course, $backup_unique_code, $instances = null) {
         global $CFG;
         $status = true;
         
         // Create missing categories and reasign orphaned questions.
-        quiz_fix_orphaned_questions($course);
+        guidedquiz_fix_orphaned_questions($course);
 
         $coursecontext = get_context_instance(CONTEXT_COURSE, $course);
         $status = $status && question_insert_c_and_q_ids_for_course($coursecontext, $backup_unique_code);
         
         // then, all categories and questions from this course's modules' contexts.
-        $status = $status && question_insert_c_and_q_ids_for_module($backup_unique_code, $course, 'quiz', $instances);
+        $status = $status && question_insert_c_and_q_ids_for_module($backup_unique_code, $course, 'guidedquiz', $instances);
 
         // Then categories from parent contexts used by the quizzes we are backing up.
         //TODO this will need generalising when we have modules other than quiz using shared questions above course level.
         $parentcontexts = get_parent_contexts($coursecontext);
-        $from = "{$CFG->prefix}quiz quiz,";
+        $from = "{$CFG->prefix}guidedquiz quiz,";
         $where = "AND quiz.course = '$course'
                      AND qqi.quiz = quiz.id";
         if (!empty($instances) && is_array($instances) && count($instances)) {
@@ -73,7 +73,7 @@
                     SELECT DISTINCT question.category
                     FROM {$CFG->prefix}question question,
                          $questionselectsqlfrom
-                         {$CFG->prefix}quiz_question_instances qqi
+                         {$CFG->prefix}guidedquiz_question_instances qqi
                     WHERE qqi.question = question.id
                       $questionselectsqlwhere
                 )", false);
@@ -87,7 +87,7 @@
                                        FROM {$CFG->prefix}question q,
                                        $from
                                        {$CFG->prefix}question_categories qc,
-                                       {$CFG->prefix}quiz_question_instances qqi
+                                       {$CFG->prefix}guidedquiz_question_instances qqi
                                        WHERE (qqi.question = q.id
                                        OR qqi.question = q.parent)
                                        AND q.category = qc.id
@@ -121,7 +121,7 @@
             $categorieswithrandom = get_records_sql("
                     SELECT question.category AS id, SUM(" .
                             sql_cast_char2int('questiontext', true) . ") AS numqsusingsubcategories
-                    FROM {$CFG->prefix}quiz_question_instances qqi,
+                    FROM {$CFG->prefix}guidedquiz_question_instances qqi,
                          $from
                          {$CFG->prefix}question question
                     WHERE question.id = qqi.question
@@ -133,7 +133,7 @@
             if ($categorieswithrandom) {
                 foreach ($categorieswithrandom as $category) {
                     if ($category->numqsusingsubcategories > 0) {
-                        $status = $status && quiz_backup_add_sub_categories($categories, $randomselectedquestions, $category->id);
+                        $status = $status && guidedquiz_backup_add_sub_categories($categories, $randomselectedquestions, $category->id);
                     }
                 }
                 $returnval = get_records_sql("
@@ -160,7 +160,7 @@
     /**
      * Helper function adding the id of all the subcategories of a category to an array.
      */
-    function quiz_backup_add_sub_categories(&$categories, &$questions, $categoryid) {
+    function guidedquiz_backup_add_sub_categories(&$categories, &$questions, $categoryid) {
         global $CFG;
         $status = true;
         if ($categories[$categoryid]->childrendone) {
@@ -171,7 +171,7 @@
                 if (!array_key_exists($subcategory->id, $categories)) {
                     $categories[$subcategory->id] = $subcategory;
                 }
-                $status = $status && quiz_backup_add_sub_categories($categories, $questions, $subcategory->id);
+                $status = $status && guidedquiz_backup_add_sub_categories($categories, $questions, $subcategory->id);
             }
             $subcatlist = join(array_keys($subcategories), ',');
             $returnval = get_records_sql("
@@ -192,14 +192,14 @@
     //non existing category) and to recreate such category. This function
     //is used by the backup process, to ensure consistency and should be
     //executed in the upgrade process and, perhaps in the health center.
-    function quiz_fix_orphaned_questions ($course) {
+    function guidedquiz_fix_orphaned_questions ($course) {
 
         global $CFG;
 
         $categories = get_records_sql("SELECT DISTINCT t.category, t.category
                                        FROM {$CFG->prefix}question t,
-                                            {$CFG->prefix}quiz_question_instances g,
-                                            {$CFG->prefix}quiz q
+                                            {$CFG->prefix}guidedquiz_question_instances g,
+                                            {$CFG->prefix}guidedquiz q
                                        WHERE q.course = '$course' AND
                                              g.quiz = q.id AND
                                              g.question = t.id",false);
@@ -231,18 +231,18 @@
 //STEP 2. Backup quizzes and associated structures
     //    (course dependent)
 
-    function quiz_backup_one_mod($bf,$preferences,$quiz) {
+    function guidedquiz_backup_one_mod($bf,$preferences,$quiz) {
         $status = true;
 
         if (is_numeric($quiz)) {
-            $quiz = get_record('quiz','id',$quiz);
+            $quiz = get_record('guidedquiz','id',$quiz);
         }
 
         //Start mod
         fwrite ($bf,start_tag("MOD",3,true));
         //Print quiz data
         fwrite ($bf,full_tag("ID",4,false,$quiz->id));
-        fwrite ($bf,full_tag("MODTYPE",4,false,"quiz"));
+        fwrite ($bf,full_tag("MODTYPE",4,false,"guidedquiz"));
         fwrite ($bf,full_tag("NAME",4,false,$quiz->name));
         fwrite ($bf,full_tag("INTRO",4,false,$quiz->intro));
         fwrite ($bf,full_tag("TIMEOPEN",4,false,$quiz->timeopen));
@@ -269,18 +269,18 @@
         fwrite ($bf,full_tag("DELAY1",4,false,$quiz->delay1));
         fwrite ($bf,full_tag("DELAY2",4,false,$quiz->delay2));
         //Now we print to xml question_instances (Course Level)
-        $status = backup_quiz_question_instances($bf,$preferences,$quiz->id);
+        $status = backup_guidedquiz_question_instances($bf,$preferences,$quiz->id);
         //Now we print to xml quiz_feedback (Course Level)
-        $status = backup_quiz_feedback($bf,$preferences,$quiz->id);
+        $status = backup_guidedquiz_feedback($bf,$preferences,$quiz->id);
         //Now we print to xml question_versions (Course Level)
-        $status = backup_quiz_question_versions($bf,$preferences,$quiz->id);
+        $status = backup_guidedquiz_question_versions($bf,$preferences,$quiz->id);
         //if we've selected to backup users info, then execute:
         //    - backup_quiz_grades
         //    - backup_quiz_attempts
-        if (backup_userdata_selected($preferences,'quiz',$quiz->id) && $status) {
-            $status = backup_quiz_grades($bf,$preferences,$quiz->id);
+        if (backup_userdata_selected($preferences,'guidedquiz',$quiz->id) && $status) {
+            $status = backup_guidedquiz_grades($bf,$preferences,$quiz->id);
             if ($status) {
-                $status = backup_quiz_attempts($bf,$preferences,$quiz->id);
+                $status = backup_guidedquiz_attempts($bf,$preferences,$quiz->id);
             }
         }
         //End mod
@@ -290,18 +290,18 @@
     }
 
 
-    function quiz_backup_mods($bf,$preferences) {
+    function guidedquiz_backup_mods($bf,$preferences) {
 
         global $CFG;
 
         $status = true;
 
         //Iterate over quiz table
-        $quizzes = get_records ("quiz","course",$preferences->backup_course,"id");
+        $quizzes = get_records ("guidedquiz","course",$preferences->backup_course,"id");
         if ($quizzes) {
             foreach ($quizzes as $quiz) {
-                if (backup_mod_selected($preferences,'quiz',$quiz->id)) {
-                    $status = quiz_backup_one_mod($bf,$preferences,$quiz);
+                if (backup_mod_selected($preferences,'guidedquiz',$quiz->id)) {
+                    $status = guidedquiz_backup_one_mod($bf,$preferences,$quiz);
                 }
             }
         }
@@ -309,10 +309,10 @@
     }
 
     //Backup quiz_question_instances contents (executed from quiz_backup_mods)
-    function backup_quiz_question_instances ($bf,$preferences,$quiz) {
+    function backup_guidedquiz_question_instances ($bf,$preferences,$quiz) {
         $status = true;
 
-        $quiz_question_instances = get_records("quiz_question_instances","quiz",$quiz,"id");
+        $quiz_question_instances = get_records("guidedquiz_question_instances","quiz",$quiz,"id");
         //If there are question_instances
         if ($quiz_question_instances) {
             //Write start tag
@@ -335,10 +335,10 @@
     }
 
     //Backup quiz_question_instances contents (executed from quiz_backup_mods)
-    function backup_quiz_feedback ($bf,$preferences,$quiz) {
+    function backup_guidedquiz_feedback ($bf,$preferences,$quiz) {
         $status = true;
 
-        $quiz_feedback = get_records('quiz_feedback', 'quizid', $quiz, 'id');
+        $quiz_feedback = get_records('guidedquiz_feedback', 'quizid', $quiz, 'id');
         // If there are question_instances ...
         if ($quiz_feedback) {
             // Write start tag.
@@ -368,10 +368,10 @@
     }
 
     //Backup quiz_question_versions contents (executed from quiz_backup_mods)
-    function backup_quiz_question_versions ($bf,$preferences,$quiz) {
+    function backup_guidedquiz_question_versions ($bf,$preferences,$quiz) {
         $status = true;
 
-        $quiz_question_versions = get_records("quiz_question_versions","quiz",$quiz,"id");
+        $quiz_question_versions = get_records("guidedquiz_question_versions","quiz",$quiz,"id");
         //If there are question_versions
         if ($quiz_question_versions) {
             //Write start tag
@@ -398,10 +398,10 @@
 
 
     //Backup quiz_grades contents (executed from quiz_backup_mods)
-    function backup_quiz_grades ($bf,$preferences,$quiz) {
+    function backup_guidedquiz_grades ($bf,$preferences,$quiz) {
         $status = true;
 
-        $quiz_grades = get_records("quiz_grades","quiz",$quiz,"id");
+        $quiz_grades = get_records("guidedquiz_grades","quiz",$quiz,"id");
         //If there are grades
         if ($quiz_grades) {
             //Write start tag
@@ -425,10 +425,10 @@
     }
 
     //Backup quiz_attempts contents (executed from quiz_backup_mods)
-    function backup_quiz_attempts ($bf,$preferences,$quiz) {
+    function backup_guidedquiz_attempts ($bf,$preferences,$quiz) {
         $status = true;
 
-        $quiz_attempts = get_records("quiz_attempts","quiz",$quiz,"id");
+        $quiz_attempts = get_records("guidedquiz_attempts","quiz",$quiz,"id");
         //If there are attempts
         if ($quiz_attempts) {
             //Write start tag
@@ -461,7 +461,7 @@
         return $status;
     }
 
-    function quiz_check_backup_mods_instances($instance,$backup_unique_code) {
+    function guidedquiz_check_backup_mods_instances($instance,$backup_unique_code) {
         // the keys in this array need to be unique as they get merged...
         $info[$instance->id.'0'][0] = '<b>'.$instance->name.'</b>';
         $info[$instance->id.'0'][1] = '';
@@ -485,7 +485,7 @@
         if (!empty($instance->userdata)) {
             //Grades
             $info[$instance->id.'3'][0] = get_string("grades");
-            if ($ids = quiz_grade_ids_by_instance ($instance->id)) {
+            if ($ids = guidedquiz_grade_ids_by_instance ($instance->id)) {
                 $info[$instance->id.'3'][1] = count($ids);
             } else {
                 $info[$instance->id.'3'][1] = 0;
@@ -496,22 +496,22 @@
 
    ////Return an array of info (name,value)
 /// $instances is an array with key = instanceid, value = object (name,id,userdata)
-   function quiz_check_backup_mods($course,$user_data= false,$backup_unique_code,$instances=null) {
+   function guidedquiz_check_backup_mods($course,$user_data= false,$backup_unique_code,$instances=null) {
         //this function selects all the questions / categories to be backed up.
-        quiz_insert_category_and_question_ids($course, $backup_unique_code, $instances);
+        guidedquiz_insert_category_and_question_ids($course, $backup_unique_code, $instances);
         if ($course != SITEID){
             question_insert_site_file_names($course, $backup_unique_code);
         }
         if (!empty($instances) && is_array($instances) && count($instances)) {
             $info = array();
             foreach ($instances as $id => $instance) {
-                $info += quiz_check_backup_mods_instances($instance,$backup_unique_code);
+                $info += guidedquiz_check_backup_mods_instances($instance,$backup_unique_code);
             }
             return $info;
         }
         //First the course data
         $info[0][0] = get_string("modulenameplural","quiz");
-        if ($ids = quiz_ids ($course)) {
+        if ($ids = guidedquiz_ids ($course)) {
             $info[0][1] = count($ids);
         } else {
             $info[0][1] = 0;
@@ -535,7 +535,7 @@
         if ($user_data) {
             //Grades
             $info[3][0] = get_string("grades");
-            if ($ids = quiz_grade_ids_by_course ($course)) {
+            if ($ids = guidedquiz_grade_ids_by_course ($course)) {
                 $info[3][1] = count($ids);
             } else {
                 $info[3][1] = 0;
@@ -547,22 +547,22 @@
 
     //Return a content encoded to support interactivities linking. Every module
     //should have its own. They are called automatically from the backup procedure.
-    function quiz_encode_content_links ($content,$preferences) {
+    function guidedquiz_encode_content_links ($content,$preferences) {
 
         global $CFG;
 
         $base = preg_quote($CFG->wwwroot,"/");
 
         //Link to the list of quizs
-        $buscar="/(".$base."\/mod\/quiz\/index.php\?id\=)([0-9]+)/";
+        $buscar="/(".$base."\/mod\/guidedquiz\/index.php\?id\=)([0-9]+)/";
         $result= preg_replace($buscar,'$@QUIZINDEX*$2@$',$content);
 
         //Link to quiz view by moduleid
-        $buscar="/(".$base."\/mod\/quiz\/view.php\?id\=)([0-9]+)/";
+        $buscar="/(".$base."\/mod\/guidedquiz\/view.php\?id\=)([0-9]+)/";
         $result= preg_replace($buscar,'$@QUIZVIEWBYID*$2@$',$result);
 
         //Link to quiz view by quizid
-        $buscar="/(".$base."\/mod\/quiz\/view.php\?q\=)([0-9]+)/";
+        $buscar="/(".$base."\/mod\/guidedquiz\/view.php\?q\=)([0-9]+)/";
         $result= preg_replace($buscar,'$@QUIZVIEWBYQ*$2@$',$result);
 
         return $result;
@@ -571,32 +571,32 @@
 // INTERNAL FUNCTIONS. BASED IN THE MOD STRUCTURE
 
     //Returns an array of quiz id
-    function quiz_ids ($course) {
+    function guidedquiz_ids ($course) {
 
         global $CFG;
 
         return get_records_sql ("SELECT a.id, a.course
-                                 FROM {$CFG->prefix}quiz a
+                                 FROM {$CFG->prefix}guidedquiz a
                                  WHERE a.course = '$course'");
     }
 
-    function quiz_grade_ids_by_course ($course) {
+    function guidedquiz_grade_ids_by_course ($course) {
 
         global $CFG;
 
         return get_records_sql ("SELECT g.id, g.quiz
-                                 FROM {$CFG->prefix}quiz a,
-                                      {$CFG->prefix}quiz_grades g
+                                 FROM {$CFG->prefix}guidedquiz a,
+                                      {$CFG->prefix}guidedquiz_grades g
                                  WHERE a.course = '$course' and
                                        g.quiz = a.id");
     }
 
-    function quiz_grade_ids_by_instance($instanceid) {
+    function guidedquiz_grade_ids_by_instance($instanceid) {
 
         global $CFG;
 
         return get_records_sql ("SELECT g.id, g.quiz
-                                 FROM {$CFG->prefix}quiz_grades g
+                                 FROM {$CFG->prefix}guidedquiz_grades g
                                  WHERE g.quiz = $instanceid");
     }
 

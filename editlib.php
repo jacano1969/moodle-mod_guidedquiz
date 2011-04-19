@@ -21,7 +21,7 @@ require_once("locallib.php");
 * @param object $quiz  The extended quiz object as used by edit.php
 *                         This is updated by this function
 */
-function quiz_delete_quiz_question($id, &$quiz) {
+function guidedquiz_delete_quiz_question($id, &$quiz) {
     // TODO: For the sake of safety check that this question can be deleted
     // safely, i.e., that it is not already in use.
     $questions = explode(",", $quiz->questions);
@@ -42,10 +42,10 @@ function quiz_delete_quiz_question($id, &$quiz) {
     // Avoid duplicate page breaks
     $quiz->questions = str_replace(',0,0', ',0', $quiz->questions);
     // save new questionlist in database
-    if (!set_field('quiz', 'questions', $quiz->questions, 'id', $quiz->instance)) {
+    if (!set_field('guidedquiz', 'questions', $quiz->questions, 'id', $quiz->instance)) {
         error('Could not save question list');
     }
-    delete_records('quiz_question_instances', 'quiz', $quiz->instance, 'question', $question);
+    delete_records('guidedquiz_question_instances', 'quiz', $quiz->instance, 'question', $question);
     return true;
 }
 
@@ -61,7 +61,7 @@ function quiz_delete_quiz_question($id, &$quiz) {
 * @param object $quiz  The extended quiz object as used by edit.php
 *                         This is updated by this function
 */
-function quiz_add_quiz_question($id, &$quiz) {
+function guidedquiz_add_quiz_question($id, &$quiz) {
     $questions = explode(",", $quiz->questions);
 
     if (in_array($id, $questions)) {
@@ -85,7 +85,7 @@ function quiz_add_quiz_question($id, &$quiz) {
 
     // Save new questionslist in database
     $quiz->questions = implode(",", $questions);
-    if (!set_field('quiz', 'questions', $quiz->questions, 'id', $quiz->id)) {
+    if (!set_field('guidedquiz', 'questions', $quiz->questions, 'id', $quiz->id)) {
         error('Could not save question list');
     }
 
@@ -93,7 +93,7 @@ function quiz_add_quiz_question($id, &$quiz) {
     $questionrecord = get_record("question", "id", $id);
     $quiz->grades[$id]
             = $questionrecord->defaultgrade;
-    quiz_update_question_instance($quiz->grades[$id], $id, $quiz->instance);
+    guidedquiz_update_question_instance($quiz->grades[$id], $id, $quiz->instance);
 
     return true;
 }
@@ -108,16 +108,16 @@ function quiz_add_quiz_question($id, &$quiz) {
 * @param integer $questionid  The id of the question
 * @param integer $quizid  The id of the quiz to update / add the instances for.
 */
-function quiz_update_question_instance($grade, $questionid, $quizid) {
-    if ($instance = get_record("quiz_question_instances", "quiz", $quizid, 'question', $questionid)) {
+function guidedquiz_update_question_instance($grade, $questionid, $quizid) {
+    if ($instance = get_record("guidedquiz_question_instances", "quiz", $quizid, 'question', $questionid)) {
         $instance->grade = $grade;
-        return update_record('quiz_question_instances', $instance);
+        return update_record('guidedquiz_question_instances', $instance);
     } else {
         unset($instance);
         $instance->quiz = $quizid;
         $instance->question = $questionid;
         $instance->grade = $grade;
-        return insert_record("quiz_question_instances", $instance);
+        return insert_record("guidedquiz_question_instances", $instance);
     }
 }
 
@@ -132,7 +132,7 @@ function quiz_update_question_instance($grade, $questionid, $quizid) {
 * @param boolean $showbreaks  Indicates whether the page breaks should be displayed
 * @param boolean $showbreaks  Indicates whether the reorder tool should be displayed
 */
-function quiz_print_question_list($quiz, $pageurl, $allowdelete=true, $showbreaks=true, $reordertool=false) {
+function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $showbreaks=true, $reordertool=false) {
     global $USER, $CFG, $QTYPES;
 
     $strorder = get_string("order");
@@ -284,7 +284,7 @@ function quiz_print_question_list($quiz, $pageurl, $allowdelete=true, $showbreak
         echo '</td><td align="center">';
 
         if (($question->qtype != 'random')){
-            echo quiz_question_preview_button($quiz, $question);
+            echo guidedquiz_question_preview_button($quiz, $question);
         }
         $returnurl = $pageurl->out();
         $questionparams = array('returnurl' => $returnurl, 'cmid'=>$quiz->cmid, 'id' => $question->id);
@@ -361,7 +361,7 @@ function quiz_print_question_list($quiz, $pageurl, $allowdelete=true, $showbreak
     echo ' onclick="form.submit(); return true;" />';
     print_string('reordertool', 'quiz');
     echo ' ';
-    helpbutton('reorderingtool', get_string('reordertool', 'quiz'), 'quiz');
+    helpbutton('reorderingtool', get_string('reordertool', 'quiz'), 'guidedquiz');
     
     echo '<div class="quizquestionlistcontrols"><input type="submit" name="repaginate" value="'. get_string('go') .'" /></div>';
     echo '</fieldset>';

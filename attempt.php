@@ -7,7 +7,7 @@
  *         the Serving Mathematics project
  *         {@link http://maths.york.ac.uk/serving_maths}
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package quiz
+ * @package guidedquiz
  */
 
     require_once("../../config.php");
@@ -27,23 +27,23 @@
     $forcenew = optional_param('forcenew', false, PARAM_BOOL); // Teacher has requested new preview
 
     if ($id) {
-        if (! $cm = get_coursemodule_from_id('quiz', $id)) {
+        if (! $cm = get_coursemodule_from_id('guidedquiz', $id)) {
             error("There is no coursemodule with id $id");
         }
         if (! $course = get_record("course", "id", $cm->course)) {
             error("Course is misconfigured");
         }
-        if (! $quiz = get_record("quiz", "id", $cm->instance)) {
+        if (! $quiz = get_record("guidedquiz", "id", $cm->instance)) {
             error("The quiz with id $cm->instance corresponding to this coursemodule $id is missing");
         }
     } else {
-        if (! $quiz = get_record("quiz", "id", $q)) {
+        if (! $quiz = get_record("guidedquiz", "id", $q)) {
             error("There is no quiz with id $q");
         }
         if (! $course = get_record("course", "id", $quiz->course)) {
             error("The course with id $quiz->course that the quiz with id $q belongs to is missing");
         }
-        if (! $cm = get_coursemodule_from_instance("quiz", $quiz->id, $course->id)) {
+        if (! $cm = get_coursemodule_from_instance("guidedquiz", $quiz->id, $course->id)) {
             error("The course module for the quiz with id $q is missing");
         }
     }
@@ -57,20 +57,20 @@
 
     $coursecontext = get_context_instance(CONTEXT_COURSE, $cm->course); // course context
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
-    $ispreviewing = has_capability('mod/quiz:preview', $context);
+    $ispreviewing = has_capability('mod/guidedquiz:preview', $context);
 
     // if no questions have been set up yet redirect to edit.php
-    if (!$quiz->questions and has_capability('mod/quiz:manage', $context)) {
-        redirect($CFG->wwwroot . '/mod/quiz/edit.php?cmid=' . $cm->id);
+    if (!$quiz->questions and has_capability('mod/guidedquiz:manage', $context)) {
+        redirect($CFG->wwwroot . '/mod/guidedquiz/edit.php?cmid=' . $cm->id);
     }
 
     if (!$ispreviewing) {
-        require_capability('mod/quiz:attempt', $context);
+        require_capability('mod/guidedquiz:attempt', $context);
     }
 
 /// Get number for the next or unfinished attempt
     if(!$attemptnumber = (int)get_field_sql('SELECT MAX(attempt)+1 FROM ' .
-            "{$CFG->prefix}quiz_attempts WHERE quiz = '{$quiz->id}' AND " .
+            "{$CFG->prefix}guidedquiz_attempts WHERE quiz = '{$quiz->id}' AND " .
             "userid = '{$USER->id}' AND timefinish > 0 AND preview != 1")) {
         $attemptnumber = 1;
     }
@@ -83,14 +83,14 @@
 /// This is to deal with what happens when someone submits close to the exact moment when the quiz closes.
 
 /// Check number of attempts
-    $numberofpreviousattempts = count_records_select('quiz_attempts', "quiz = '{$quiz->id}' AND " .
+    $numberofpreviousattempts = count_records_select('guidedquiz_attempts', "quiz = '{$quiz->id}' AND " .
         "userid = '{$USER->id}' AND timefinish > 0 AND preview != 1");
     if (!empty($quiz->attempts) and $numberofpreviousattempts >= $quiz->attempts) {
         print_error('nomoreattempts', 'quiz', "view.php?id={$cm->id}");
     }
 
 /// Check safe browser
-    if (!$ispreviewing && $quiz->popup == 2 && !quiz_check_safe_browser()) {
+    if (!$ispreviewing && $quiz->popup == 2 && !guidedquiz_check_safe_browser()) {
         print_error('safebrowsererror', 'quiz', "view.php?id={$cm->id}");
     }
 
@@ -108,13 +108,13 @@
         $enteredpassword = optional_param('quizpassword', '', PARAM_RAW);
         if (optional_param('cancelpassword', false)) {
             // User clicked cancel in the password form.
-            redirect($CFG->wwwroot . '/mod/quiz/view.php?q=' . $quiz->id);
+            redirect($CFG->wwwroot . '/mod/guidedquiz/view.php?q=' . $quiz->id);
         } else if (strcmp($quiz->password, $enteredpassword) === 0) {
             // User entered the correct password.
             $SESSION->passwordcheckedquizzes[$quiz->id] = true;
         } else {
             // User entered the wrong password, or has not entered one yet.
-            $url = $CFG->wwwroot . '/mod/quiz/attempt.php?q=' . $quiz->id;
+            $url = $CFG->wwwroot . '/mod/guidedquiz/attempt.php?q=' . $quiz->id;
 
             print_header('', '', '', 'quizpassword');
 
@@ -145,13 +145,13 @@
 
     if (!empty($quiz->delay1) or !empty($quiz->delay2)) {
         //quiz enforced time delay
-        if ($attempts = quiz_get_user_attempts($quiz->id, $USER->id)) {
+        if ($attempts = guidedquiz_get_user_attempts($quiz->id, $USER->id)) {
             $numattempts = count($attempts);
         } else {
             $numattempts = 0;
         }
         $timenow = time();
-        $lastattempt_obj = get_record_select('quiz_attempts',
+        $lastattempt_obj = get_record_select('guidedquiz_attempts',
                 "quiz = $quiz->id AND attempt = $numattempts AND userid = $USER->id",
                 'timefinish, timestart');
         if ($lastattempt_obj) {
@@ -176,43 +176,43 @@
     if ($ispreviewing and $forcenew) { // teacher wants a new preview
         // so we set a finish time on the current attempt (if any).
         // It will then automatically be deleted below
-        set_field('quiz_attempts', 'timefinish', $timestamp, 'quiz', $quiz->id, 'userid', $USER->id);
+        set_field('guidedquiz_attempts', 'timefinish', $timestamp, 'quiz', $quiz->id, 'userid', $USER->id);
     }
 
-    $attempt = quiz_get_user_attempt_unfinished($quiz->id, $USER->id);
+    $attempt = guidedquiz_get_user_attempt_unfinished($quiz->id, $USER->id);
 
     $newattempt = false;
     if (!$attempt) {
         // Delete any previous preview attempts belonging to this user.
-        if ($oldattempts = get_records_select('quiz_attempts', "quiz = '$quiz->id'
+        if ($oldattempts = get_records_select('guidedquiz_attempts', "quiz = '$quiz->id'
                 AND userid = '$USER->id' AND preview = 1")) {
             foreach ($oldattempts as $oldattempt) {
-                quiz_delete_attempt($oldattempt, $quiz);
+                guidedquiz_delete_attempt($oldattempt, $quiz);
             }
         }
         $newattempt = true;
         // Start a new attempt and initialize the question sessions
-        $attempt = quiz_create_attempt($quiz, $attemptnumber);
+        $attempt = guidedquiz_create_attempt($quiz, $attemptnumber);
         // If this is an attempt by a teacher mark it as a preview
         if ($ispreviewing) {
             $attempt->preview = 1;
         }
         // Save the attempt
-        if (!$attempt->id = insert_record('quiz_attempts', $attempt)) {
+        if (!$attempt->id = insert_record('guidedquiz_attempts', $attempt)) {
             error('Could not create new attempt');
         }
         // make log entries
         if ($ispreviewing) {
-            add_to_log($course->id, 'quiz', 'preview',
+            add_to_log($course->id, 'guidedquiz', 'preview',
                            "attempt.php?id=$cm->id",
                            "$quiz->id", $cm->id);
         } else {
-            add_to_log($course->id, 'quiz', 'attempt',
+            add_to_log($course->id, 'guidedquiz', 'attempt',
                            "review.php?attempt=$attempt->id",
                            "$quiz->id", $cm->id);
         }
     } else {
-         add_to_log($course->id, 'quiz', 'continue attemp', // this action used to be called 'continue attempt' but the database field has only 15 characters
+         add_to_log($course->id, 'guidedquiz', 'continue attemp', // this action used to be called 'continue attempt' but the database field has only 15 characters
                        'review.php?attempt=' . $attempt->id, $quiz->id, $cm->id);
     }
     if (!$attempt->timestart) { // shouldn't really happen, just for robustness
@@ -223,10 +223,10 @@
 /// Load all the questions and states needed by this script
 
     // list of questions needed by page
-    $pagelist = quiz_questions_on_page($attempt->layout, $page);
+    $pagelist = guidedquiz_questions_on_page($attempt->layout, $page);
 
     if ($newattempt) {
-        $questionlist = quiz_questions_in_quiz($attempt->layout);
+        $questionlist = guidedquiz_questions_in_quiz($attempt->layout);
     } else {
         $questionlist = $pagelist;
     }
@@ -242,7 +242,7 @@
 
     $sql = "SELECT q.*, i.grade AS maxgrade, i.id AS instance".
            "  FROM {$CFG->prefix}question q,".
-           "       {$CFG->prefix}quiz_question_instances i".
+           "       {$CFG->prefix}guidedquiz_question_instances i".
            " WHERE i.quiz = '$quiz->id' AND q.id = i.question".
            "   AND q.id IN ($questionlist)";
 
@@ -260,7 +260,7 @@
     $lastattemptid = false;
     if ($newattempt and $attempt->attempt > 1 and $quiz->attemptonlast and !$attempt->preview) {
         // Find the previous attempt
-        if (!$lastattemptid = get_field('quiz_attempts', 'uniqueid', 'quiz', $attempt->quiz, 'userid', $attempt->userid, 'attempt', $attempt->attempt-1)) {
+        if (!$lastattemptid = get_field('guidedquiz_attempts', 'uniqueid', 'quiz', $attempt->quiz, 'userid', $attempt->userid, 'attempt', $attempt->attempt-1)) {
             error('Could not find previous attempt to build on');
         }
     }
@@ -325,7 +325,7 @@
                 $pagebit = '&amp;page=' . $page;
             }
             print_error('errorprocessingresponses', 'question',
-                    $CFG->wwwroot . '/mod/quiz/attempt.php?q=' . $quiz->id . $pagebit);
+                    $CFG->wwwroot . '/mod/guidedquiz/attempt.php?q=' . $quiz->id . $pagebit);
         }
 
         $attempt->timemodified = $timestamp;
@@ -340,10 +340,10 @@
         $attempt->timefinish = $timestamp;
 
         // load all the questions
-        $closequestionlist = quiz_questions_in_quiz($attempt->layout);
+        $closequestionlist = guidedquiz_questions_in_quiz($attempt->layout);
         $sql = "SELECT q.*, i.grade AS maxgrade, i.id AS instance".
                "  FROM {$CFG->prefix}question q,".
-               "       {$CFG->prefix}quiz_question_instances i".
+               "       {$CFG->prefix}guidedquiz_question_instances i".
                " WHERE i.quiz = '$quiz->id' AND q.id = i.question".
                "   AND q.id IN ($closequestionlist)";
         if (!$closequestions = get_records_sql($sql)) {
@@ -379,32 +379,32 @@
                 $pagebit = '&amp;page=' . $page;
             }
             print_error('errorprocessingresponses', 'question',
-                    $CFG->wwwroot . '/mod/quiz/attempt.php?q=' . $quiz->id . $pagebit);
+                    $CFG->wwwroot . '/mod/guidedquiz/attempt.php?q=' . $quiz->id . $pagebit);
         }
 
-        add_to_log($course->id, 'quiz', 'close attempt', 'review.php?attempt=' . $attempt->id, $quiz->id, $cm->id);
+        add_to_log($course->id, 'guidedquiz', 'close attempt', 'review.php?attempt=' . $attempt->id, $quiz->id, $cm->id);
     }
 
 /// Update the quiz attempt and the overall grade for the quiz
     if ($responses || $finishattempt) {
-        if (!update_record('quiz_attempts', $attempt)) {
+        if (!update_record('guidedquiz_attempts', $attempt)) {
             error('Failed to save the current quiz attempt!');
         }
         if (($attempt->attempt > 1 || $attempt->timefinish > 0) and !$attempt->preview) {
-            quiz_save_best_grade($quiz);
+            guidedquiz_save_best_grade($quiz);
         }
     }
 
 /// Send emails to those who have the capability set
     if ($finishattempt && !$attempt->preview) {
-        quiz_send_notification_emails($course, $quiz, $attempt, $context, $cm);
+        guidedquiz_send_notification_emails($course, $quiz, $attempt, $context, $cm);
     }
 
     if ($finishattempt) {
         if (!empty($SESSION->passwordcheckedquizzes[$quiz->id])) {
             unset($SESSION->passwordcheckedquizzes[$quiz->id]);
         }
-        redirect($CFG->wwwroot . '/mod/quiz/review.php?attempt='.$attempt->id, 0);
+        redirect($CFG->wwwroot . '/mod/guidedquiz/review.php?attempt='.$attempt->id, 0);
     }
 
 // Now is the right time to check the open and close times.
@@ -415,7 +415,7 @@
 /// Print the quiz page ////////////////////////////////////////////////////////
 
     // Print the page header
-    require_js($CFG->wwwroot . '/mod/quiz/quiz.js');
+    require_js($CFG->wwwroot . '/mod/guidedquiz/quiz.js');
     $pagequestions = explode(',', $pagelist);
     $headtags = get_html_head_contributions($pagequestions, $questions, $states);
     if (!$ispreviewing && $quiz->popup) {
@@ -444,7 +444,7 @@
         $buttonoptions['q'] = $quiz->id;
         $buttonoptions['forcenew'] = true;
         echo '<div class="controls">';
-        print_single_button($CFG->wwwroot.'/mod/quiz/attempt.php', $buttonoptions, get_string('startagain', 'quiz'));
+        print_single_button($CFG->wwwroot.'/mod/guidedquiz/attempt.php', $buttonoptions, get_string('startagain', 'quiz'));
         echo '</div>';
     /// Notices about restrictions that would affect students.
         if ($quiz->popup == 1) {
@@ -467,7 +467,7 @@
     }
 
     // Start the form
-    $quiz->thispageurl = $CFG->wwwroot . '/mod/quiz/attempt.php?q=' . s($quiz->id) . '&amp;page=' . s($page);
+    $quiz->thispageurl = $CFG->wwwroot . '/mod/guidedquiz/attempt.php?q=' . s($quiz->id) . '&amp;page=' . s($page);
     $quiz->cmid = $cm->id;
     echo '<form id="responseform" method="post" action="', $quiz->thispageurl . '" enctype="multipart/form-data"' .
             ' onkeypress="return check_enter(event);" accept-charset="utf-8">', "\n";
@@ -490,15 +490,15 @@
     echo '<div>';
 
 /// Print the navigation panel if required
-    $numpages = quiz_number_of_pages($attempt->layout);
+    $numpages = guidedquiz_number_of_pages($attempt->layout);
     if ($numpages > 1) {
-        quiz_print_navigation_panel($page, $numpages);
+        guidedquiz_print_navigation_panel($page, $numpages);
     }
 
 /// Print all the questions
-    $number = quiz_first_questionnumber($attempt->layout, $pagelist);
+    $number = guidedquiz_first_questionnumber($attempt->layout, $pagelist);
     foreach ($pagequestions as $i) {
-        $options = quiz_get_renderoptions($quiz->review, $states[$i]);
+        $options = guidedquiz_get_renderoptions($quiz->review, $states[$i]);
         // Print the question
         print_question($questions[$i], $states[$i], $number, $quiz, $options);
         save_question_session($questions[$i], $states[$i]);
@@ -520,7 +520,7 @@
 
     // Print the navigation panel if required
     if ($numpages > 1) {
-        quiz_print_navigation_panel($page, $numpages);
+        guidedquiz_print_navigation_panel($page, $numpages);
     }
 
     // Finish the form
@@ -541,7 +541,7 @@
         $timerstartvalue = min($timerstartvalue, $quiz->timeclose - time());
         $showtimer = $timerstartvalue < 60*60; // Show the timer if we are less than 60 mins from the deadline.
     }
-    if ($quiz->timelimit > 0 && !has_capability('mod/quiz:ignoretimelimits', $context, NULL, false)) {
+    if ($quiz->timelimit > 0 && !has_capability('mod/guidedquiz:ignoretimelimits', $context, NULL, false)) {
         $timerstartvalue = min($timerstartvalue, $attempt->timestart + $quiz->timelimit*60- time());
         $showtimer = true;
     }

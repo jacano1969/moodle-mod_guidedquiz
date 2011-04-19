@@ -52,11 +52,11 @@
             }
         } else {
             require_login($questioncategory->course);
-            $cm = get_coursemodule_from_instance('quiz', $quizid);
-            require_capability('mod/quiz:preview', get_context_instance(CONTEXT_MODULE, $cm->id));
+            $cm = get_coursemodule_from_instance('guidedquiz', $quizid);
+            require_capability('mod/guidedquiz:preview', get_context_instance(CONTEXT_MODULE, $cm->id));
         }        
     } else {
-        if (!($quiz = get_record('quiz', 'id', $quizid))) {
+        if (!($quiz = get_record('guidedquiz', 'id', $quizid))) {
             error('No valid arguments supplied');
         }
         if (!($course = get_record('course', 'id', $quiz->course))) {

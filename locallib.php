@@ -19,7 +19,7 @@
 /**
  * Include those library functions that are also used by core Moodle or other modules
  */
-require_once($CFG->dirroot . '/mod/quiz/lib.php');
+require_once($CFG->dirroot . '/mod/guidedquiz/lib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 
 /// Constants ///////////////////////////////////////////////////////////////////
@@ -56,16 +56,16 @@ define('QUIZ_STATE_TEACHERACCESS', 'teacheraccess'); // State only relevant if y
  * @param object $quiz           The quiz to create an attempt for.
  * @param integer $attemptnumber The sequence number for the attempt.
  */
-function quiz_create_attempt($quiz, $attemptnumber) {
+function guidedquiz_create_attempt($quiz, $attemptnumber) {
     global $USER, $CFG;
 
-    if (!$attemptnumber > 1 or !$quiz->attemptonlast or !$attempt = get_record('quiz_attempts', 'quiz', $quiz->id, 'userid', $USER->id, 'attempt', $attemptnumber-1)) {
+    if (!$attemptnumber > 1 or !$quiz->attemptonlast or !$attempt = get_record('guidedquiz_attempts', 'quiz', $quiz->id, 'userid', $USER->id, 'attempt', $attemptnumber-1)) {
         // we are not building on last attempt so create a new attempt
         $attempt->quiz = $quiz->id;
         $attempt->userid = $USER->id;
         $attempt->preview = 0;
         if ($quiz->shufflequestions) {
-            $attempt->layout = quiz_repaginate($quiz->questions, $quiz->questionsperpage, true);
+            $attempt->layout = guidedquiz_repaginate($quiz->questions, $quiz->questionsperpage, true);
         } else {
             $attempt->layout = $quiz->questions;
         }
@@ -91,8 +91,8 @@ function quiz_create_attempt($quiz, $attemptnumber) {
  *
  * @return mixed the unfinished attempt if there is one, false if not.
  */
-function quiz_get_user_attempt_unfinished($quizid, $userid) {
-    $attempts = quiz_get_user_attempts($quizid, $userid, 'unfinished', true);
+function guidedquiz_get_user_attempt_unfinished($quizid, $userid) {
+    $attempts = guidedquiz_get_user_attempts($quizid, $userid, 'unfinished', true);
     if ($attempts) {
         return array_shift($attempts);
     } else {
@@ -105,9 +105,9 @@ function quiz_get_user_attempt_unfinished($quizid, $userid) {
  * @param mixed $attempt an integer attempt id or an attempt object (row of the quiz_attempts table).
  * @param object $quiz the quiz object.
  */
-function quiz_delete_attempt($attempt, $quiz) {
+function guidedquiz_delete_attempt($attempt, $quiz) {
     if (is_numeric($attempt)) {
-        if (!$attempt = get_record('quiz_attempts', 'id', $attempt)) {
+        if (!$attempt = get_record('guidedquiz_attempts', 'id', $attempt)) {
             return;
         }
     }
@@ -118,7 +118,7 @@ function quiz_delete_attempt($attempt, $quiz) {
         return;
     }
 
-    delete_records('quiz_attempts', 'id', $attempt->id);
+    delete_records('guidedquiz_attempts', 'id', $attempt->id);
     delete_attempt($attempt->uniqueid);
 
     // Search quiz_attempts for other instances by this user.
@@ -126,13 +126,13 @@ function quiz_delete_attempt($attempt, $quiz) {
     // else recalculate best grade
 
     $userid = $attempt->userid;
-    if (!record_exists('quiz_attempts', 'userid', $userid, 'quiz', $quiz->id)) {
-        delete_records('quiz_grades', 'userid', $userid,'quiz', $quiz->id);
+    if (!record_exists('guidedquiz_attempts', 'userid', $userid, 'quiz', $quiz->id)) {
+        delete_records('guidedquiz_grades', 'userid', $userid,'quiz', $quiz->id);
     } else {
-        quiz_save_best_grade($quiz, $userid);
+        guidedquiz_save_best_grade($quiz, $userid);
     }
 
-    quiz_update_grades($quiz, $userid);
+    guidedquiz_update_grades($quiz, $userid);
 }
 
 /// Functions to do with quiz layout and pages ////////////////////////////////
@@ -146,7 +146,7 @@ function quiz_delete_attempt($attempt, $quiz) {
  *                        So 5,2,0,3,0 means questions 5 and 2 on page 1 and question 3 on page 2
  * @param integer $page   The number of the current page.
  */
-function quiz_questions_on_page($layout, $page) {
+function guidedquiz_questions_on_page($layout, $page) {
     $pages = explode(',0', $layout);
     return trim($pages[$page], ',');
 }
@@ -159,7 +159,7 @@ function quiz_questions_on_page($layout, $page) {
  *                        comma separated list of question ids and 0 indicating page breaks.
  *                        So 5,2,0,3,0 means questions 5 and 2 on page 1 and question 3 on page 2
  */
-function quiz_questions_in_quiz($layout) {
+function guidedquiz_questions_in_quiz($layout) {
     return str_replace(',0', '', $layout);
 }
 
@@ -169,7 +169,7 @@ function quiz_questions_in_quiz($layout) {
  * @return integer         Comma separated list of question ids
  * @param string $layout  The string representing the quiz layout.
  */
-function quiz_number_of_pages($layout) {
+function guidedquiz_number_of_pages($layout) {
     return substr_count($layout, ',0');
 }
 
@@ -180,7 +180,7 @@ function quiz_number_of_pages($layout) {
  * @param string $quizlayout The string representing the layout for the whole quiz
  * @param string $pagelayout The string representing the layout for the current page
  */
-function quiz_first_questionnumber($quizlayout, $pagelayout) {
+function guidedquiz_first_questionnumber($quizlayout, $pagelayout) {
     // this works by finding all the questions from the quizlayout that
     // come before the current page and then adding up their lengths.
     global $CFG;
@@ -202,7 +202,7 @@ function quiz_first_questionnumber($quizlayout, $pagelayout) {
  * @param integer $perpage The number of questions per page
  * @param boolean $shuffle Should the questions be reordered randomly?
  */
-function quiz_repaginate($layout, $perpage, $shuffle=false) {
+function guidedquiz_repaginate($layout, $perpage, $shuffle=false) {
     $layout = str_replace(',0', '', $layout); // remove existing page breaks
     $questions = explode(',', $layout);
     if ($shuffle) {
@@ -228,7 +228,7 @@ function quiz_repaginate($layout, $perpage, $shuffle=false) {
  * @param integer $page     The number of the current page (counting from 0).
  * @param integer $pages    The total number of pages.
  */
-function quiz_print_navigation_panel($page, $pages) {
+function guidedquiz_print_navigation_panel($page, $pages) {
     //$page++;
     echo '<div class="paging pagingbar">';
     echo '<span class="title">' . get_string('page') . ':</span>&nbsp;';
@@ -266,16 +266,16 @@ function quiz_print_navigation_panel($page, $pages) {
  *                      students can achieve for each of the questions
  * @param integer $quiz The quiz object
  */
-function quiz_get_all_question_grades($quiz) {
+function guidedquiz_get_all_question_grades($quiz) {
     global $CFG;
 
-    $questionlist = quiz_questions_in_quiz($quiz->questions);
+    $questionlist = guidedquiz_questions_in_quiz($quiz->questions);
     if (empty($questionlist)) {
         return array();
     }
 
     $instances = get_records_sql("SELECT question,grade,id
-                            FROM {$CFG->prefix}quiz_question_instances
+                            FROM {$CFG->prefix}guidedquiz_question_instances
                             WHERE quiz = '$quiz->id'" .
                             (is_null($questionlist) ? '' :
                             "AND question IN ($questionlist)"));
@@ -301,7 +301,7 @@ function quiz_get_all_question_grades($quiz) {
  * @param object $quiz the quiz object. Only the fields grade, sumgrades and decimalpoints are used.
  * @return float the rescaled grade.
  */
-function quiz_rescale_grade($rawgrade, $quiz, $round = true) {
+function guidedquiz_rescale_grade($rawgrade, $quiz, $round = true) {
     if ($quiz->sumgrades) {
         $grade = $rawgrade * $quiz->grade / $quiz->sumgrades;
         if ($round) {
@@ -321,8 +321,8 @@ function quiz_rescale_grade($rawgrade, $quiz, $round = true) {
  * @param integer $quizid the id of the quiz object.
  * @return string the comment that corresponds to this grade (empty string if there is not one.
  */
-function quiz_feedback_for_grade($grade, $quizid) {
-    $feedback = get_field_select('quiz_feedback', 'feedbacktext',
+function guidedquiz_feedback_for_grade($grade, $quizid) {
+    $feedback = get_field_select('guidedquiz_feedback', 'feedbacktext',
             "quizid = $quizid AND mingrade <= $grade AND $grade < maxgrade");
 
     if (empty($feedback)) {
@@ -341,11 +341,11 @@ function quiz_feedback_for_grade($grade, $quizid) {
  * @param integer $quizid the id of the quiz object.
  * @return boolean Whether this quiz has any non-blank feedback text.
  */
-function quiz_has_feedback($quizid) {
+function guidedquiz_has_feedback($quizid) {
     static $cache = array();
     if (!array_key_exists($quizid, $cache)) {
-        $cache[$quizid] = record_exists_select('quiz_feedback',
-                "quizid = $quizid AND " . sql_isnotempty('quiz_feedback', 'feedbacktext', false, true));
+        $cache[$quizid] = record_exists_select('guidedquiz_feedback',
+                "quizid = $quizid AND " . sql_isnotempty('guidedquiz_feedback', 'feedbacktext', false, true));
     }
     return $cache[$quizid];
 }
@@ -359,7 +359,7 @@ function quiz_has_feedback($quizid) {
  * @param object $quiz the quiz we are updating. Passed by reference so its grade field can be updated too.
  * @return boolean indicating success or failure.
  */
-function quiz_set_grade($newgrade, &$quiz) {
+function guidedquiz_set_grade($newgrade, &$quiz) {
     // This is potentially expensive, so only do it if necessary.
     if (abs($quiz->grade - $newgrade) < 1e-7) {
         // Nothing to do.
@@ -370,7 +370,7 @@ function quiz_set_grade($newgrade, &$quiz) {
     begin_sql();
 
     // Update the quiz table.
-    $success = set_field('quiz', 'grade', $newgrade, 'id', $quiz->instance);
+    $success = set_field('guidedquiz', 'grade', $newgrade, 'id', $quiz->instance);
 
     // Rescaling the other data is only possible if the old grade was non-zero.
     if ($quiz->grade > 1e-7) {
@@ -382,22 +382,22 @@ function quiz_set_grade($newgrade, &$quiz) {
         // Update the quiz_grades table.
         $timemodified = time();
         $success = $success && execute_sql("
-                UPDATE {$CFG->prefix}quiz_grades
+                UPDATE {$CFG->prefix}guidedquiz_grades
                 SET grade = $factor * grade, timemodified = $timemodified
                 WHERE quiz = $quiz->id
         ", false);
 
         // Update the quiz_feedback table.
         $success = $success && execute_sql("
-                UPDATE {$CFG->prefix}quiz_feedback
+                UPDATE {$CFG->prefix}guidedquiz_feedback
                 SET mingrade = $factor * mingrade, maxgrade = $factor * maxgrade
                 WHERE quizid = $quiz->id
         ", false);
     }
 
     // update grade item and send all grades to gradebook
-    quiz_grade_item_update($quiz);
-    quiz_update_grades($quiz);
+    guidedquiz_grade_item_update($quiz);
+    guidedquiz_update_grades($quiz);
 
     if ($success) {
         return commit_sql();
@@ -414,7 +414,7 @@ function quiz_set_grade($newgrade, &$quiz) {
  * @param integer $userid The userid to calculate the grade for. Defaults to the current user.
  * @return boolean Indicates success or failure.
  */
-function quiz_save_best_grade($quiz, $userid = null) {
+function guidedquiz_save_best_grade($quiz, $userid = null) {
     global $USER;
 
     if (empty($userid)) {
@@ -422,20 +422,20 @@ function quiz_save_best_grade($quiz, $userid = null) {
     }
 
     // Get all the attempts made by the user
-    if (!$attempts = quiz_get_user_attempts($quiz->id, $userid)) {
+    if (!$attempts = guidedquiz_get_user_attempts($quiz->id, $userid)) {
         notify('Could not find any user attempts');
         return false;
     }
 
     // Calculate the best grade
-    $bestgrade = quiz_calculate_best_grade($quiz, $attempts);
-    $bestgrade = quiz_rescale_grade($bestgrade, $quiz, false);
+    $bestgrade = guidedquiz_calculate_best_grade($quiz, $attempts);
+    $bestgrade = guidedquiz_rescale_grade($bestgrade, $quiz, false);
 
     // Save the best grade in the database
-    if ($grade = get_record('quiz_grades', 'quiz', $quiz->id, 'userid', $userid)) {
+    if ($grade = get_record('guidedquiz_grades', 'quiz', $quiz->id, 'userid', $userid)) {
         $grade->grade = $bestgrade;
         $grade->timemodified = time();
-        if (!update_record('quiz_grades', $grade)) {
+        if (!update_record('guidedquiz_grades', $grade)) {
             notify('Could not update best grade');
             return false;
         }
@@ -444,13 +444,13 @@ function quiz_save_best_grade($quiz, $userid = null) {
         $grade->userid = $userid;
         $grade->grade = $bestgrade;
         $grade->timemodified = time();
-        if (!insert_record('quiz_grades', $grade)) {
+        if (!insert_record('guidedquiz_grades', $grade)) {
             notify('Could not insert new best grade');
             return false;
         }
     }
 
-    quiz_update_grades($quiz, $userid);
+    guidedquiz_update_grades($quiz, $userid);
     return true;
 }
 
@@ -461,7 +461,7 @@ function quiz_save_best_grade($quiz, $userid = null) {
  * @param object $quiz    The quiz for which the best grade is to be calculated
  * @param array $attempts An array of all the attempts of the user at the quiz
  */
-function quiz_calculate_best_grade($quiz, $attempts) {
+function guidedquiz_calculate_best_grade($quiz, $attempts) {
 
     switch ($quiz->grademethod) {
 
@@ -507,7 +507,7 @@ function quiz_calculate_best_grade($quiz, $attempts) {
  * @param object $quiz    The quiz for which the best grade is to be calculated
  * @param array $attempts An array of all the attempts of the user at the quiz
  */
-function quiz_calculate_best_attempt($quiz, $attempts) {
+function guidedquiz_calculate_best_attempt($quiz, $attempts) {
 
     switch ($quiz->grademethod) {
 
@@ -540,7 +540,7 @@ function quiz_calculate_best_attempt($quiz, $attempts) {
 /**
  * @return the options for calculating the quiz grade from the individual attempt grades.
  */
-function quiz_get_grading_options() {
+function guidedquiz_get_grading_options() {
     return array (
             QUIZ_GRADEHIGHEST => get_string('gradehighest', 'quiz'),
             QUIZ_GRADEAVERAGE => get_string('gradeaverage', 'quiz'),
@@ -552,8 +552,8 @@ function quiz_get_grading_options() {
  * @param int $option one of the values QUIZ_GRADEHIGHEST, QUIZ_GRADEAVERAGE, QUIZ_ATTEMPTFIRST or QUIZ_ATTEMPTLAST.
  * @return the lang string for that option.
  */
-function quiz_get_grading_option_name($option) {
-    $strings = quiz_get_grading_options();
+function guidedquiz_get_grading_option_name($option) {
+    $strings = guidedquiz_get_grading_options();
     return $strings[$option];
 }
 
@@ -562,7 +562,7 @@ function quiz_get_grading_option_name($option) {
 /**
  * Parse field names used for the replace options on question edit forms
  */
-function quiz_parse_fieldname($name, $nameprefix='question') {
+function guidedquiz_parse_fieldname($name, $nameprefix='question') {
     $reg = array();
     if (preg_match("/$nameprefix(\\d+)(\w+)/", $name, $reg)) {
         return array('mode' => $reg[2], 'id' => (int)$reg[1]);
@@ -580,7 +580,7 @@ function quiz_parse_fieldname($name, $nameprefix='question') {
  * question_sessions table.
  * @param object $attempt  The attempt whose states need upgrading
  */
-function quiz_upgrade_states($attempt) {
+function guidedquiz_upgrade_states($attempt) {
     global $CFG;
     // The old quiz model only allowed a single response per quiz attempt so that there will be
     // only one state record per question for this attempt.
@@ -595,7 +595,7 @@ function quiz_upgrade_states($attempt) {
     // used by a RANDOM question
     $session = new stdClass;
     $session->attemptid = $attempt->uniqueid;
-    $questionlist = quiz_questions_in_quiz($attempt->layout);
+    $questionlist = guidedquiz_questions_in_quiz($attempt->layout);
     if ($questionlist and $states = get_records_select('question_states', "attempt = '$attempt->uniqueid' AND question IN ($questionlist)")) {
         foreach ($states as $state) {
             $session->newgraded = $state->id;
@@ -611,7 +611,7 @@ function quiz_upgrade_states($attempt) {
  * @param object $question the question
  * @return the HTML for a preview question icon.
  */
-function quiz_question_preview_button($quiz, $question) {
+function guidedquiz_question_preview_button($quiz, $question) {
     global $CFG, $COURSE;
     if (!question_has_capability_on($question, 'use', $question->category)){
         return '';
@@ -629,7 +629,7 @@ function quiz_question_preview_button($quiz, $question) {
  * @param int $reviewoptions
  * @param object $state
  */
-function quiz_get_renderoptions($reviewoptions, $state) {
+function guidedquiz_get_renderoptions($reviewoptions, $state) {
     $options = new stdClass;
 
     // Show the question in readonly (review) mode if the question is in
@@ -670,19 +670,19 @@ function quiz_get_renderoptions($reviewoptions, $state) {
  * @return object an object with boolean fields responses, scores, feedback,
  *          correct_responses, solutions and general feedback
  */
-function quiz_get_reviewoptions($quiz, $attempt, $context=null) {
+function guidedquiz_get_reviewoptions($quiz, $attempt, $context=null) {
     $options = new stdClass;
     $options->readonly = true;
 
     // Provide the links to the question review and comment script
-    $options->questionreviewlink = '/mod/quiz/reviewquestion.php';
+    $options->questionreviewlink = '/mod/guidedquiz/reviewquestion.php';
 
     // Show a link to the comment box only for closed attempts
-    if ($attempt->timefinish && !is_null($context) && has_capability('mod/quiz:grade', $context)) {
-        $options->questioncommentlink = '/mod/quiz/comment.php';
+    if ($attempt->timefinish && !is_null($context) && has_capability('mod/guidedquiz:grade', $context)) {
+        $options->questioncommentlink = '/mod/guidedquiz/comment.php';
     }
 
-    if (!is_null($context) && has_capability('mod/quiz:viewreports', $context) && 
+    if (!is_null($context) && has_capability('mod/guidedquiz:viewreports', $context) && 
             has_capability('moodle/grade:viewhidden', $context) && !$attempt->preview) {
         // People who can see reports and hidden grades should be shown everything,
         // except during preview when teachers want to see what students see.
@@ -735,7 +735,7 @@ function quiz_get_reviewoptions($quiz, $attempt, $context=null) {
  *          at least one of the attempts, the other showing which options are true
  *          for all attempts.
  */
-function quiz_get_combined_reviewoptions($quiz, $attempts, $context=null) {
+function guidedquiz_get_combined_reviewoptions($quiz, $attempts, $context=null) {
     $fields = array('readonly', 'scores', 'feedback', 'correct_responses', 'solutions', 'generalfeedback', 'overallfeedback');
     $someoptions = new stdClass;
     $alloptions = new stdClass;
@@ -744,7 +744,7 @@ function quiz_get_combined_reviewoptions($quiz, $attempts, $context=null) {
         $alloptions->$field = true;
     }
     foreach ($attempts as $attempt) {
-        $attemptoptions = quiz_get_reviewoptions($quiz, $attempt, $context);
+        $attemptoptions = guidedquiz_get_reviewoptions($quiz, $attempt, $context);
         foreach ($fields as $field) {
             $someoptions->$field = $someoptions->$field || $attemptoptions->$field;
             $alloptions->$field = $alloptions->$field && $attemptoptions->$field;
@@ -762,7 +762,7 @@ function quiz_get_combined_reviewoptions($quiz, $attempts, $context=null) {
  *
  * @return bool|string result of email_to_user()
  */
-function quiz_send_confirmation($a) {
+function guidedquiz_send_confirmation($a) {
 
     global $USER;
 
@@ -787,7 +787,7 @@ function quiz_send_confirmation($a) {
  *
  * @return bool|string result of email_to_user()
  */
-function quiz_send_notification($recipient, $a) {
+function guidedquiz_send_notification($recipient, $a) {
 
     global $USER;
 
@@ -816,7 +816,7 @@ function quiz_send_notification($recipient, $a) {
  *
  * @return int number of emails sent
  */
-function quiz_send_notification_emails($course, $quiz, $attempt, $context, $cm) {
+function guidedquiz_send_notification_emails($course, $quiz, $attempt, $context, $cm) {
     global $CFG, $USER;
     // we will count goods and bads for error logging
     $emailresult = array('good' => 0, 'block' => 0, 'fail' => 0);
@@ -831,7 +831,7 @@ function quiz_send_notification_emails($course, $quiz, $attempt, $context, $cm) 
     // check for confirmation required
     $sendconfirm = false;
     $notifyexcludeusers = '';
-    if (has_capability('mod/quiz:emailconfirmsubmission', $context, NULL, false)) {
+    if (has_capability('mod/guidedquiz:emailconfirmsubmission', $context, NULL, false)) {
         // exclude from notify emails later
         $notifyexcludeusers = $USER->id;
         // send the email
@@ -851,7 +851,7 @@ function quiz_send_notification_emails($course, $quiz, $attempt, $context, $cm) 
     } else {
         $groups = '';
     }
-    $userstonotify = get_users_by_capability($context, 'mod/quiz:emailnotifysubmission',
+    $userstonotify = get_users_by_capability($context, 'mod/guidedquiz:emailnotifysubmission',
             $notifyfields, '', '', '', $groups, $notifyexcludeusers, false, false, true);
 
     // if something to send, then build $a
@@ -862,11 +862,11 @@ function quiz_send_notification_emails($course, $quiz, $attempt, $context, $cm) 
         $a->courseshortname = $course->shortname;
         // quiz info
         $a->quizname = $quiz->name;
-        $a->quizreporturl = $CFG->wwwroot . '/mod/quiz/report.php?q=' . $quiz->id;
+        $a->quizreporturl = $CFG->wwwroot . '/mod/guidedquiz/report.php?q=' . $quiz->id;
         $a->quizreportlink = '<a href="' . $a->quizreporturl . '">' . format_string($quiz->name) . ' report</a>';
-        $a->quizreviewurl = $CFG->wwwroot . '/mod/quiz/review.php?attempt=' . $attempt->id;
+        $a->quizreviewurl = $CFG->wwwroot . '/mod/guidedquiz/review.php?attempt=' . $attempt->id;
         $a->quizreviewlink = '<a href="' . $a->quizreviewurl . '">' . format_string($quiz->name) . ' review</a>';
-        $a->quizurl = $CFG->wwwroot . '/mod/quiz/view.php?q=' . $quiz->id;
+        $a->quizurl = $CFG->wwwroot . '/mod/guidedquiz/view.php?q=' . $quiz->id;
         $a->quizlink = '<a href="' . $a->quizurl . '">' . format_string($quiz->name) . '</a>';
         // attempt info
         $a->submissiontime = userdate($attempt->timefinish);
@@ -897,7 +897,7 @@ function quiz_send_notification_emails($course, $quiz, $attempt, $context, $cm) 
     if (!empty($userstonotify)) {
         // loop through recipients and send an email to each and update stats
         foreach ($userstonotify as $recipient) {
-            switch (quiz_send_notification($recipient, $a)) {
+            switch (guidedquiz_send_notification($recipient, $a)) {
                 case true:
                     $emailresult['good']++;
                     break;
@@ -928,7 +928,7 @@ function quiz_send_notification_emails($course, $quiz, $attempt, $context, $cm) 
  * 
  * @return true, if browser is safe browser else false
  */
-function quiz_check_safe_browser() {
+function guidedquiz_check_safe_browser() {
     return strpos($_SERVER['HTTP_USER_AGENT'], "SEB") !== false;
 }
 

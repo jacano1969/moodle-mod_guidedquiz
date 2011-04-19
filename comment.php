@@ -12,10 +12,10 @@
     $attemptid =required_param('attempt', PARAM_INT); // attempt id
     $questionid =required_param('question', PARAM_INT); // question id
 
-    if (! $attempt = get_record('quiz_attempts', 'uniqueid', $attemptid)) {
+    if (! $attempt = get_record('guidedquiz_attempts', 'uniqueid', $attemptid)) {
         error('No such attempt ID exists');
     }
-    if (! $quiz = get_record('quiz', 'id', $attempt->quiz)) {
+    if (! $quiz = get_record('guidedquiz', 'id', $attempt->quiz)) {
         error('Course module is incorrect');
     }
     if (! $course = get_record('course', 'id', $quiz->course)) {
@@ -27,18 +27,18 @@
         error('Attempt has not closed yet');
     }
 
-    $cm = get_coursemodule_from_instance('quiz', $quiz->id);
+    $cm = get_coursemodule_from_instance('guidedquiz', $quiz->id);
     require_login($course, true, $cm);
 
     $context = get_context_instance(CONTEXT_MODULE, $cm->id);
     
-    require_capability('mod/quiz:grade', $context);
+    require_capability('mod/guidedquiz:grade', $context);
 
     // Load question
     if (! $question = get_record('question', 'id', $questionid)) {
         error('Question for this session is missing');
     }
-    $question->maxgrade = get_field('quiz_question_instances', 'grade', 'quiz', $quiz->id, 'question', $question->id);
+    $question->maxgrade = get_field('guidedquiz_question_instances', 'grade', 'quiz', $quiz->id, 'question', $question->id);
     // Some of the questions code is optimised to work with several questions
     // at once so it wants the question to be in an array. 
     $key = $question->id;
@@ -68,7 +68,7 @@
             // If the state has changed save it and update the quiz grade
             if ($state->changed) {
                 save_question_session($question, $state);
-                quiz_save_best_grade($quiz, $attempt->userid);
+                guidedquiz_save_best_grade($quiz, $attempt->userid);
             }
 
             notify(get_string('changessaved'));
@@ -80,7 +80,7 @@
         }
     }
 
-    question_print_comment_box($question, $state, $attempt, $CFG->wwwroot.'/mod/quiz/comment.php');
+    question_print_comment_box($question, $state, $attempt, $CFG->wwwroot.'/mod/guidedquiz/comment.php');
 
     print_footer('empty');
 

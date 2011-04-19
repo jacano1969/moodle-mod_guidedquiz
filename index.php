@@ -4,7 +4,7 @@
  *
  * @author Martin Dougiamas and many others.
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package quiz
+ * @package guidedquiz
  */
     require_once("../../config.php");
     require_once("locallib.php");
@@ -15,7 +15,7 @@
     }
     $coursecontext = get_context_instance(CONTEXT_COURSE, $id);
     require_login($course->id);
-    add_to_log($course->id, "quiz", "view all", "index.php?id=$course->id", "");
+    add_to_log($course->id, "guidedquiz", "view all", "index.php?id=$course->id", "");
 
 // Print the header
     $strquizzes = get_string("modulenameplural", "quiz");
@@ -38,7 +38,7 @@
                  '', '', true, $streditquestions, navmenu($course));
 
 // Get all the appropriate data
-    if (!$quizzes = get_all_instances_in_course("quiz", $course)) {
+    if (!$quizzes = get_all_instances_in_course("guidedquiz", $course)) {
         notice(get_string('thereareno', 'moodle', $strquizzes), "../../course/view.php?id=$course->id");
         die;
     }
@@ -50,7 +50,7 @@
         if ($quiz->timeclose!=0) {
             $showclosingheader=true;
         }
-        if (quiz_has_feedback($quiz->id)) {
+        if (guidedquiz_has_feedback($quiz->id)) {
             $showfeedback=true;
         }
         if($showclosingheader && $showfeedback) {
@@ -76,11 +76,11 @@
 
     $showing = '';  // default
 
-    if (has_capability('mod/quiz:viewreports', $coursecontext)) {
+    if (has_capability('mod/guidedquiz:viewreports', $coursecontext)) {
         array_push($headings, get_string('attempts', 'quiz'));
         array_push($align, 'left');
         $showing = 'stats';
-    } else if (has_any_capability(array('mod/quiz:reviewmyattempts', 'mod/quiz:attempt'), $coursecontext)) {
+    } else if (has_any_capability(array('mod/guidedquiz:reviewmyattempts', 'mod/guidedquiz:attempt'), $coursecontext)) {
         array_push($headings, get_string('grade', 'quiz'));
         array_push($align, 'left');
         if ($showfeedback) {
@@ -96,7 +96,7 @@
 /// Populate the table with the list of instances.
     $currentsection = '';
     foreach ($quizzes as $quiz) {
-        $cm = get_coursemodule_from_instance('quiz', $quiz->id);
+        $cm = get_coursemodule_from_instance('guidedquiz', $quiz->id);
         $context = get_context_instance(CONTEXT_MODULE, $cm->id);
         $data = array();
 
@@ -130,7 +130,7 @@
         if ($showing == 'stats') {
             // The $quiz objects returned by get_all_instances_in_course have the necessary $cm
             // fields set to make the following call work.
-            $attemptcount = quiz_num_attempt_summary($quiz, $quiz);
+            $attemptcount = guidedquiz_num_attempt_summary($quiz, $quiz);
             if ($attemptcount) {
                 $data[] = "<a$class href=\"report.php?id=$quiz->coursemodule\">$attemptcount</a>";
             } else {
@@ -139,9 +139,9 @@
         } else if ($showing == 'scores') {
 
             // Grade and feedback.
-            $bestgrade = quiz_get_best_grade($quiz, $USER->id);
-            $attempts = quiz_get_user_attempts($quiz->id, $USER->id, 'all');
-            list($someoptions, $alloptions) = quiz_get_combined_reviewoptions($quiz, $attempts, $context);
+            $bestgrade = guidedquiz_get_best_grade($quiz, $USER->id);
+            $attempts = guidedquiz_get_user_attempts($quiz->id, $USER->id, 'all');
+            list($someoptions, $alloptions) = guidedquiz_get_combined_reviewoptions($quiz, $attempts, $context);
 
             $grade = '';
             $feedback = '';
@@ -150,7 +150,7 @@
                     $grade = round($bestgrade, $quiz->decimalpoints) . ' / ' . $quiz->grade;
                 }
                 if ($alloptions->overallfeedback) {
-                    $feedback = quiz_feedback_for_grade($bestgrade, $quiz->id);
+                    $feedback = guidedquiz_feedback_for_grade($bestgrade, $quiz->id);
                 }
             }
             $data[] = $grade;

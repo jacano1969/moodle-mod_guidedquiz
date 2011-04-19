@@ -16,7 +16,7 @@ $DEFINEDPAGES = array(PAGE_QUIZ_VIEW);
  * @package pages
  */
 
-class page_quiz extends page_generic_activity {
+class page_guidedquiz extends page_generic_activity {
 
     function init_quick($data) {
         if(empty($data->pageid)) {

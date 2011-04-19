@@ -4,11 +4,11 @@
 
     $id   = required_param('id', PARAM_INT);          // Course module ID
 
-    if (! $cm = get_coursemodule_from_id('quiz', $id)) {
+    if (! $cm = get_coursemodule_from_id('guidedquiz', $id)) {
         error('Course Module ID was incorrect');
     }
 
-    if (! $quiz = get_record('quiz', 'id', $cm->instance)) {
+    if (! $quiz = get_record('guidedquiz', 'id', $cm->instance)) {
         error('quiz ID was incorrect');
     }
 
@@ -18,7 +18,7 @@
 
     require_login($course->id, false, $cm);
 
-    if (has_capability('mod/quiz:viewreports', get_context_instance(CONTEXT_MODULE, $cm->id))) {
+    if (has_capability('mod/guidedquiz:viewreports', get_context_instance(CONTEXT_MODULE, $cm->id))) {
         redirect('report.php?id='.$cm->id);
     } else {
         redirect('view.php?id='.$cm->id);

@@ -26,7 +26,7 @@
  * @package quiz
  */
     require_once("../../config.php");
-    require_once($CFG->dirroot.'/mod/quiz/editlib.php');
+    require_once($CFG->dirroot.'/mod/guidedquiz/editlib.php');
 
     /**
      * Callback function called from question_list() function (which is called from showbank())
@@ -84,7 +84,7 @@
                 $out .= '<input type="hidden" name="recurse" value="'.$recurse.'" />';
                 $out .= '<input type="hidden" name="categoryid" value="'.$category->id.'" />';
                 $out .= ' <input type="submit" name="addrandom" value="'. get_string('add') .'" />';
-                $out .= helpbutton('random', get_string('random', 'quiz'), 'quiz', true, false, '', true);
+                $out .= helpbutton('random', get_string('random', 'quiz'), 'guidedquiz', true, false, '', true);
             }
         }
         return $out;
@@ -116,15 +116,15 @@
     }
 
     // Log this visit.
-    add_to_log($cm->course, 'quiz', 'editquestions',
+    add_to_log($cm->course, 'guidedquiz', 'editquestions',
             "view.php?id=$cm->id", "$quiz->id", $cm->id);
 
     //you need mod/quiz:manage in addition to question capabilities to access this page.
-    require_capability('mod/quiz:manage', $contexts->lowest());
+    require_capability('mod/guidedquiz:manage', $contexts->lowest());
 
     if (isset($quiz->instance)
         && empty($quiz->grades)){  // Construct an array to hold all the grades.
-        $quiz->grades = quiz_get_all_question_grades($quiz);
+        $quiz->grades = guidedquiz_get_all_question_grades($quiz);
     }
 
 
@@ -145,7 +145,7 @@
             $quiz->questions = $quiz->questions . ',0';
             // Avoid duplicate page breaks
             $quiz->questions = str_replace(',0,0', ',0', $quiz->questions);
-            if (!set_field('quiz', 'questions', $quiz->questions, 'id', $quiz->instance)) {
+            if (!set_field('guidedquiz', 'questions', $quiz->questions, 'id', $quiz->instance)) {
                 error('Could not save question list');
             }
             $significantchangemade = true;
@@ -162,7 +162,7 @@
             $quiz->questions = implode(",", $questions);
             // Avoid duplicate page breaks
             $quiz->questions = str_replace(',0,0', ',0', $quiz->questions);
-            if (!set_field('quiz', 'questions', $quiz->questions, 'id', $quiz->instance)) {
+            if (!set_field('guidedquiz', 'questions', $quiz->questions, 'id', $quiz->instance)) {
                 error('Could not save question list');
             }
             $significantchangemade = true;
@@ -170,7 +170,7 @@
     }
 
     if (($addquestion = optional_param('addquestion', 0, PARAM_INT)) and confirm_sesskey()) { /// Add a single question to the current quiz
-        quiz_add_quiz_question($addquestion, $quiz);
+        guidedquiz_add_quiz_question($addquestion, $quiz);
         $significantchangemade = true;
     }
 
@@ -179,7 +179,7 @@
         foreach ($rawdata as $key => $value) {    // Parse input for question ids
             if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
                 $key = $matches[1];
-                quiz_add_quiz_question($key, $quiz);
+                guidedquiz_add_quiz_question($key, $quiz);
             }
         }
         $significantchangemade = true;
@@ -202,11 +202,11 @@
                 WHERE qtype = '" . RANDOM . "'
                     AND category = $category->id
                     AND " . sql_compare_text('questiontext') . " = '$recurse'
-                    AND NOT EXISTS (SELECT * FROM " . $CFG->prefix . "quiz_question_instances WHERE question = q.id)
+                    AND NOT EXISTS (SELECT * FROM " . $CFG->prefix . "guidedquiz_question_instances WHERE question = q.id)
                 ORDER BY id")) {
             // Take as many of these as needed.
             while (($existingquestion = array_shift($existingquestions)) and $randomcount > 0) {
-                quiz_add_quiz_question($existingquestion->id, $quiz);
+                guidedquiz_add_quiz_question($existingquestion->id, $quiz);
                 $randomcount--;
             }
         }
@@ -228,7 +228,7 @@
                 if(!isset($question->id)) {
                     error('Could not insert new random question!');
                 }
-                quiz_add_quiz_question($question->id, $quiz);
+                guidedquiz_add_quiz_question($question->id, $quiz);
             }
         }
         $significantchangemade = true;
@@ -238,18 +238,18 @@
         $questionsperpage = optional_param('questionsperpage', $quiz->questionsperpage, PARAM_INT);
         if ($questionsperpage != $quiz->questionsperpage) {
             $quiz->questionsperpage = $questionsperpage;
-            if (!set_field('quiz', 'questionsperpage', $quiz->questionsperpage, 'id', $quiz->id)) {
+            if (!set_field('guidedquiz', 'questionsperpage', $quiz->questionsperpage, 'id', $quiz->id)) {
                 error('Could not save number of questions per page');
             }
         }
-        $quiz->questions = quiz_repaginate($quiz->questions, $quiz->questionsperpage);
-        if (!set_field('quiz', 'questions', $quiz->questions, 'id', $quiz->id)) {
+        $quiz->questions = guidedquiz_repaginate($quiz->questions, $quiz->questionsperpage);
+        if (!set_field('guidedquiz', 'questions', $quiz->questions, 'id', $quiz->id)) {
             error('Could not save layout');
         }
         $significantchangemade = true;
     }
     if (($delete = optional_param('delete', false, PARAM_INT)) !== false and confirm_sesskey()) { /// Remove a question from the quiz
-        quiz_delete_quiz_question($delete, $quiz);
+        guidedquiz_delete_quiz_question($delete, $quiz);
         $significantchangemade = true;
     }
 
@@ -264,7 +264,7 @@
             if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
                 $key = $matches[1];
                 $quiz->grades[$key] = clean_param($value, PARAM_INTEGER);
-                quiz_update_question_instance($quiz->grades[$key], $key, $quiz->instance);
+                guidedquiz_update_question_instance($quiz->grades[$key], $key, $quiz->instance);
 
             /// Parse input for ordering info
             } elseif (preg_match('!^o([0-9]+)$!', $key, $matches)) {
@@ -293,7 +293,7 @@
             while (strpos($quiz->questions, ',0,0')) {
                 $quiz->questions = str_replace(',0,0', ',0', $quiz->questions);
             }
-            if (!set_field('quiz', 'questions', $quiz->questions, 'id', $quiz->instance)) {
+            if (!set_field('guidedquiz', 'questions', $quiz->questions, 'id', $quiz->instance)) {
                 error('Could not save question list');
             }
         }
@@ -301,7 +301,7 @@
         // If rescaling is required save the new maximum
         $maxgrade = optional_param('maxgrade', -1, PARAM_INTEGER);
         if ($maxgrade >= 0) {
-            if (!quiz_set_grade($maxgrade, $quiz)) {
+            if (!guidedquiz_set_grade($maxgrade, $quiz)) {
                 error('Could not set a new maximum grade for the quiz');
             }
         }
@@ -310,11 +310,11 @@
 
 /// Delete any teacher preview attempts if the quiz has been modified
     if ($significantchangemade) {
-        $previewattempts = get_records_select('quiz_attempts',
+        $previewattempts = get_records_select('guidedquiz_attempts',
                 'quiz = ' . $quiz->id . ' AND preview = 1');
         if ($previewattempts) {
             foreach ($previewattempts as $attempt) {
-                quiz_delete_attempt($attempt, $quiz);
+                guidedquiz_delete_attempt($attempt, $quiz);
             }
         }
     }
@@ -324,7 +324,7 @@
 /// all commands have been dealt with, now print the page
 
     // Print basic page layout.
-    if (isset($quiz->instance) and record_exists_select('quiz_attempts', "quiz = '$quiz->instance' AND preview = '0'")){
+    if (isset($quiz->instance) and record_exists_select('guidedquiz_attempts', "quiz = '$quiz->instance' AND preview = '0'")){
         // one column layout with table of questions used in this quiz
         $strupdatemodule = has_capability('moodle/course:manageactivities', $contexts->lowest())
                     ? update_module_button($cm->id, $course->id, get_string('modulename', 'quiz'))
@@ -342,12 +342,12 @@
 
         echo "<div class=\"quizattemptcounts\">\n";
         echo '<a href="report.php?mode=overview&amp;id=' . $cm->id . '">' .
-                quiz_num_attempt_summary($quiz, $cm) . '</a><br />' .
+                guidedquiz_num_attempt_summary($quiz, $cm) . '</a><br />' .
                 get_string('cannoteditafterattempts', 'quiz');
         echo "</div>\n";
 
-        $sumgrades = quiz_print_question_list($quiz,  $thispageurl, false, $quiz_showbreaks, $quiz_reordertool);
-        if (!set_field('quiz', 'sumgrades', $sumgrades, 'id', $quiz->instance)) {
+        $sumgrades = guidedquiz_print_question_list($quiz,  $thispageurl, false, $quiz_showbreaks, $quiz_reordertool);
+        if (!set_field('guidedquiz', 'sumgrades', $sumgrades, 'id', $quiz->instance)) {
             error('Failed to set sumgrades');
         }
 
@@ -373,8 +373,8 @@
     print_box_start('generalbox quizquestions');
     print_heading(get_string('questionsinthisquiz', 'quiz'), '', 2);
 
-    $sumgrades = quiz_print_question_list($quiz, $thispageurl, true, $quiz_showbreaks, $quiz_reordertool);
-    if (!set_field('quiz', 'sumgrades', $sumgrades, 'id', $quiz->instance)) {
+    $sumgrades = guidedquiz_print_question_list($quiz, $thispageurl, true, $quiz_showbreaks, $quiz_reordertool);
+    if (!set_field('guidedquiz', 'sumgrades', $sumgrades, 'id', $quiz->instance)) {
         error('Failed to set sumgrades');
     }
 

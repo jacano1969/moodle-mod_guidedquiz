@@ -36,7 +36,7 @@
     // that are included with the following library
     include_once("$CFG->dirroot/question/restorelib.php");
 
-    function quiz_restore_mods($mod,$restore) {
+    function guidedquiz_restore_mods($mod,$restore) {
 
         global $CFG;
 
@@ -45,7 +45,7 @@
         //Hook to call Moodle < 1.5 Quiz Restore
         if ($restore->backup_version < 2005043000) {
             include_once("restorelibpre15.php");
-            return quiz_restore_pre15_mods($mod,$restore);
+            return guidedquiz_restore_pre15_mods($mod,$restore);
         }
 
         //Get record from backup_ids
@@ -94,7 +94,7 @@
             $quiz->questions = quiz_recode_layout($quiz->questions, $restore);
 
             //The structure is equal to the db, so insert the quiz
-            $newid = insert_record ("quiz",$quiz);
+            $newid = insert_record ("guidedquiz",$quiz);
 
             //Do some output
             if (!defined('RESTORE_SILENTLY')) {
@@ -107,18 +107,18 @@
                 backup_putid($restore->backup_unique_code,$mod->modtype,
                              $mod->id, $newid);
                 //We have to restore the question_instances now (course level table)
-                $status = quiz_question_instances_restore_mods($newid,$info,$restore);
+                $status = guidedquiz_question_instances_restore_mods($newid,$info,$restore);
                 //We have to restore the feedback now (course level table)
-                $status = quiz_feedback_restore_mods($newid, $info, $restore, $quiz);
+                $status = guidedquiz_feedback_restore_mods($newid, $info, $restore, $quiz);
                 //We have to restore the question_versions now (course level table)
-                $status = quiz_question_versions_restore_mods($newid,$info,$restore);
+                $status = guidedquiz_question_versions_restore_mods($newid,$info,$restore);
                 //Now check if want to restore user data and do it.
-                if (restore_userdata_selected($restore,'quiz',$mod->id)) {
+                if (restore_userdata_selected($restore,'guidedquiz',$mod->id)) {
                     //Restore quiz_attempts
-                    $status = quiz_attempts_restore_mods ($newid,$info,$restore);
+                    $status = guidedquiz_attempts_restore_mods ($newid,$info,$restore);
                     if ($status) {
                         //Restore quiz_grades
-                        $status = quiz_grades_restore_mods ($newid,$info,$restore);
+                        $status = guidedquiz_grades_restore_mods ($newid,$info,$restore);
                     }
                 }
             } else {
@@ -132,7 +132,7 @@
     }
 
     //This function restores the quiz_question_instances
-    function quiz_question_instances_restore_mods($quiz_id,$info,$restore) {
+    function guidedquiz_question_instances_restore_mods($quiz_id,$info,$restore) {
 
         global $CFG;
 
@@ -168,7 +168,7 @@
             }
 
             //The structure is equal to the db, so insert the quiz_question_instances
-            $newid = insert_record ("quiz_question_instances",$instance);
+            $newid = insert_record ("guidedquiz_question_instances",$instance);
 
             //Do some output
             if (($i+1) % 10 == 0) {
@@ -183,7 +183,7 @@
 
             if ($newid) {
                 //We have the newid, update backup_ids
-                backup_putid($restore->backup_unique_code,"quiz_question_instances",$oldid,
+                backup_putid($restore->backup_unique_code,"guidedquiz_question_instances",$oldid,
                              $newid);
             } else {
                 $status = false;
@@ -194,7 +194,7 @@
     }
 
     //This function restores the quiz_question_instances
-    function quiz_feedback_restore_mods($quiz_id, $info, $restore, $quiz) {
+    function guidedquiz_feedback_restore_mods($quiz_id, $info, $restore, $quiz) {
         $status = true;
 
         //Get the quiz_feedback array
@@ -218,11 +218,11 @@
                 $feedback->maxgrade = backup_todb($feedback_info['#']['MAXGRADE']['0']['#']);
     
                 //The structure is equal to the db, so insert the quiz_question_instances
-                $newid = insert_record('quiz_feedback', $feedback);
+                $newid = insert_record('guidedquiz_feedback', $feedback);
     
                 if ($newid) {
                     //We have the newid, update backup_ids
-                    backup_putid($restore->backup_unique_code, 'quiz_feedback', $oldid, $newid);
+                    backup_putid($restore->backup_unique_code, 'guidedquiz_feedback', $oldid, $newid);
                 } else {
                     $status = false;
                 }
@@ -233,14 +233,14 @@
             $feedback->feedbacktext = '';
             $feedback->mingrade = 0;
             $feedback->maxgrade = $quiz->grade + 1;
-            insert_record('quiz_feedback', $feedback);
+            insert_record('guidedquiz_feedback', $feedback);
         }
 
         return $status;
     }
 
     //This function restores the quiz_question_versions
-    function quiz_question_versions_restore_mods($quiz_id,$info,$restore) {
+    function guidedquiz_question_versions_restore_mods($quiz_id,$info,$restore) {
 
         global $CFG, $USER;
 
@@ -299,7 +299,7 @@
             }
 
             //The structure is equal to the db, so insert the quiz_question_versions
-            $newid = insert_record ("quiz_question_versions",$version);
+            $newid = insert_record ("guidedquiz_question_versions",$version);
 
             //Do some output
             if (($i+1) % 10 == 0) {
@@ -314,7 +314,7 @@
 
             if ($newid) {
                 //We have the newid, update backup_ids
-                backup_putid($restore->backup_unique_code,"quiz_question_versions",$oldid,
+                backup_putid($restore->backup_unique_code,"guidedquiz_question_versions",$oldid,
                              $newid);
             } else {
                 $status = false;
@@ -325,7 +325,7 @@
     }
 
     //This function restores the quiz_attempts
-    function quiz_attempts_restore_mods($quiz_id,$info,$restore) {
+    function guidedquiz_attempts_restore_mods($quiz_id,$info,$restore) {
 
         global $CFG;
 
@@ -371,10 +371,10 @@
             $attempt->uniqueid = question_new_attempt_uniqueid();
 
             //We have to recode the layout field (a list of questions id and pagebreaks)
-            $attempt->layout = quiz_recode_layout($attempt->layout, $restore);
+            $attempt->layout = guidedquiz_recode_layout($attempt->layout, $restore);
 
             //The structure is equal to the db, so insert the quiz_attempts
-            $newid = insert_record ("quiz_attempts",$attempt);
+            $newid = insert_record ("guidedquiz_attempts",$attempt);
 
             //Do some output
             if (($i+1) % 10 == 0) {
@@ -389,7 +389,7 @@
 
             if ($newid) {
                 //We have the newid, update backup_ids
-                backup_putid($restore->backup_unique_code,"quiz_attempts",$oldid,
+                backup_putid($restore->backup_unique_code,"guidedquiz_attempts",$oldid,
                              $newid);
                 //Now process question_states
                 // This function is defined in question/restorelib.php
@@ -403,7 +403,7 @@
     }
 
     //This function restores the quiz_grades
-    function quiz_grades_restore_mods($quiz_id,$info,$restore) {
+    function guidedquiz_grades_restore_mods($quiz_id,$info,$restore) {
 
         global $CFG;
 
@@ -441,7 +441,7 @@
             }
 
             //The structure is equal to the db, so insert the quiz_grades
-            $newid = insert_record ("quiz_grades",$grade);
+            $newid = insert_record ("guidedquiz_grades",$grade);
 
             //Do some output
             if (($i+1) % 10 == 0) {
@@ -456,7 +456,7 @@
 
             if ($newid) {
                 //We have the newid, update backup_ids
-                backup_putid($restore->backup_unique_code,"quiz_grades",$oldid,
+                backup_putid($restore->backup_unique_code,"guidedquiz_grades",$oldid,
                              $newid);
             } else {
                 $status = false;
@@ -470,7 +470,7 @@
     //should have its own. They are called automatically from
     //quiz_decode_content_links_caller() function in each module
     //in the restore process
-    function quiz_decode_content_links ($content,$restore) {
+    function guidedquiz_decode_content_links ($content,$restore) {
             
         global $CFG;
             
@@ -493,10 +493,10 @@
                 //If it is a link to this course, update the link to its new location
                 if($rec->new_id) {
                     //Now replace it
-                    $result= preg_replace($searchstring,$CFG->wwwroot.'/mod/quiz/index.php?id='.$rec->new_id,$result);
+                    $result= preg_replace($searchstring,$CFG->wwwroot.'/mod/guidedquiz/index.php?id='.$rec->new_id,$result);
                 } else { 
                     //It's a foreign link so leave it as original
-                    $result= preg_replace($searchstring,$restore->original_wwwroot.'/mod/quiz/index.php?id='.$old_id,$result);
+                    $result= preg_replace($searchstring,$restore->original_wwwroot.'/mod/guidedquiz/index.php?id='.$old_id,$result);
                 }
             }
         }
@@ -517,10 +517,10 @@
                 //If it is a link to this course, update the link to its new location
                 if($rec->new_id) {
                     //Now replace it
-                    $result= preg_replace($searchstring,$CFG->wwwroot.'/mod/quiz/view.php?id='.$rec->new_id,$result);
+                    $result= preg_replace($searchstring,$CFG->wwwroot.'/mod/guidedquiz/view.php?id='.$rec->new_id,$result);
                 } else {
                     //It's a foreign link so leave it as original
-                    $result= preg_replace($searchstring,$restore->original_wwwroot.'/mod/quiz/view.php?id='.$old_id,$result);
+                    $result= preg_replace($searchstring,$restore->original_wwwroot.'/mod/guidedquiz/view.php?id='.$old_id,$result);
                 }
             }
         }
@@ -535,16 +535,16 @@
             //Iterate over foundset[2]. They are the old_ids
             foreach($foundset[2] as $old_id) {
                 //We get the needed variables here (course_modules id)
-                $rec = backup_getid($restore->backup_unique_code,'quiz',$old_id);
+                $rec = backup_getid($restore->backup_unique_code,'guidedquiz',$old_id);
                 //Personalize the searchstring
                 $searchstring='/\$@(QUIZVIEWBYQ)\*('.$old_id.')@\$/';
                 //If it is a link to this course, update the link to its new location
                 if($rec->new_id) {
                     //Now replace it
-                    $result= preg_replace($searchstring,$CFG->wwwroot.'/mod/quiz/view.php?q='.$rec->new_id,$result);
+                    $result= preg_replace($searchstring,$CFG->wwwroot.'/mod/guidedquiz/view.php?q='.$rec->new_id,$result);
                 } else {
                     //It's a foreign link so leave it as original
-                    $result= preg_replace($searchstring,$restore->original_wwwroot.'/mod/quiz/view.php?q='.$old_id,$result);
+                    $result= preg_replace($searchstring,$restore->original_wwwroot.'/mod/guidedquiz/view.php?q='.$old_id,$result);
                 }
             }
         }
@@ -557,12 +557,12 @@
     //from backup format to destination site/course in order to mantain inter-activities
     //working in the backup/restore process. It's called from restore_decode_content_links()
     //function in restore process
-    function quiz_decode_content_links_caller($restore) {
+    function guidedquiz_decode_content_links_caller($restore) {
         global $CFG;
         $status = true;
         
         if ($quizs = get_records_sql ("SELECT q.id, q.intro
-                                   FROM {$CFG->prefix}quiz q
+                                   FROM {$CFG->prefix}guidedquiz q
                                    WHERE q.course = $restore->course_id")) {
                                                //Iterate over each quiz->intro
             $i = 0;   //Counter to send some output to the browser to avoid timeouts
@@ -574,7 +574,7 @@
                 if ($result != $content) {
                     //Update record
                     $quiz->intro = addslashes($result);
-                    $status = update_record("quiz",$quiz);
+                    $status = update_record("guidedquiz",$quiz);
                     if (debugging()) {
                         if (!defined('RESTORE_SILENTLY')) {
                             echo '<br /><hr />'.s($content).'<br />changed to<br />'.s($result).'<hr /><br />';
@@ -599,7 +599,7 @@
 
     //This function converts texts in FORMAT_WIKI to FORMAT_MARKDOWN for
     //some texts in the module
-    function quiz_restore_wiki2markdown ($restore) {
+    function guidedquiz_restore_wiki2markdown ($restore) {
 
         global $CFG;
 
@@ -640,7 +640,7 @@
 
     //This function returns a log record with all the necessay transformations
     //done. It's used by restore_log_module() to restore modules log.
-    function quiz_restore_logs($restore,$log) {
+    function guidedquiz_restore_logs($restore,$log) {
 
         $status = false;
 
@@ -702,7 +702,7 @@
                     //Extract the attempt id from the url field
                     $attid = substr(strrchr($log->url,"="),1);
                     //Get the new_id of the attempt (to recode the url field)
-                    $att = backup_getid($restore->backup_unique_code,"quiz_attempts",$attid);
+                    $att = backup_getid($restore->backup_unique_code,"guidedquiz_attempts",$attid);
                     if ($att) {
                         $log->url = "review.php?id=".$log->cmid."&attempt=".$att->new_id;
                         $log->info = $mod->new_id;
@@ -719,7 +719,7 @@
                     //Extract the attempt id from the url field
                     $attid = substr(strrchr($log->url,"="),1);
                     //Get the new_id of the attempt (to recode the url field)
-                    $att = backup_getid($restore->backup_unique_code,"quiz_attempts",$attid);
+                    $att = backup_getid($restore->backup_unique_code,"guidedquiz_attempts",$attid);
                     if ($att) {
                         $log->url = "review.php?id=".$log->cmid."&attempt=".$att->new_id;
                         $log->info = $mod->new_id;
@@ -736,7 +736,7 @@
                     //Extract the attempt id from the url field
                     $attid = substr(strrchr($log->url,"="),1);
                     //Get the new_id of the attempt (to recode the url field)
-                    $att = backup_getid($restore->backup_unique_code,"quiz_attempts",$attid);
+                    $att = backup_getid($restore->backup_unique_code,"guidedquiz_attempts",$attid);
                     if ($att) {
                         $log->url = "review.php?id=".$log->cmid."&attempt=".$att->new_id;
                         $log->info = $mod->new_id;
@@ -775,7 +775,7 @@
                     //Extract the attempt id from the url field
                     $attid = substr(strrchr($log->url,"="),1);
                     //Get the new_id of the attempt (to recode the url field)
-                    $att = backup_getid($restore->backup_unique_code,"quiz_attempts",$attid);
+                    $att = backup_getid($restore->backup_unique_code,"guidedquiz_attempts",$attid);
                     if ($att) {
                         $log->url = "review.php?id=".$log->cmid."&attempt=".$att->new_id;
                         $log->info = $mod->new_id;
@@ -792,7 +792,7 @@
                     //Extract the attempt id from the url field
                     $attid = substr(strrchr($log->url,"="),1);
                     //Get the new_id of the attempt (to recode the url field)
-                    $att = backup_getid($restore->backup_unique_code,"quiz_attempts",$attid);
+                    $att = backup_getid($restore->backup_unique_code,"guidedquiz_attempts",$attid);
                     if ($att) {
                         $log->url = "review.php?id=".$log->cmid."&attempt=".$att->new_id;
                         $log->info = $mod->new_id;
@@ -809,7 +809,7 @@
                     //Extract the attempt id from the url field
                     $attid = substr(strrchr($log->url,"="),1);
                     //Get the new_id of the attempt (to recode the url field)
-                    $att = backup_getid($restore->backup_unique_code,"quiz_attempts",$attid);
+                    $att = backup_getid($restore->backup_unique_code,"guidedquiz_attempts",$attid);
                     if ($att) {
                         $log->url = "review.php?id=".$log->cmid."&attempt=".$att->new_id;
                         $log->info = $mod->new_id;
@@ -826,7 +826,7 @@
                     //Extract the attempt id from the url field
                     $attid = substr(strrchr($log->url,"="),1);
                     //Get the new_id of the attempt (to recode the url field)
-                    $att = backup_getid($restore->backup_unique_code,"quiz_attempts",$attid);
+                    $att = backup_getid($restore->backup_unique_code,"guidedquiz_attempts",$attid);
                     if ($att) {
                         $log->url = "review.php?id=".$log->cmid."&attempt=".$att->new_id;
                         $log->info = $mod->new_id;
@@ -849,7 +849,7 @@
         return $status;
     }
 
-    function quiz_recode_layout($layout, $restore) {
+    function guidedquiz_recode_layout($layout, $restore) {
         //Recodes the quiz layout (a list of questions id and pagebreaks)
 
         //Extracts question id from sequence
