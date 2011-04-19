@@ -15,7 +15,7 @@
 
 // Included by ../report.php
 
-class quiz_default_report {
+class guidedquiz_default_report {
 
     function display($cm, $course, $quiz) {     /// This function just displays the report
         return true;
@@ -34,7 +34,7 @@ class quiz_default_report {
     /// Print the tabs    
         $currenttab = 'reports';
         $mode = $reportmode;
-        require($CFG->dirroot . '/mod/quiz/tabs.php');
+        require($CFG->dirroot . '/mod/guidedquiz/tabs.php');
         $course_context = get_context_instance(CONTEXT_COURSE, $course->id);
         if (has_capability('gradereport/grader:view', $course_context) && has_capability('moodle/grade:viewall', $course_context)) {
             echo '<div class="allcoursegrades"><a href="' . $CFG->wwwroot . '/grade/report/grader/index.php?id=' . $course->id . '">' 

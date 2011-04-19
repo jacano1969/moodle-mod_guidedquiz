@@ -11,7 +11,7 @@ define('QUIZ_REPORT_ATTEMPTS_ALL_STUDENTS', 3);
  * uniqueid field from quiz_attempt table not the id. Use question_state_is_graded
  * function to check that the question is actually graded.
  */
-function quiz_get_newgraded_states($attemptids, $idxattemptq = true, $fields='qs.*'){
+function guidedquiz_get_newgraded_states($attemptids, $idxattemptq = true, $fields='qs.*'){
     global $CFG;
     if ($attemptids){
         $attemptidlist = join($attemptids, ',');
@@ -38,12 +38,12 @@ function quiz_get_newgraded_states($attemptids, $idxattemptq = true, $fields='qs
     }
 }
 
-function quiz_get_average_grade_for_questions($quiz, $userids){
+function guidedquiz_get_average_grade_for_questions($quiz, $userids){
     global $CFG;
-    $qmfilter = quiz_report_qm_filter_select($quiz);
+    $qmfilter = guidedquiz_report_qm_filter_select($quiz);
     $questionavgssql = "SELECT qs.question, AVG(qs.grade) FROM " .
             "{$CFG->prefix}question_sessions qns, " .
-            "{$CFG->prefix}quiz_attempts qa, " .
+            "{$CFG->prefix}guidedquiz_attempts qa, " .
             "{$CFG->prefix}question_states qs " .
             "WHERE qns.attemptid = qa.uniqueid AND " .
             "qa.quiz = {$quiz->id} AND " .
@@ -54,7 +54,7 @@ function quiz_get_average_grade_for_questions($quiz, $userids){
     return get_records_sql_menu($questionavgssql);
 }
 
-function quiz_get_total_qas_graded_and_ungraded($quiz, $questionids, $userids){
+function guidedquiz_get_total_qas_graded_and_ungraded($quiz, $questionids, $userids){
     global $CFG;
     if ($userids) {
         $userwhere = "qa.userid IN ({$userids}) AND ";
@@ -64,7 +64,7 @@ function quiz_get_total_qas_graded_and_ungraded($quiz, $questionids, $userids){
     $sql = "SELECT qs.question, COUNT(1) AS totalattempts, " .
             "SUM(CASE WHEN (qs.event IN (".QUESTION_EVENTS_GRADED.")) THEN 1 ELSE 0 END) AS gradedattempts " .
             "FROM " .
-            "{$CFG->prefix}quiz_attempts qa, " .
+            "{$CFG->prefix}guidedquiz_attempts qa, " .
             "{$CFG->prefix}question_sessions qns, " .
             "{$CFG->prefix}question_states qs " .
             "WHERE " .
@@ -77,7 +77,7 @@ function quiz_get_total_qas_graded_and_ungraded($quiz, $questionids, $userids){
     return get_records_sql($sql);
 }
 
-function quiz_format_average_grade_for_questions($avggradebyq, $questions, $quiz, $download){
+function guidedquiz_format_average_grade_for_questions($avggradebyq, $questions, $quiz, $download){
     $row = array();
     if (!$avggradebyq){
         $avggradebyq = array();
@@ -85,12 +85,12 @@ function quiz_format_average_grade_for_questions($avggradebyq, $questions, $quiz
     foreach(array_keys($questions) as $questionid) {
         if (isset($avggradebyq[$questionid])){
             $grade = $avggradebyq[$questionid];
-            $grade = quiz_rescale_grade($grade, $quiz);
+            $grade = guidedquiz_rescale_grade($grade, $quiz);
         } else {
             $grade = '--';
         }
         if (!$download) {
-            $grade = $grade.'/'.quiz_rescale_grade($questions[$questionid]->grade, $quiz);
+            $grade = $grade.'/'.guidedquiz_rescale_grade($questions[$questionid]->grade, $quiz);
         }
         $row['qsgrade'.$questionid]= $grade;
     }
@@ -103,15 +103,15 @@ function quiz_format_average_grade_for_questions($avggradebyq, $questions, $quiz
  * - Add question numbers.
  * - Add grade from quiz_questions_instance
  */
-function quiz_report_load_questions($quiz){
+function guidedquiz_report_load_questions($quiz){
     global $CFG;
-    $questionlist = quiz_questions_in_quiz($quiz->questions);
+    $questionlist = guidedquiz_questions_in_quiz($quiz->questions);
     //In fact in most cases the id IN $questionlist below is redundant 
     //since we are also doing a JOIN on the qqi table. But will leave it in
     //since this double check will probably do no harm.
     if (!$questions = get_records_sql("SELECT q.*, qqi.grade " .
             "FROM {$CFG->prefix}question q, " .
-            "{$CFG->prefix}quiz_question_instances qqi " .
+            "{$CFG->prefix}guidedquiz_question_instances qqi " .
             "WHERE q.id IN ($questionlist) AND " .
             "qqi.question = q.id AND " .
             "qqi.quiz =".$quiz->id)) {
@@ -138,7 +138,7 @@ function quiz_report_load_questions($quiz){
  * one attempt that will be graded for each user. Or return
  * empty string if all attempts contribute to final grade.
  */
-function quiz_report_qm_filter_select($quiz){
+function guidedquiz_report_qm_filter_select($quiz){
     global $CFG;
     if ($quiz->attempts == 1) {//only one attempt allowed on this quiz
         return '';
@@ -173,8 +173,8 @@ function quiz_report_qm_filter_select($quiz){
         break;
     }
     if ($qmselectpossible){
-        $qmselect = "qa.$field1 = (SELECT $aggregator1(qa2.$field1) FROM {$CFG->prefix}quiz_attempts qa2 WHERE qa2.quiz = $quizidsql AND qa2.userid = $useridsql) AND " .
-                    "qa.$field2 = (SELECT $aggregator2(qa3.$field2) FROM {$CFG->prefix}quiz_attempts qa3 WHERE qa3.quiz = $quizidsql AND qa3.userid = $useridsql AND qa3.$field1 = qa.$field1)";
+        $qmselect = "qa.$field1 = (SELECT $aggregator1(qa2.$field1) FROM {$CFG->prefix}guidedquiz_attempts qa2 WHERE qa2.quiz = $quizidsql AND qa2.userid = $useridsql) AND " .
+                    "qa.$field2 = (SELECT $aggregator2(qa3.$field2) FROM {$CFG->prefix}guidedquiz_attempts qa3 WHERE qa3.quiz = $quizidsql AND qa3.userid = $useridsql AND qa3.$field1 = qa.$field1)";
     } else {
         $qmselect = '';
     }
@@ -183,14 +183,14 @@ function quiz_report_qm_filter_select($quiz){
 }
 
 
-function quiz_report_grade_bands($bandwidth, $bands, $quizid, $useridlist=''){
+function guidedquiz_report_grade_bands($bandwidth, $bands, $quizid, $useridlist=''){
     global $CFG;
     $sql = "SELECT
         FLOOR(qg.grade/$bandwidth) AS band,
         COUNT(1) AS num
     FROM
-        {$CFG->prefix}quiz_grades qg, 
-        {$CFG->prefix}quiz q
+        {$CFG->prefix}guidedquiz_grades qg, 
+        {$CFG->prefix}guidedquiz q
     WHERE qg.quiz = q.id AND qg.quiz = $quizid 
             ".($useridlist?"AND qg.userid IN ($useridlist) ":'')."
     GROUP BY FLOOR(qg.grade/$bandwidth)
@@ -209,7 +209,7 @@ function quiz_report_grade_bands($bandwidth, $bands, $quizid, $useridlist=''){
     return $data;
 
 }
-function quiz_report_highlighting_grading_method($quiz, $qmsubselect, $qmfilter){
+function guidedquiz_report_highlighting_grading_method($quiz, $qmsubselect, $qmfilter){
     if ($quiz->attempts == 1) {//only one attempt allowed on this quiz
         return "<p>".get_string('onlyoneattemptallowed', "quiz_overview")."</p>";
     } else if (!$qmsubselect){
@@ -218,7 +218,7 @@ function quiz_report_highlighting_grading_method($quiz, $qmsubselect, $qmfilter)
         return "<p>".get_string('showinggraded', "quiz_overview")."</p>";
     }else {
         return "<p>".get_string('showinggradedandungraded', "quiz_overview",
-                ('<span class="highlight">'.quiz_get_grading_option_name($quiz->grademethod).'</span>'))."</p>";
+                ('<span class="highlight">'.guidedquiz_get_grading_option_name($quiz->grademethod).'</span>'))."</p>";
     }
 }
 
@@ -231,10 +231,10 @@ function quiz_report_highlighting_grading_method($quiz, $qmsubselect, $qmfilter)
  * @param integer $quizid the id of the quiz object.
  * @return string the comment that corresponds to this grade (empty string if there is not one.
  */
-function quiz_report_feedback_for_grade($grade, $quizid) {
+function guidedquiz_report_feedback_for_grade($grade, $quizid) {
     static $feedbackcache = array();
     if (!isset($feedbackcache[$quizid])){
-        $feedbackcache[$quizid] = get_records('quiz_feedback', 'quizid', $quizid);
+        $feedbackcache[$quizid] = get_records('guidedquiz_feedback', 'quizid', $quizid);
     }
     $feedbacks = $feedbackcache[$quizid];
     $feedbacktext = '';
