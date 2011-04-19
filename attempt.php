@@ -415,7 +415,7 @@
 /// Print the quiz page ////////////////////////////////////////////////////////
 
     // Print the page header
-    require_js($CFG->wwwroot . '/mod/guidedquiz/quiz.js');
+    require_js($CFG->wwwroot . '/mod/quiz/quiz.js');
     $pagequestions = explode(',', $pagelist);
     $headtags = get_html_head_contributions($pagequestions, $questions, $states);
     if (!$ispreviewing && $quiz->popup) {
