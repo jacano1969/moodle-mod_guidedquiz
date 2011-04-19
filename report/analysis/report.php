@@ -3,7 +3,7 @@
     require_once($CFG->libdir.'/tablelib.php');
 
 /// Item analysis displays a table of quiz questions and their performance
-class quiz_report extends quiz_default_report {
+class guidedquiz_report extends guidedquiz_default_report {
 
     function display($quiz, $cm, $course) {     /// This function just displays the report
         global $CFG, $SESSION, $QTYPES;
@@ -25,7 +25,7 @@ class quiz_report extends quiz_default_report {
         
         if ($groupmode = groups_get_activity_groupmode($cm)) {   // Groups are being used
             if (!$download) {
-                groups_print_activity_menu($cm, $CFG->wwwroot . "/mod/quiz/report.php?id=$cm->id&amp;mode=analysis");
+                groups_print_activity_menu($cm, $CFG->wwwroot . "/mod/guidedquiz/report.php?id=$cm->id&amp;mode=analysis");
             }
         }
 
@@ -71,7 +71,7 @@ class quiz_report extends quiz_default_report {
 
         if ($attemptselection != QUIZ_ALLATTEMPTS) {
             $sql = 'SELECT qa.userid '.$limit.
-                    'FROM '.$CFG->prefix.'user u LEFT JOIN '.$CFG->prefix.'quiz_attempts qa ON u.id = qa.userid '.
+                    'FROM '.$CFG->prefix.'user u LEFT JOIN '.$CFG->prefix.'guidedquiz_attempts qa ON u.id = qa.userid '.
                     'WHERE qa.quiz = '.$quiz->id.' AND qa.preview = 0 '.
                     $group;
             $usermax = get_records_sql_menu($sql);
@@ -86,7 +86,7 @@ class quiz_report extends quiz_default_report {
             $groupwhere = "AND gm.groupid = '$currentgroup' AND u.id = gm.userid";
         }
 
-        $sql = 'SELECT  qa.* FROM '.$CFG->prefix.'quiz_attempts qa, '.$CFG->prefix.'user u '.$groupmembers.
+        $sql = 'SELECT  qa.* FROM '.$CFG->prefix.'guidedquiz_attempts qa, '.$CFG->prefix.'user u '.$groupmembers.
                  'WHERE u.id = qa.userid AND qa.quiz = '.$quiz->id.' AND qa.preview = 0 AND ( qa.sumgrades >= '.$scorelimit.' ) '.$groupwhere;
 
         // ^^^^^^ es posible seleccionar aqu TODOS los quizzes, como quiere Jussi,
@@ -106,9 +106,9 @@ class quiz_report extends quiz_default_report {
         $statstable = array();
         $questionarray = array();
         foreach ($attempts as $attempt) {
-            $questionarray[] = quiz_questions_in_quiz($attempt->layout);
+            $questionarray[] = guidedquiz_questions_in_quiz($attempt->layout);
         }
-        $questionlist = quiz_questions_in_quiz(implode(",", $questionarray));
+        $questionlist = guidedquiz_questions_in_quiz(implode(",", $questionarray));
         $questionarray = array_unique(explode(",",$questionlist));
         $questionlist = implode(",", $questionarray);
         unset($questionarray);
@@ -133,7 +133,7 @@ class quiz_report extends quiz_default_report {
 
             $sql = "SELECT q.*, i.grade AS maxgrade, i.id AS instance".
                    "  FROM {$CFG->prefix}question q,".
-                   "       {$CFG->prefix}quiz_question_instances i".
+                   "       {$CFG->prefix}guidedquiz_question_instances i".
                    " WHERE i.quiz = '$quiz->id' AND q.id = i.question".
                    "   AND q.id IN ($questionlist)";
 
@@ -243,7 +243,7 @@ class quiz_report extends quiz_default_report {
 
         $table->define_columns($tablecolumns);
         $table->define_headers($tableheaders);
-        $table->define_baseurl($CFG->wwwroot.'/mod/quiz/report.php?q='.$quiz->id.'&amp;mode=analysis');
+        $table->define_baseurl($CFG->wwwroot.'/mod/guidedquiz/report.php?q='.$quiz->id.'&amp;mode=analysis');
 
         $table->sortable(true);
         $table->no_sorting('rpercent');
@@ -320,7 +320,7 @@ class quiz_report extends quiz_default_report {
             }
             $qname = '<div class="qname">'.format_text($question->name." :  ", $question->questiontextformat, $format_options, $quiz->course).'</div>';
             $qicon = print_question_icon($question, true);
-            $qreview = quiz_question_preview_button($quiz, $question);
+            $qreview = guidedquiz_question_preview_button($quiz, $question);
             $qtext = format_text($question->questiontext, $question->questiontextformat, $format_options, $quiz->course);
             $qquestion = $qname."\n".$qtext."\n";
 
