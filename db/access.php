@@ -1,14 +1,14 @@
 <?php  // $Id: access.php,v 1.8.2.3 2009/11/19 17:30:11 tjhunt Exp $
 /**
- * Capability definitions for the quiz module.
+ * Capability definitions for the guidedquiz module.
  *
  * For naming conventions, see lib/db/access.php.
  */
-$mod_quiz_capabilities = array(
+$mod_guidedquiz_capabilities = array(
 
-    // Ability to see that the quiz exists, and the basic information
+    // Ability to see that the guidedquiz exists, and the basic information
     // about it, for example the start date and time limit.
-    'mod/quiz:view' => array(
+    'mod/guidedquiz:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'legacy' => array(
@@ -20,8 +20,8 @@ $mod_quiz_capabilities = array(
         )
     ),
 
-    // Ability to do the quiz as a 'student'.
-    'mod/quiz:attempt' => array(
+    // Ability to do the guidedquiz as a 'student'.
+    'mod/guidedquiz:attempt' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -31,18 +31,18 @@ $mod_quiz_capabilities = array(
     ),
 
     // Ability for a 'Student' to review their previous attempts. Review by
-    // 'Teachers' is controlled by mod/quiz:viewreports.
-    'mod/quiz:reviewmyattempts' => array(
+    // 'Teachers' is controlled by mod/guidedquiz:viewreports.
+    'mod/guidedquiz:reviewmyattempts' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'legacy' => array(
             'student' => CAP_ALLOW
         ),
-        'clonepermissionsfrom' => 'moodle/quiz:attempt'
+        'clonepermissionsfrom' => 'moodle/guidedquiz:attempt'
     ),
 
-    // Edit the quiz settings, add and remove questions.
-    'mod/quiz:manage' => array(
+    // Edit the guidedquiz settings, add and remove questions.
+    'mod/guidedquiz:manage' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -52,8 +52,8 @@ $mod_quiz_capabilities = array(
         )
     ),
 
-    // Preview the quiz.
-    'mod/quiz:preview' => array(
+    // Preview the guidedquiz.
+    'mod/guidedquiz:preview' => array(
         'captype' => 'write', // Only just a write.
         'contextlevel' => CONTEXT_MODULE,
         'legacy' => array(
@@ -63,8 +63,8 @@ $mod_quiz_capabilities = array(
         )
     ),
 
-    // Manually grade and comment on student attempts at a question, and regrade quizzes.
-    'mod/quiz:grade' => array(
+    // Manually grade and comment on student attempts at a question, and regrade guidedquizzes.
+    'mod/guidedquiz:grade' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -75,8 +75,8 @@ $mod_quiz_capabilities = array(
         )
     ),
 
-    // View the quiz reports.
-    'mod/quiz:viewreports' => array(
+    // View the guidedquiz reports.
+    'mod/guidedquiz:viewreports' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -88,7 +88,7 @@ $mod_quiz_capabilities = array(
     ),
 
     // Delete attempts using the overview report.
-    'mod/quiz:deleteattempts' => array(
+    'mod/guidedquiz:deleteattempts' => array(
         'riskbitmask' => RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -99,21 +99,21 @@ $mod_quiz_capabilities = array(
     ),
 
     // Do not have the time limit imposed. Used for accessibility legislation compliance.
-    'mod/quiz:ignoretimelimits' => array(
+    'mod/guidedquiz:ignoretimelimits' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'legacy' => array()
     ),
 
-    // Receive email confirmation of own quiz submission
-    'mod/quiz:emailconfirmsubmission' => array(
+    // Receive email confirmation of own guidedquiz submission
+    'mod/guidedquiz:emailconfirmsubmission' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'legacy' => array()
     ),
 
-    // Receive email notification of other peoples quiz submissions
-    'mod/quiz:emailnotifysubmission' => array(
+    // Receive email notification of other peoples guidedquiz submissions
+    'mod/guidedquiz:emailnotifysubmission' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'legacy' => array()

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/quiz/db" VERSION="20070522" COMMENT="XMLDB file for Moodle mod/quiz"
+<XMLDB PATH="mod/guidedquiz/db" VERSION="20070522" COMMENT="XMLDB file for Moodle mod/guidedquiz"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -126,7 +126,7 @@
     <TABLE NAME="question_attempts" COMMENT="Student attempts. This table gets extended by the modules" PREVIOUS="question_numerical_units" NEXT="question_states">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="modulename"/>
-        <FIELD NAME="modulename" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="quiz" SEQUENCE="false" ENUM="false" PREVIOUS="id"/>
+        <FIELD NAME="modulename" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="guidedquiz" SEQUENCE="false" ENUM="false" PREVIOUS="id"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" />
@@ -152,7 +152,7 @@
         <KEY NAME="question" TYPE="foreign" FIELDS="question" REFTABLE="question" REFFIELDS="id" PREVIOUS="attempt"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="question_sessions" COMMENT="Gives ids of the newest open and newest graded states" PREVIOUS="question_states" NEXT="quiz">
+    <TABLE NAME="question_sessions" COMMENT="Gives ids of the newest open and newest graded states" PREVIOUS="question_states" NEXT="guidedquiz">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="attemptid"/>
         <FIELD NAME="attemptid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="questionid"/>
@@ -173,7 +173,7 @@
         <INDEX NAME="attemptid-questionid" UNIQUE="true" FIELDS="attemptid, questionid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="quiz" COMMENT="Main information about each quiz" PREVIOUS="question_sessions" NEXT="quiz_attempts">
+    <TABLE NAME="guidedquiz" COMMENT="Main information about each quiz" PREVIOUS="question_sessions" NEXT="guidedquiz_attempts">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="course"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="name"/>
@@ -210,7 +210,7 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="quiz_attempts" COMMENT="Stores various attempts on a quiz" PREVIOUS="quiz" NEXT="quiz_grades">
+    <TABLE NAME="guidedquiz_attempts" COMMENT="Stores various attempts on a quiz" PREVIOUS="guidedquiz" NEXT="guidedquiz_grades">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="uniqueid"/>
         <FIELD NAME="uniqueid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="quiz"/>
@@ -227,13 +227,13 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="uniqueid"/>
         <KEY NAME="uniqueid" TYPE="foreign-unique" FIELDS="uniqueid" REFTABLE="question_attempts" REFFIELDS="id" PREVIOUS="primary" NEXT="quiz"/>
-        <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="quiz" REFFIELDS="id" PREVIOUS="uniqueid"/>
+        <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="guidedquiz" REFFIELDS="id" PREVIOUS="uniqueid"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="quiz_grades" COMMENT="Final quiz grade (may be best of several attempts)" PREVIOUS="quiz_attempts" NEXT="quiz_question_instances">
+    <TABLE NAME="guidedquiz_grades" COMMENT="Final quiz grade (may be best of several attempts)" PREVIOUS="guidedquiz_attempts" NEXT="guidedquiz_question_instances">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quiz"/>
         <FIELD NAME="quiz" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="userid"/>
@@ -243,13 +243,13 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="quiz"/>
-        <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="quiz" REFFIELDS="id" PREVIOUS="primary"/>
+        <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="guidedquiz" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="quiz_question_instances" COMMENT="The grade for a question in a quiz" PREVIOUS="quiz_grades" NEXT="quiz_question_versions">
+    <TABLE NAME="guidedquiz_question_instances" COMMENT="The grade for a question in a quiz" PREVIOUS="guidedquiz_grades" NEXT="guidedquiz_question_versions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quiz"/>
         <FIELD NAME="quiz" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="question"/>
@@ -258,11 +258,11 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="quiz"/>
-        <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="quiz" REFFIELDS="id" PREVIOUS="primary" NEXT="question"/>
+        <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="guidedquiz" REFFIELDS="id" PREVIOUS="primary" NEXT="question"/>
         <KEY NAME="question" TYPE="foreign" FIELDS="question" REFTABLE="question" REFFIELDS="id" PREVIOUS="quiz"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="quiz_question_versions" COMMENT="quiz_question_versions table retrofitted from MySQL" PREVIOUS="quiz_question_instances" NEXT="quiz_feedback">
+    <TABLE NAME="guidedquiz_question_versions" COMMENT="guidedquiz_question_versions table retrofitted from MySQL" PREVIOUS="guidedquiz_question_instances" NEXT="guidedquiz_feedback">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quiz"/>
         <FIELD NAME="quiz" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="oldquestion"/>
@@ -274,13 +274,13 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="quiz"/>
-        <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="quiz" REFFIELDS="id" PREVIOUS="primary" NEXT="oldquestion"/>
+        <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="guidedquiz" REFFIELDS="id" PREVIOUS="primary" NEXT="oldquestion"/>
         <KEY NAME="oldquestion" TYPE="foreign" FIELDS="oldquestion" REFTABLE="question" REFFIELDS="id" PREVIOUS="quiz" NEXT="newquestion"/>
         <KEY NAME="newquestion" TYPE="foreign" FIELDS="newquestion" REFTABLE="question" REFFIELDS="id" PREVIOUS="oldquestion" NEXT="originalquestion"/>
         <KEY NAME="originalquestion" TYPE="foreign" FIELDS="originalquestion" REFTABLE="question" REFFIELDS="id" PREVIOUS="newquestion"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="quiz_feedback" COMMENT="Feedback given to students based on their overall score on the test" PREVIOUS="quiz_question_versions">
+    <TABLE NAME="guidedquiz_feedback" COMMENT="Feedback given to students based on their overall score on the test" PREVIOUS="guidedquiz_question_versions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quizid"/>
         <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="feedbacktext"/>
@@ -290,25 +290,25 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="quizid"/>
-        <KEY NAME="quizid" TYPE="foreign" FIELDS="quizid" REFTABLE="quiz" REFFIELDS="id" PREVIOUS="primary"/>
+        <KEY NAME="quizid" TYPE="foreign" FIELDS="quizid" REFTABLE="guidedquiz" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
     </TABLE>
   </TABLES>
   <STATEMENTS>
     <STATEMENT NAME="insert log_display" TYPE="insert" TABLE="log_display" COMMENT="Initial insert of records on table log_display">
       <SENTENCES>
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'add', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'update', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'view', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'report', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'attempt', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'submit', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'review', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'editquestions', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'preview', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'start attempt', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'close attempt', 'quiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('quiz', 'continue attempt', 'quiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'add', 'guidedquiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'update', 'guidedquiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'view', 'guidedquiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'report', 'guidedquiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'attempt', 'guidedquiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'submit', 'guidedquiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'review', 'guidedquiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'editquestions', 'guideequiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'preview', 'guidedquiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'start attempt', 'guidedquiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'close attempt', 'guidedquiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'continue attempt', 'guidedquiz', 'name')" />
       </SENTENCES>
     </STATEMENT>
   </STATEMENTS>
