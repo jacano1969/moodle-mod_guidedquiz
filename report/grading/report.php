@@ -14,7 +14,7 @@
 //         first case: print out all essay questions in quiz and the number of ungraded attempts
 //         second case: print out all users and their attempts for a specific essay question
 
-require_once($CFG->dirroot . "/mod/quiz/editlib.php");
+require_once($CFG->dirroot . "/mod/guidedquiz/editlib.php");
 require_once($CFG->libdir . '/tablelib.php');
 
 /**
@@ -23,7 +23,7 @@ require_once($CFG->libdir . '/tablelib.php');
  * @package quiz
  * @subpackage reports
  */
-class quiz_report extends quiz_default_report {
+class guidedquiz_report extends guidedquiz_default_report {
     /**
      * Displays the report.
      */
@@ -62,12 +62,12 @@ class quiz_report extends quiz_default_report {
 
         // Check permissions
         $this->context = get_context_instance(CONTEXT_MODULE, $cm->id);
-        if (!has_capability('mod/quiz:grade', $this->context)) {
+        if (!has_capability('mod/guidedquiz:grade', $this->context)) {
             notify(get_string('gradingnotallowed', 'quiz_grading'));
             return true;
         }
 
-        $gradeableqs = quiz_report_load_questions($quiz);
+        $gradeableqs = guidedquiz_report_load_questions($quiz);
         $questionsinuse = implode(',', array_keys($gradeableqs));
         foreach ($gradeableqs as $qid => $question){
             if (!$QTYPES[$question->qtype]->is_question_manual_graded($question, $questionsinuse)){
@@ -83,7 +83,7 @@ class quiz_report extends quiz_default_report {
         }
 
         $currentgroup = groups_get_activity_group($this->cm, true);
-        $this->users = get_users_by_capability($this->context, array('mod/quiz:reviewmyattempts', 'mod/quiz:attempt'),'','','','',$currentgroup,'',false);
+        $this->users = get_users_by_capability($this->context, array('mod/guidedquiz:reviewmyattempts', 'mod/guidedquiz:attempt'),'','','','',$currentgroup,'',false);
         if ($this->users) {
             $this->userids = implode(',', array_keys($this->users));
         } else {
@@ -96,7 +96,7 @@ class quiz_report extends quiz_default_report {
             } else {
                 $question =& $gradeableqs[$questionid];
             }
-            $question->maxgrade = get_field('quiz_question_instances', 'grade', 'quiz', $quiz->id, 'question', $question->id);
+            $question->maxgrade = get_field('guidedquiz_question_instances', 'grade', 'quiz', $quiz->id, 'question', $question->id);
 
             // Some of the questions code is optimised to work with several questions
             // at once so it wants the question to be in an array. The array key
@@ -113,7 +113,7 @@ class quiz_report extends quiz_default_report {
             // all the information about the questions that may be needed later.
         }
 
-        add_to_log($course->id, "quiz", "manualgrading", "report.php?mode=grading&amp;q=$quiz->id", "$quiz->id", "$cm->id");
+        add_to_log($course->id, "guidedquiz", "manualgrading", "report.php?mode=grading&amp;q=$quiz->id", "$quiz->id", "$cm->id");
 
         echo '<div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>'; // for overlib
 
@@ -125,7 +125,7 @@ class quiz_report extends quiz_default_report {
             foreach($data->manualgrades as $uniqueid => $response) {
                 // get our attempt
                 $uniqueid = clean_param($uniqueid, PARAM_INT);
-                if (!$attempt = get_record_sql("SELECT * FROM {$CFG->prefix}quiz_attempts " .
+                if (!$attempt = get_record_sql("SELECT * FROM {$CFG->prefix}guidedquiz_attempts " .
                                 "WHERE uniqueid = $uniqueid AND " .
                                 "quiz = " . $quiz->id)){
                     error('No such attempt ID exists');
@@ -145,7 +145,7 @@ class quiz_report extends quiz_default_report {
                 } else if ($state->changed) {
                     // If the state has changed save it and update the quiz grade
                     save_question_session($question, $state);
-                    quiz_save_best_grade($quiz, $attempt->userid);
+                    guidedquiz_save_best_grade($quiz, $attempt->userid);
                 }
             }
 
@@ -155,14 +155,14 @@ class quiz_report extends quiz_default_report {
                 notify(get_string('changessavedwitherrors', 'quiz'), 'notifysuccess');
             }
         }
-        $this->viewurl = new moodle_url($CFG->wwwroot.'/mod/quiz/report.php', $viewoptions); 
+        $this->viewurl = new moodle_url($CFG->wwwroot.'/mod/guidedquiz/report.php', $viewoptions); 
         /// find out current groups mode
 
         if ($groupmode = groups_get_activity_groupmode($this->cm)) {   // Groups are being used
             groups_print_activity_menu($this->cm, $this->viewurl->out(false, array('userid'=>0, 'attemptid'=>0)));
         }
 
-        echo '<div class="quizattemptcounts">' . quiz_num_attempt_summary($quiz, $cm, true, $currentgroup) . '</div>';
+        echo '<div class="quizattemptcounts">' . guidedquiz_num_attempt_summary($quiz, $cm, true, $currentgroup) . '</div>';
 
         if (empty($this->users)) {
             if ($currentgroup){
@@ -173,7 +173,7 @@ class quiz_report extends quiz_default_report {
             }
         }
         $gradeablequestionids = implode(',',array_keys($gradeableqs));
-        $qattempts = quiz_get_total_qas_graded_and_ungraded($quiz, $gradeablequestionids, $this->userids);
+        $qattempts = guidedquiz_get_total_qas_graded_and_ungraded($quiz, $gradeablequestionids, $this->userids);
         if(empty($qattempts)) {
             notify(get_string('noattemptstoshow', 'quiz'));
             return true;
@@ -389,7 +389,7 @@ class quiz_report extends quiz_default_report {
                 // with only one question there is only one entry in this array
                 $state = &$states[$question->id];
 
-                $options = quiz_get_reviewoptions($quiz, $attempt, $context);
+                $options = guidedquiz_get_reviewoptions($quiz, $attempt, $context);
                 unset($options->questioncommentlink);
                 $options->noeditlink = true;
                 $copy = $state->manualcomment;
@@ -442,7 +442,7 @@ class quiz_report extends quiz_default_report {
             $select .= ', qs.event ';
         }
         $from   = 'FROM '.$CFG->prefix.'user u, ' .
-                $CFG->prefix.'quiz_attempts qa ';
+                $CFG->prefix.'guidedquiz_attempts qa ';
         if (($wantstateevent|| $gradenextungraded || $gradeungraded) && $questionid){
             $from .= "LEFT JOIN {$CFG->prefix}question_sessions qns " .
                     "ON (qns.attemptid = qa.uniqueid AND qns.questionid = $questionid) ";
