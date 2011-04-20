@@ -202,7 +202,7 @@
                 WHERE qtype = '" . RANDOM . "'
                     AND category = $category->id
                     AND " . sql_compare_text('questiontext') . " = '$recurse'
-                    AND NOT EXISTS (SELECT * FROM " . $CFG->prefix . "guidedquiz_question_instances WHERE question = q.id)
+                    AND NOT EXISTS (SELECT * FROM " . $CFG->prefix . "guidedquiz_question_instance WHERE question = q.id)
                 ORDER BY id")) {
             // Take as many of these as needed.
             while (($existingquestion = array_shift($existingquestions)) and $randomcount > 0) {

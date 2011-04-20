@@ -107,7 +107,7 @@ function guidedquiz_delete_instance($id) {
     $tables_to_purge = array(
         'guidedquiz_attempts' => 'quiz',
         'guidedquiz_grades' => 'quiz',
-        'guidedquiz_question_instances' => 'quiz',
+        'guidedquiz_question_instance' => 'quiz',
         'guidedquiz_grades' => 'quiz',
         'guidedquiz_feedback' => 'quizid',
         'guidedquiz' => 'id'
@@ -416,7 +416,7 @@ function guidedquiz_get_participants($quizid) {
     //Get users from question_versions
     $us_versions = get_records_sql("SELECT DISTINCT u.id, u.id
                                     FROM {$CFG->prefix}user u,
-                                         {$CFG->prefix}guidedquiz_question_versions v
+                                         {$CFG->prefix}guidedquiz_question_version v
                                     WHERE v.quiz = '$quizid' and
                                           u.id = v.userid");
 
@@ -947,7 +947,7 @@ function guidedquiz_question_list_instances($questionid) {
     $sql = "SELECT q.id, q.name
             FROM {$CFG->prefix}guidedquiz q
             INNER JOIN
-                 {$CFG->prefix}guidedquiz_question_instances qqi
+                 {$CFG->prefix}guidedquiz_question_instance qqi
             ON q.id = qqi.quiz
             WHERE qqi.question = '$questionid'";
 

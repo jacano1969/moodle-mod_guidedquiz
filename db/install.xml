@@ -64,7 +64,7 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="guidedquiz_grades" COMMENT="Final quiz grade (may be best of several attempts)" PREVIOUS="guidedquiz_attempts" NEXT="guidedquiz_question_instances">
+    <TABLE NAME="guidedquiz_grades" COMMENT="Final quiz grade (may be best of several attempts)" PREVIOUS="guidedquiz_attempts" NEXT="guidedquiz_question_instance">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quiz"/>
         <FIELD NAME="quiz" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="userid"/>
@@ -80,7 +80,7 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="guidedquiz_question_instances" COMMENT="The grade for a question in a quiz" PREVIOUS="guidedquiz_grades" NEXT="guidedquiz_question_versions">
+    <TABLE NAME="guidedquiz_question_instance" COMMENT="The grade for a question in a quiz" PREVIOUS="guidedquiz_grades" NEXT="guidedquiz_question_version">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quiz"/>
         <FIELD NAME="quiz" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="question"/>
@@ -93,7 +93,7 @@
         <KEY NAME="question" TYPE="foreign" FIELDS="question" REFTABLE="question" REFFIELDS="id" PREVIOUS="quiz"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="guidedquiz_question_versions" COMMENT="guidedquiz_question_versions table retrofitted from MySQL" PREVIOUS="guidedquiz_question_instances" NEXT="guidedquiz_feedback">
+    <TABLE NAME="guidedquiz_question_version" COMMENT="guidedquiz_question_version table retrofitted from MySQL" PREVIOUS="guidedquiz_question_instance" NEXT="guidedquiz_feedback">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quiz"/>
         <FIELD NAME="quiz" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="oldquestion"/>
@@ -111,7 +111,7 @@
         <KEY NAME="originalquestion" TYPE="foreign" FIELDS="originalquestion" REFTABLE="question" REFFIELDS="id" PREVIOUS="newquestion"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="guidedquiz_feedback" COMMENT="Feedback given to students based on their overall score on the test" PREVIOUS="guidedquiz_question_versions">
+    <TABLE NAME="guidedquiz_feedback" COMMENT="Feedback given to students based on their overall score on the test" PREVIOUS="guidedquiz_question_version">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quizid"/>
         <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="feedbacktext"/>

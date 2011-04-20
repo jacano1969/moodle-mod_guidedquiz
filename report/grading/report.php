@@ -96,7 +96,7 @@ class guidedquiz_report extends guidedquiz_default_report {
             } else {
                 $question =& $gradeableqs[$questionid];
             }
-            $question->maxgrade = get_field('guidedquiz_question_instances', 'grade', 'quiz', $quiz->id, 'question', $question->id);
+            $question->maxgrade = get_field('guidedquiz_question_instance', 'grade', 'quiz', $quiz->id, 'question', $question->id);
 
             // Some of the questions code is optimised to work with several questions
             // at once so it wants the question to be in an array. The array key

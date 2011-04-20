@@ -26,7 +26,7 @@ class guidedquiz_report extends guidedquiz_default_report {
 
         // Fetch all questions
         $sql = "SELECT q.*, i.grade AS maxgrade FROM {$CFG->prefix}question q,
-                                         {$CFG->prefix}guidedquiz_question_instances i
+                                         {$CFG->prefix}guidedquiz_question_instance i
                 WHERE i.quiz = $quiz->id
                 AND i.question = q.id";
 

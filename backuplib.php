@@ -73,7 +73,7 @@
                     SELECT DISTINCT question.category
                     FROM {$CFG->prefix}question question,
                          $questionselectsqlfrom
-                         {$CFG->prefix}guidedquiz_question_instances qqi
+                         {$CFG->prefix}guidedquiz_question_instance qqi
                     WHERE qqi.question = question.id
                       $questionselectsqlwhere
                 )", false);
@@ -87,7 +87,7 @@
                                        FROM {$CFG->prefix}question q,
                                        $from
                                        {$CFG->prefix}question_categories qc,
-                                       {$CFG->prefix}guidedquiz_question_instances qqi
+                                       {$CFG->prefix}guidedquiz_question_instance qqi
                                        WHERE (qqi.question = q.id
                                        OR qqi.question = q.parent)
                                        AND q.category = qc.id
@@ -121,7 +121,7 @@
             $categorieswithrandom = get_records_sql("
                     SELECT question.category AS id, SUM(" .
                             sql_cast_char2int('questiontext', true) . ") AS numqsusingsubcategories
-                    FROM {$CFG->prefix}guidedquiz_question_instances qqi,
+                    FROM {$CFG->prefix}guidedquiz_question_instance qqi,
                          $from
                          {$CFG->prefix}question question
                     WHERE question.id = qqi.question
@@ -198,7 +198,7 @@
 
         $categories = get_records_sql("SELECT DISTINCT t.category, t.category
                                        FROM {$CFG->prefix}question t,
-                                            {$CFG->prefix}guidedquiz_question_instances g,
+                                            {$CFG->prefix}guidedquiz_question_instance g,
                                             {$CFG->prefix}guidedquiz q
                                        WHERE q.course = '$course' AND
                                              g.quiz = q.id AND
@@ -312,7 +312,7 @@
     function backup_guidedquiz_question_instances ($bf,$preferences,$quiz) {
         $status = true;
 
-        $quiz_question_instances = get_records("guidedquiz_question_instances","quiz",$quiz,"id");
+        $quiz_question_instances = get_records("guidedquiz_question_instance","quiz",$quiz,"id");
         //If there are question_instances
         if ($quiz_question_instances) {
             //Write start tag
@@ -371,7 +371,7 @@
     function backup_guidedquiz_question_versions ($bf,$preferences,$quiz) {
         $status = true;
 
-        $quiz_question_versions = get_records("guidedquiz_question_versions","quiz",$quiz,"id");
+        $quiz_question_versions = get_records("guidedquiz_question_version","quiz",$quiz,"id");
         //If there are question_versions
         if ($quiz_question_versions) {
             //Write start tag

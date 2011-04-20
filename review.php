@@ -106,7 +106,7 @@
     $pagelist = $showall ? guidedquiz_questions_in_quiz($attempt->layout) : guidedquiz_questions_on_page($attempt->layout, $page);
     $sql = "SELECT q.*, i.grade AS maxgrade, i.id AS instance".
            "  FROM {$CFG->prefix}question q,".
-           "       {$CFG->prefix}guidedquiz_question_instances i".
+           "       {$CFG->prefix}guidedquiz_question_instance i".
            " WHERE i.quiz = '$quiz->id' AND q.id = i.question".
            "   AND q.id IN ($pagelist)";
     if (!$questions = get_records_sql($sql)) {

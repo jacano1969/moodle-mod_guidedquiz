@@ -133,7 +133,7 @@ class guidedquiz_report extends guidedquiz_default_report {
 
             $sql = "SELECT q.*, i.grade AS maxgrade, i.id AS instance".
                    "  FROM {$CFG->prefix}question q,".
-                   "       {$CFG->prefix}guidedquiz_question_instances i".
+                   "       {$CFG->prefix}guidedquiz_question_instance i".
                    " WHERE i.quiz = '$quiz->id' AND q.id = i.question".
                    "   AND q.id IN ($questionlist)";
 

@@ -275,7 +275,7 @@ function guidedquiz_get_all_question_grades($quiz) {
     }
 
     $instances = get_records_sql("SELECT question,grade,id
-                            FROM {$CFG->prefix}guidedquiz_question_instances
+                            FROM {$CFG->prefix}guidedquiz_question_instance
                             WHERE quiz = '$quiz->id'" .
                             (is_null($questionlist) ? '' :
                             "AND question IN ($questionlist)"));

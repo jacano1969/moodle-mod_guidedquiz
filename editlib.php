@@ -45,7 +45,7 @@ function guidedquiz_delete_quiz_question($id, &$quiz) {
     if (!set_field('guidedquiz', 'questions', $quiz->questions, 'id', $quiz->instance)) {
         error('Could not save question list');
     }
-    delete_records('guidedquiz_question_instances', 'quiz', $quiz->instance, 'question', $question);
+    delete_records('guidedquiz_question_instance', 'quiz', $quiz->instance, 'question', $question);
     return true;
 }
 
@@ -109,15 +109,15 @@ function guidedquiz_add_quiz_question($id, &$quiz) {
 * @param integer $quizid  The id of the quiz to update / add the instances for.
 */
 function guidedquiz_update_question_instance($grade, $questionid, $quizid) {
-    if ($instance = get_record("guidedquiz_question_instances", "quiz", $quizid, 'question', $questionid)) {
+    if ($instance = get_record("guidedquiz_question_instance", "quiz", $quizid, 'question', $questionid)) {
         $instance->grade = $grade;
-        return update_record('guidedquiz_question_instances', $instance);
+        return update_record('guidedquiz_question_instance', $instance);
     } else {
         unset($instance);
         $instance->quiz = $quizid;
         $instance->question = $questionid;
         $instance->grade = $grade;
-        return insert_record("guidedquiz_question_instances", $instance);
+        return insert_record("guidedquiz_question_instance", $instance);
     }
 }
 

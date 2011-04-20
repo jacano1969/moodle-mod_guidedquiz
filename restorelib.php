@@ -168,7 +168,7 @@
             }
 
             //The structure is equal to the db, so insert the quiz_question_instances
-            $newid = insert_record ("guidedquiz_question_instances",$instance);
+            $newid = insert_record ("guidedquiz_question_instance",$instance);
 
             //Do some output
             if (($i+1) % 10 == 0) {
@@ -183,7 +183,7 @@
 
             if ($newid) {
                 //We have the newid, update backup_ids
-                backup_putid($restore->backup_unique_code,"guidedquiz_question_instances",$oldid,
+                backup_putid($restore->backup_unique_code,"guidedquiz_question_instance",$oldid,
                              $newid);
             } else {
                 $status = false;
@@ -299,7 +299,7 @@
             }
 
             //The structure is equal to the db, so insert the quiz_question_versions
-            $newid = insert_record ("guidedquiz_question_versions",$version);
+            $newid = insert_record ("guidedquiz_question_version",$version);
 
             //Do some output
             if (($i+1) % 10 == 0) {
@@ -314,7 +314,7 @@
 
             if ($newid) {
                 //We have the newid, update backup_ids
-                backup_putid($restore->backup_unique_code,"guidedquiz_question_versions",$oldid,
+                backup_putid($restore->backup_unique_code,"guidedquiz_question_version",$oldid,
                              $newid);
             } else {
                 $status = false;
