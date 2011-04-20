@@ -9,6 +9,7 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
     function definition() {
 
         global $COURSE, $CFG;
+        
         $mform    =& $this->_form;
 
 //-------------------------------------------------------------------------------
@@ -26,6 +27,44 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
         $mform->setType('intro', PARAM_RAW);
         $mform->setHelpButton('intro', array('richtext', get_string('helprichtext')));
 
+//-------------------------------------------------------------------------------
+
+        // quidedquiz mod
+        
+        // Including programmedresp dependencies
+        echo '<link rel="stylesheet" href="'.$CFG->wwwroot.'/question/type/programmedresp/styles.css" type="text/css"/>';
+        require_js($CFG->wwwroot.'/question/type/programmedresp/script.js');
+        require_js(array('yui_yahoo', 'yui_event', 'yui_connection'));
+        require_js($CFG->wwwroot.'/mod/guidedquiz/onload.js');
+        require_once($CFG->dirroot.'/question/type/programmedresp/lib.php');
+        require_once($CFG->dirroot.'/question/type/programmedresp/programmedresp_output_ajax.class.php');
+        
+        $editingjsparam = 'false';
+        
+        if (!empty($this->_instance)) {
+            $editingjsparam = 'true';
+        }
+        
+        // Button label
+        if (!empty($this->_instance)) {
+            $buttonlabel = get_string('refreshvarsvalues', 'qtype_programmedresp');
+        } else {
+            $buttonlabel = get_string('assignvarsvalues', 'qtype_programmedresp');
+        }
+        $varsattrs = array('onclick' => 'display_vars(this, "'.get_string("novars", "qtype_programmedresp").'", '.$editingjsparam.');');
+        $mform->addElement('button', 'vars', $buttonlabel, $varsattrs);
+        
+        // Link to fill vars data
+        $mform->addElement('header', 'varsheader', get_string("varsvalues", "qtype_programmedresp"));
+        
+        $mform->addElement('html', '<div id="id_vars_content">');
+        if (!empty($this->_instance)) {
+            $outputmanager->display_vars($this->question->questiontext, $this->programmedresp_args);
+        }
+        $mform->addElement('html', '</div>');
+        // quidedquiz mod end
+        
+        
 //-------------------------------------------------------------------------------
         $mform->addElement('header', 'timinghdr', get_string('timing', 'form'));
         $mform->addElement('date_time_selector', 'timeopen', get_string('quizopen', 'quiz'), array('optional'=>true));
