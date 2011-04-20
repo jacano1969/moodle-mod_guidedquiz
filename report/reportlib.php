@@ -111,7 +111,7 @@ function guidedquiz_report_load_questions($quiz){
     //since this double check will probably do no harm.
     if (!$questions = get_records_sql("SELECT q.*, qqi.grade " .
             "FROM {$CFG->prefix}question q, " .
-            "{$CFG->prefix}guidedquiz_question_instances qqi " .
+            "{$CFG->prefix}guidedquiz_question_instance qqi " .
             "WHERE q.id IN ($questionlist) AND " .
             "qqi.question = q.id AND " .
             "qqi.quiz =".$quiz->id)) {
