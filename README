@@ -1,1 +1,27 @@
 Quiz module for Moodle 1.9 modified and renamed to guidedquiz
+
+mod_form.php
+- Added programmedresp dependencies
+- Added quiz question
+- Added vars section
+
+lib.php
+- Added guidedquiz_vars inserting / edition
+
+attempt.php
+- Display the question text and replace vars for random values
+
+db/install.xml
+- New tables
+
+editlib.php
+- Added the button to assign guided quiz vars to question function arguments
+
+assignvars.php
+- New file
+
+guidedquiz_assignvars_form.php
+- New file
+
+locallib.php
+- Added get_question_args() function

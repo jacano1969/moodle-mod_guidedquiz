@@ -35,12 +35,14 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
         echo '<link rel="stylesheet" href="'.$CFG->wwwroot.'/question/type/programmedresp/styles.css" type="text/css"/>';
         require_js($CFG->wwwroot.'/question/type/programmedresp/script.js');
         require_js(array('yui_yahoo', 'yui_event', 'yui_connection'));
-        require_js($CFG->wwwroot.'/mod/guidedquiz/onload.js');
         require_once($CFG->dirroot.'/question/type/programmedresp/lib.php');
         require_once($CFG->dirroot.'/question/type/programmedresp/programmedresp_output_ajax.class.php');
         
-        $editingjsparam = 'false';
+        if (empty($this->_instance)) {
+            require_js($CFG->wwwroot.'/mod/guidedquiz/onload.js');
+        }
         
+        $editingjsparam = 'false';
         if (!empty($this->_instance)) {
             $editingjsparam = 'true';
         }
@@ -51,7 +53,7 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
         } else {
             $buttonlabel = get_string('assignvarsvalues', 'qtype_programmedresp');
         }
-        $varsattrs = array('onclick' => 'display_vars(this, "'.get_string("novars", "qtype_programmedresp").'", '.$editingjsparam.');');
+        $varsattrs = array('onclick' => 'display_vars(this, "'.get_string("novars", "qtype_programmedresp").'", '.$editingjsparam.', \'false\');');
         $mform->addElement('button', 'vars', $buttonlabel, $varsattrs);
         
         // Link to fill vars data
@@ -59,7 +61,11 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
         
         $mform->addElement('html', '<div id="id_vars_content">');
         if (!empty($this->_instance)) {
-            $outputmanager->display_vars($this->question->questiontext, $this->programmedresp_args);
+        	
+        	$intro = get_field('guidedquiz', 'intro', 'id', $this->_instance);
+        	
+        	$outputmanager = new programmedresp_output($mform);
+            $outputmanager->display_vars($intro, false, false);
         }
         $mform->addElement('html', '</div>');
         // quidedquiz mod end
@@ -431,5 +437,29 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
         }
     }
 
+    // guidedquiz mod
+    function set_data($default_values) {
+        
+    	if (!empty($this->_instance)) {
+            
+    		// The vars different attributes
+    		$varfields = programmedresp_get_var_fields();
+    		
+            $vars = get_records('guidedquiz_var', 'quizid', $this->_instance);
+            if ($vars) {
+                foreach ($vars as $var) {
+	                foreach ($varfields as $varfield => $fielddesc) {
+	                    $fieldname = 'var_'.$varfield.'_'.$var->varname;
+	                    $default_values->{$fieldname} = $var->{$varfield};
+	                }
+                }
+            }
+        }
+    	
+    	parent::set_data($default_values);
+    	
+    	
+    }
+    // guidedquiz mod end
 }
 ?>

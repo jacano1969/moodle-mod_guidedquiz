@@ -300,6 +300,22 @@ function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $sho
             echo "<a title=\"$strremove\" href=\"".$pageurl->out_action(array('delete'=>$count))."\">
                     <img src=\"$CFG->pixpath/t/$movearrow\" class=\"iconsmall\" alt=\"$strremove\" /></a>";
         }
+        
+        // guidedquiz mod
+        if ($question->qtype == 'programmedresp') {
+
+            // Check if the question function has a guided quiz variable
+        	if (guidedquiz_get_question_guidedquiz_args($question->id)) {
+        		
+        		$strassignvars = get_string('assignvars', 'guidedquiz');
+        		$popupoptions = 'menubar=0,location=0,scrollbars,status,resizable,width=600,height=500';
+        		echo '<a title="'.$strassignvars.'" href="#" 
+        		         onclick="return openpopup(\'/mod/guidedquiz/assignvars.php?quizid='.$quiz->id.'&questionid='.$question->id.'\', \'assignvars\', \''.$popupoptions.'\', 0);"
+                        <img src="'.$CFG->pixpath.'/i/payment.gif" class="iconsmall" alt='.$strassignvars.'" /></a>';
+        	}
+
+        }
+        // guidedquiz mod end
 
         echo "</td></tr>";
         $count++;

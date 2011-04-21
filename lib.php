@@ -920,6 +920,10 @@ function guidedquiz_after_add_or_update($quiz) {
         }
     }
 
+    // guidedquiz mod
+    guidedquiz_store_vars($quiz->id);
+    // guidedquiz mod end
+
     //update related grade item
     guidedquiz_grade_item_update(stripslashes_recursive($quiz));
 }
@@ -931,6 +935,42 @@ function guidedquiz_get_view_actions() {
 function guidedquiz_get_post_actions() {
     return array('attempt','editquestions','review','submit');
 }
+
+
+// guidedquiz mod
+function guidedquiz_store_vars($quizid) {
+	
+    foreach ($_POST as $varname => $value) {
+        
+        if (substr($varname, 0, 4) == 'var_') {
+            $vardata = explode('_', $varname);
+            $vars[$vardata[2]]->{$vardata[1]} = clean_param($value, PARAM_NUMBER);   // integer or float
+        }
+        
+        // Inserting into DB
+        if (!empty($vars)) {
+	        foreach ($vars as $varname => $var) {
+	            $var->quizid = $quizid;
+	            $var->varname = $varname;
+	            
+	            // Update
+	            if ($var->id = get_field('guidedquiz_var', 'id', 'quizid', $var->quizid, 'varname', $var->varname)) {
+	
+	                if (!update_record('guidedquiz_var', $var)) {
+	                    print_error('errordb', 'qtype_programmedresp');
+	                }
+	                
+	            // Insert
+	            } else {
+	                if (!$vars[$varname]->id = insert_record('guidedquiz_var', $var)) {
+	                    print_error('errordb', 'qtype_programmedresp');
+	                }
+	            }   
+	        }
+        }
+    }
+}
+// guidedquiz mod end
 
 /**
  * Returns an array of names of quizzes that use this question
