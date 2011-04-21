@@ -18,7 +18,7 @@ if (!$args) {
 
 // Getting stored data
 foreach ($args as $key => $arg) {
-	if ($vararg = get_record('guidedquiz_var_arg', 'programmedrespargid', $arg->id)) {
+	if ($vararg = get_record('guidedquiz_var_arg', 'quizid', $quizid, 'programmedrespargid', $arg->id)) {
 	    $toform->{'arg_'.$arg->id} = $vararg->guidedquizvarid;
 	}
 }
@@ -52,15 +52,15 @@ if ($values = $form->get_data()) {
 
 	$obj->quizid = $quizid;
 	
-	// Deleting old values
-	delete_records('guidedquiz_var_arg', 'quizid', $quizid);
-	
 	// Inserting new ones
 	foreach ($values as $key => $value) {
 		if (substr($key, 0, 4) == 'arg_') {
 			
 			$argdata = explode('_', $key);
 			
+			// Deleting old values
+            delete_records('guidedquiz_var_arg', 'quizid', $quizid, 'programmedrespargid', $argdata[1]);
+            
             $obj->guidedquizvarid = $value;
             $obj->programmedrespargid = $argdata[1];
             

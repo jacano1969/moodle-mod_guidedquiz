@@ -31,8 +31,13 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
 
         // quidedquiz mod
         
-        // Including programmedresp dependencies
+        // Adding wwwroot
+        echo "<script type=\"text/javascript\">//<![CDATA[\n".
+             "var wwwroot = '".$CFG->wwwroot."';\n".
+             "//]]></script>\n";
         echo '<link rel="stylesheet" href="'.$CFG->wwwroot.'/question/type/programmedresp/styles.css" type="text/css"/>';
+        
+        // Including programmedresp dependencies
         require_js($CFG->wwwroot.'/question/type/programmedresp/script.js');
         require_js(array('yui_yahoo', 'yui_event', 'yui_connection'));
         require_once($CFG->dirroot.'/question/type/programmedresp/lib.php');

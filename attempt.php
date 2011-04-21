@@ -482,7 +482,7 @@ $attemptnumber = 1;
             		// Add a new random value
             		$val->attemptid = $attempt->id;
             		$val->quizid = $var->id;
-            		$val->varvalues = programmedresp_serialize(get_random_value($var));
+            		$val->varvalues = programmedresp_serialize(programmedresp_get_random_value($var));
             		if (!insert_record('guidedquiz_val', $val)) {
             			print_error('errordb', 'qtype_programmedresp');
             		}
