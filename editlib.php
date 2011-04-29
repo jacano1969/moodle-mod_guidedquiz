@@ -45,6 +45,25 @@ function guidedquiz_delete_quiz_question($id, &$quiz) {
     if (!set_field('guidedquiz', 'questions', $quiz->questions, 'id', $quiz->instance)) {
         error('Could not save question list');
     }
+    
+    // guidedquiz mod
+    global $CFG;
+    require_once($CFG->dirroot.'/question/type/programmedresp/lib.php');
+    
+    // Look for guidedquiz vars assigned to guidedquiz args of the question
+    // TODO: Add index gva => quizid
+    $sql = "SELECT gva.id FROM {$CFG->prefix}question_programmedresp p 
+            JOIN {$CFG->prefix}question_programmedresp_arg pa ON pa.programmedrespid = p.id
+            JOIN {$CFG->prefix}guidedquiz_var_arg gva ON gva.programmedrespargid = pa.id 
+            WHERE p.question = '$question' AND gva.quizid = '$quiz->instance'";
+    $guidedquizvarargs = get_records_sql($sql);
+    if ($guidedquizvarargs) {
+    	foreach ($guidedquizvarargs as $vararg) {
+    		delete_records('guidedquiz_var_arg', 'id', $vararg->id);
+    	}
+    }
+    // guidedquiz mod end
+    
     delete_records('guidedquiz_question_instance', 'quiz', $quiz->instance, 'question', $question);
     return true;
 }

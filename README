@@ -16,6 +16,7 @@ db/install.xml
 
 editlib.php
 - Added the button to assign guided quiz vars to question function arguments
+- Guided quiz vars assign to the programmedresp function arguments also deleted 
 
 assignvars.php
 - New file
