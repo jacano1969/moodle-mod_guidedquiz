@@ -232,7 +232,9 @@ function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $sho
     echo "<th style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">$strtype</th>";
     echo "<th style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">$strgrade</th>";
     // guidedquiz mod
-    echo "<th style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">".get_string('questionpenalty', 'guidedquiz')."</th>";
+    if ($quiz->penaltyscheme) {
+        echo "<th style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">".get_string('questionpenalty', 'guidedquiz')."</th>";
+    }
     echo "<th style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">".get_string('questionattempts', 'guidedquiz')."</th>";
     // guidedquiz mod end
     echo "<th align=\"center\" style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">$straction</th>";
@@ -333,14 +335,19 @@ function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $sho
         // guidedquiz mod
         
         // Question penality
-        echo '<td align="left"><input type="text" size="5" tabindex="'.($lastindex+$qno).'" 
-             name="p'.$qnum.'" value="'.$quiz->penalties[$qnum].'"></td>';
+        if ($quiz->penaltyscheme) {
+	        echo '</td><td align="left"><input type="text" size="5" tabindex="'.($lastindex+$qno).'" 
+	             name="p'.$qnum.'" value="'.$quiz->penalties[$qnum].'">';
+        } else {
+        	echo '<input type="hidden" name="p'.$qnum.'" value="0"/>';
+//        	echo '<input type="hidden" name="p'.$qnum.'" value="'.$quiz->penalties[$qnum].'"/>';
+        }
         
         // TODO: New setting?
         $maxnattempts = 10;
         
         // Question attempts
-        echo '<td align="left"><select name="na'.$qnum.'" tabindex="'.($lastindex+$qno).'">';
+        echo '</td><td align="left"><select name="na'.$qnum.'" tabindex="'.($lastindex+$qno).'">';
         for ($i = 0; $i < $maxnattempts; $i++) {
         	$selectedvalue = '';
         	if ($i == $quiz->nattempts[$qnum]) {
@@ -348,7 +355,7 @@ function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $sho
         	}
         	echo '<option value="'.$i.'" '.$selectedvalue.'>'.$i.'</option>';
         }
-        echo '</select></td>';
+        echo '</select>';
         
         // guidedquiz mod end
         echo '</td><td align="center">';
