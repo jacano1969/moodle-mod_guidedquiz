@@ -15,9 +15,13 @@ attempt.php
 db/install.xml
 - New tables
 
+edit.php
+- New guidedquiz columns
+
 editlib.php
 - Added the button to assign guided quiz vars to question function arguments
 - Guided quiz vars assign to the programmedresp function arguments also deleted 
+- New guidedquiz columns
 
 assignvars.php
 - New file

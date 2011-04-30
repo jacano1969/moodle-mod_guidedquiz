@@ -112,7 +112,13 @@ function guidedquiz_add_quiz_question($id, &$quiz) {
     $questionrecord = get_record("question", "id", $id);
     $quiz->grades[$id]
             = $questionrecord->defaultgrade;
-    guidedquiz_update_question_instance($quiz->grades[$id], $id, $quiz->instance);
+            
+    // guidedquiz mod
+    // TODO: Create settings to change the default values?
+    $quiz->penalties[$id] = 0;
+    $quiz->nattempts[$id] = 1;
+    guidedquiz_update_question_instance($quiz->grades[$id], $id, $quiz->instance, $quiz->penalties[$id], $quiz->nattempts[$id]);
+    // guidedquiz mod end
 
     return true;
 }
@@ -127,15 +133,34 @@ function guidedquiz_add_quiz_question($id, &$quiz) {
 * @param integer $questionid  The id of the question
 * @param integer $quizid  The id of the quiz to update / add the instances for.
 */
-function guidedquiz_update_question_instance($grade, $questionid, $quizid) {
-    if ($instance = get_record("guidedquiz_question_instance", "quiz", $quizid, 'question', $questionid)) {
+function guidedquiz_update_question_instance($grade, $questionid, $quizid, $penalty = false, $nattempts = false) {
+	
+	if ($instance = get_record("guidedquiz_question_instance", "quiz", $quizid, 'question', $questionid)) {
         $instance->grade = $grade;
+
+        // guidedquiz mod end
+        if ($penalty) {
+        	$instance->penalty = $penalty;
+        }
+        if ($nattempts) {
+            $instance->nattempts = $nattempts;
+        }
+        // guidedquiz mod end
         return update_record('guidedquiz_question_instance', $instance);
     } else {
         unset($instance);
         $instance->quiz = $quizid;
         $instance->question = $questionid;
         $instance->grade = $grade;
+        
+        // guidedquiz mod end
+        if ($penalty) {
+            $instance->penalty = $penalty;
+        }
+        if ($nattempts) {
+            $instance->nattempts = $nattempts;
+        }
+        // guidedquiz mod end
         return insert_record("guidedquiz_question_instance", $instance);
     }
 }
@@ -206,6 +231,10 @@ function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $sho
     echo "<th align=\"left\" style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">$strquestionname</th>";
     echo "<th style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">$strtype</th>";
     echo "<th style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">$strgrade</th>";
+    // guidedquiz mod
+    echo "<th style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">".get_string('questionpenalty', 'guidedquiz')."</th>";
+    echo "<th style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">".get_string('questionattempts', 'guidedquiz')."</th>";
+    // guidedquiz mod end
     echo "<th align=\"center\" style=\"white-space:nowrap;\" class=\"header\" scope=\"col\">$straction</th>";
     echo "</tr>\n";
 
@@ -300,6 +329,28 @@ function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $sho
             echo '<input type="text" name="q'.$qnum.'" size="2" value="'.$quiz->grades[$qnum].
              '" tabindex="'.($lastindex+$qno).'" />';
         }
+        
+        // guidedquiz mod
+        
+        // Question penality
+        echo '<td align="left"><input type="text" size="5" tabindex="'.($lastindex+$qno).'" 
+             name="p'.$qnum.'" value="'.$quiz->penalties[$qnum].'"></td>';
+        
+        // TODO: New setting?
+        $maxnattempts = 10;
+        
+        // Question attempts
+        echo '<td align="left"><select name="na'.$qnum.'" tabindex="'.($lastindex+$qno).'">';
+        for ($i = 0; $i < $maxnattempts; $i++) {
+        	$selectedvalue = '';
+        	if ($i == $quiz->nattempts[$qnum]) {
+        		$selectedvalue = 'selected="selected"';
+        	}
+        	echo '<option value="'.$i.'" '.$selectedvalue.'>'.$i.'</option>';
+        }
+        echo '</select></td>';
+        
+        // guidedquiz mod end
         echo '</td><td align="center">';
 
         if (($question->qtype != 'random')){

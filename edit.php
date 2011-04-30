@@ -124,7 +124,15 @@
 
     if (isset($quiz->instance)
         && empty($quiz->grades)){  // Construct an array to hold all the grades.
-        $quiz->grades = guidedquiz_get_all_question_grades($quiz);
+        	
+        // guidedquiz mod
+//        $quiz->grades = guidedquiz_get_all_question_grades($quiz);
+         $questionsdata = guidedquiz_get_all_question_grades($quiz);
+         if ($questionsdata) {
+	         $quiz->grades = $questionsdata->grades;
+	         $quiz->penalties = $questionsdata->penalties;
+	         $quiz->nattempts = $questionsdata->nattempts;
+         }
     }
 
 
@@ -264,8 +272,10 @@
             if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
                 $key = $matches[1];
                 $quiz->grades[$key] = clean_param($value, PARAM_INTEGER);
-                guidedquiz_update_question_instance($quiz->grades[$key], $key, $quiz->instance);
-
+                $quiz->penalties[$key] = optional_param('p'.$key, 0, PARAM_NUMBER);
+                $quiz->nattempts[$key] = optional_param('na'.$key, 1, PARAM_INT);
+                guidedquiz_update_question_instance($quiz->grades[$key], $key, $quiz->instance, $quiz->penalties[$key], $quiz->nattempts[$key]);
+                
             /// Parse input for ordering info
             } elseif (preg_match('!^o([0-9]+)$!', $key, $matches)) {
                 $key = $matches[1];

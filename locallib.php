@@ -276,26 +276,35 @@ function guidedquiz_get_all_question_grades($quiz) {
 
     $questionlist = guidedquiz_questions_in_quiz($quiz->questions);
     if (empty($questionlist)) {
-        return array();
+        return false;
     }
 
-    $instances = get_records_sql("SELECT question,grade,id
+    // guidedquiz mod
+    $instances = get_records_sql("SELECT question,grade,id, penalty, nattempts 
                             FROM {$CFG->prefix}guidedquiz_question_instance
                             WHERE quiz = '$quiz->id'" .
                             (is_null($questionlist) ? '' :
                             "AND question IN ($questionlist)"));
 
     $list = explode(",", $questionlist);
-    $grades = array();
 
+    $obj->grades = array();
+    $obj->penalties = array();
+    $obj->nattempts = array();
     foreach ($list as $qid) {
         if (isset($instances[$qid])) {
-            $grades[$qid] = $instances[$qid]->grade;
+            $obj->grades[$qid] = $instances[$qid]->grade;
+            $obj->penalties[$qid] = $instances[$qid]->penalty;
+            $obj->nattempts[$qid] = $instances[$qid]->nattempts;
         } else {
-            $grades[$qid] = 1;
+            $obj->grades[$qid] = 1;
+            $obj->penalties[$qid] = 0;
+            $obj->nattempts[$qid] = 1;
         }
     }
-    return $grades;
+
+    return $obj;    
+    // guidedquiz mod end
 }
 
 /**
