@@ -4,6 +4,7 @@ mod_form.php
 - Added programmedresp dependencies
 - Added quiz question
 - Added vars section
+- Shuffle questions always off
 
 lib.php
 - Added guidedquiz_vars inserting / edition
@@ -26,3 +27,4 @@ guidedquiz_assignvars_form.php
 
 locallib.php
 - Added get_question_args() function
+- Skip the shufflequestions requirement to apply the questionsperpage value 

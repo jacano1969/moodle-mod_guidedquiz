@@ -64,11 +64,16 @@ function guidedquiz_create_attempt($quiz, $attemptnumber) {
         $attempt->quiz = $quiz->id;
         $attempt->userid = $USER->id;
         $attempt->preview = 0;
-        if ($quiz->shufflequestions) {
-            $attempt->layout = guidedquiz_repaginate($quiz->questions, $quiz->questionsperpage, true);
-        } else {
-            $attempt->layout = $quiz->questions;
-        }
+        // guidedquiz mod
+        
+        // Skip shufflequestionsvalue
+        $attempt->layout = guidedquiz_repaginate($quiz->questions, $quiz->questionsperpage, $quiz->shufflequestions);
+//        if ($quiz->shufflequestions) {
+//            $attempt->layout = guidedquiz_repaginate($quiz->questions, $quiz->questionsperpage, true);
+//        } else {
+//            $attempt->layout = $quiz->questions;
+//        }
+        // guidedquiz mod end
     }
 
     $timenow = time();
