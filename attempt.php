@@ -474,25 +474,27 @@ $attemptnumber = 1;
 
             // Replacing vars for random values
             $vars = get_records('guidedquiz_var', 'quizid', $quiz->id);
-            foreach ($vars as $var) {
-
-            	// If this attempt doesn't have yet a value
-            	if (!$values = get_field('guidedquiz_val', 'varvalues', 'attemptid', $attempt->uniqueid, 'guidedquizvarid', $var->id)) {
-
-            		// Add a new random value
-            		$val->attemptid = $attempt->uniqueid;
-            		$val->guidedquizvarid = $var->id;
-            		$val->varvalues = programmedresp_serialize(programmedresp_get_random_value($var));
-            		if (!insert_record('guidedquiz_val', $val)) {
-            			print_error('errordb', 'qtype_programmedresp');
-            		}
-            		$values = $val->varvalues;
-            	}
-            	$values = programmedresp_unserialize($values);
-
-            	$valuetodisplay = implode(', ', $values);
-
-            	$questiontext = str_replace('{$'.$var->varname.'}', $valuetodisplay, $questiontext);
+            if ($vars) {
+	            foreach ($vars as $var) {
+	
+	            	// If this attempt doesn't have yet a value
+	            	if (!$values = get_field('guidedquiz_val', 'varvalues', 'attemptid', $attempt->uniqueid, 'guidedquizvarid', $var->id)) {
+	
+	            		// Add a new random value
+	            		$val->attemptid = $attempt->uniqueid;
+	            		$val->guidedquizvarid = $var->id;
+	            		$val->varvalues = programmedresp_serialize(programmedresp_get_random_value($var));
+	            		if (!insert_record('guidedquiz_val', $val)) {
+	            			print_error('errordb', 'qtype_programmedresp');
+	            		}
+	            		$values = $val->varvalues;
+	            	}
+	            	$values = programmedresp_unserialize($values);
+	
+	            	$valuetodisplay = implode(', ', $values);
+	
+	            	$questiontext = str_replace('{$'.$var->varname.'}', $valuetodisplay, $questiontext);
+	            }
             }
             print_box($questiontext, 'generalbox', 'intro');
             // guidedquiz mod end
