@@ -121,12 +121,15 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
 
 //-------------------------------------------------------------------------------
         $mform->addElement('header', 'displayhdr', get_string('display', 'form'));
-        $perpage = array();
-        for ($i = 0; $i <= 50; ++$i) {
-            $perpage[$i] = $i;
-        }
-        $perpage[0] = get_string('allinone', 'quiz');
-        $mform->addElement('select', 'questionsperpage', get_string('questionsperpage', 'quiz'), $perpage);
+        // guidedquiz mod
+//        $perpage = array();
+//        for ($i = 0; $i <= 50; ++$i) {
+//            $perpage[$i] = $i;
+//        }
+//        $perpage[0] = get_string('allinone', 'quiz');
+//        $mform->addElement('select', 'questionsperpage', get_string('questionsperpage', 'quiz'), $perpage);
+        $mform->addElement('hidden', 'questionsperpage', 1);
+        // guidedquiz mod end
         $mform->setHelpButton('questionsperpage', array('questionsperpage', get_string('questionsperpage', 'quiz'), 'quiz'));
         $mform->setAdvanced('questionsperpage', $CFG->quiz_fix_questionsperpage);
         $mform->setDefault('questionsperpage', $CFG->quiz_questionsperpage);
