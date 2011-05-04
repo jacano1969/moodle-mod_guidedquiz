@@ -47,6 +47,10 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
             require_js($CFG->wwwroot.'/mod/guidedquiz/onload.js');
         }
         
+        // Guided quiz own settings
+        $mform->addElement('selectyesno', 'viewpreviousquestions', get_string('viewpreviousquestions', 'guidedquiz'));
+        $mform->addElement('selectyesno', 'showcorrectresponses', get_string('showcorrectresponses', 'guidedquiz'));
+        
         // Button label
         if (!empty($this->_instance)) {
             $buttonlabel = get_string('refreshvarsvalues', 'qtype_programmedresp');
@@ -163,10 +167,13 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
         $mform->setAdvanced('attemptonlast', $CFG->quiz_fix_attemptonlast);
         $mform->setDefault('attemptonlast', $CFG->quiz_attemptonlast);
 
-        $mform->addElement('selectyesno', 'adaptive', get_string("adaptive", "quiz"));
-        $mform->setHelpButton('adaptive', array("adaptive", get_string("adaptive","quiz"), "quiz"));
-        $mform->setAdvanced('adaptive', $CFG->quiz_fix_adaptive);
-        $mform->setDefault('adaptive', $CFG->quiz_optionflags & QUESTION_ADAPTIVE);
+        // guidedquiz mod
+//        $mform->addElement('selectyesno', 'adaptive', get_string("adaptive", "quiz"));
+//        $mform->setHelpButton('adaptive', array("adaptive", get_string("adaptive","quiz"), "quiz"));
+//        $mform->setAdvanced('adaptive', $CFG->quiz_fix_adaptive);
+//        $mform->setDefault('adaptive', $CFG->quiz_optionflags & QUESTION_ADAPTIVE);
+        $mform->addElement('hidden', 'adaptive', false);
+        // guidedquiz mod end
 
 
 //-------------------------------------------------------------------------------
