@@ -1,16 +1,34 @@
 Quiz module for Moodle 1.9 modified and renamed to guidedquiz
 
+TODO
+- Backup and restore
+- Security checkings
+- Display the correct response
+- Remove the navigation pages in review.php and display only the last page
+
 mod_form.php
 - Added programmedresp dependencies
 - Added quiz question
 - Added vars section
 - Shuffle questions always off
+- Just one question per page
+- No adaptive mode
+- New field viewcorrectresponses
+- New field show previous questions
 
 lib.php
 - Added guidedquiz_vars inserting / edition
 
 attempt.php
 - Display the question text and replace vars for random values
+- Hide navigation pages
+- Change submit buttons
+- Change data_submitted() process
+- The event state should always be QUESTION_EVENTCLOSE          # TODO: Take into account question_instance attrs
+- Respect show previous questions setting value
+- Respect the show correct values setting value
+- Allow users to pass to the next question (question value overwrite by a '') it depends on the 
+show previous questions and show correct values values to display the correct response after answering  
 
 db/install.xml
 - New tables
@@ -31,4 +49,5 @@ guidedquiz_assignvars_form.php
 
 locallib.php
 - Added get_question_args() function
-- Skip the shufflequestions requirement to apply the questionsperpage value 
+- Skip the shufflequestions requirement to apply the questionsperpage value
+- Showing already answered questions (guidedquiz_questions_on_page)

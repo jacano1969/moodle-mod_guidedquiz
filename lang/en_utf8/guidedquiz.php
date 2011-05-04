@@ -1,11 +1,14 @@
 <?php 
 
 $string['assignvars'] = 'Assign vars';
+$string['correctanswer'] = 'Correct answer';
 $string['errornoargs'] = 'There are not guidedquiz type arguments in this question';
 $string['errornoquizvars'] = 'The requested quiz does not have vars';
+$string['finishattemptwithoutanswerlastquestion'] = 'Leave the question without answer and finish the attempt';
 $string['modulename'] = 'Guided quiz';
 $string['modulenameplural'] = 'Guided quizzes';
 $string['nextquestion'] = 'Next question';
+$string['nextquestionwithoutanswer'] = 'Next question without answer';
 $string['questionpenalty'] = 'Penalty';
 $string['questionattempts'] = 'Attempts';
 $string['viewpreviousquestions'] = 'View previous answered questions';

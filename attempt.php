@@ -26,6 +26,12 @@ $finishattempt = optional_param('finishattempt', 0, PARAM_BOOL);
 $timeup = optional_param('timeup', 0, PARAM_BOOL); // True if form was submitted by timer.
 $forcenew = optional_param('forcenew', false, PARAM_BOOL); // Teacher has requested new preview
 
+// guidedquiz mod
+// Take into account the finishattempt without answering the last question
+if (!$finishattempt && optional_param('finishattemptwithoutanswer', false, PARAM_RAW)) {
+    $finishattempt = true;
+}
+// guidedquiz mod end 
 if ($id) {
 	if (! $cm = get_coursemodule_from_id('guidedquiz', $id)) {
 		error("There is no coursemodule with id $id");
@@ -286,6 +292,11 @@ $attemptnumber = 1;
             	$event = (array_key_exists('markall', $responses)) ? QUESTION_EVENTSUBMIT :
             	($finishattempt ? QUESTION_EVENTCLOSE : QUESTION_EVENTSAVE);
 
+            	// guidedquiz mod
+                // TODO: Finish it taking into account the nattempts answered question param
+                $event = QUESTION_EVENTCLOSE;
+                // guidedquiz mod end
+
             	// Unset any variables we know are not responses
             	unset($responses->id);
             	unset($responses->q);
@@ -305,6 +316,21 @@ $attemptnumber = 1;
             	// Process each question in turn
 
             	$questionidarray = explode(',', $questionids);
+                // guidedquiz mod
+                // If it's marked as nextquestionwithoutanswer leave the response blank
+                if (optional_param('nextquestionwithoutanswer', false, PARAM_RAW) || 
+                    optional_param('finishattemptwithoutanswer', false, PARAM_RAW)) {
+                        
+                        // Only the response of the last question answered
+                        $lastindexkey = count($questionidarray) - 1;
+                        $lastindex = $questionidarray[$lastindexkey];
+                        if (!empty($actions[$lastindex]) && $actions[$lastindex]->responses) {
+                            foreach ($actions[$lastindex]->responses as $key => $response) {
+                                $actions[$lastindex]->responses[$key] = '';
+                            }
+                        }
+                }
+                // guidedquiz mod end
             	$success = true;
             	foreach($questionidarray as $i) {
             		if (!isset($actions[$i])) {
@@ -475,26 +501,26 @@ $attemptnumber = 1;
             // Replacing vars for random values
             $vars = get_records('guidedquiz_var', 'quizid', $quiz->id);
             if ($vars) {
-	            foreach ($vars as $var) {
-	
-	            	// If this attempt doesn't have yet a value
-	            	if (!$values = get_field('guidedquiz_val', 'varvalues', 'attemptid', $attempt->uniqueid, 'guidedquizvarid', $var->id)) {
-	
-	            		// Add a new random value
-	            		$val->attemptid = $attempt->uniqueid;
-	            		$val->guidedquizvarid = $var->id;
-	            		$val->varvalues = programmedresp_serialize(programmedresp_get_random_value($var));
-	            		if (!insert_record('guidedquiz_val', $val)) {
-	            			print_error('errordb', 'qtype_programmedresp');
-	            		}
-	            		$values = $val->varvalues;
-	            	}
-	            	$values = programmedresp_unserialize($values);
-	
-	            	$valuetodisplay = implode(', ', $values);
-	
-	            	$questiontext = str_replace('{$'.$var->varname.'}', $valuetodisplay, $questiontext);
-	            }
+                foreach ($vars as $var) {
+    
+                    // If this attempt doesn't have yet a value
+                    if (!$values = get_field('guidedquiz_val', 'varvalues', 'attemptid', $attempt->uniqueid, 'guidedquizvarid', $var->id)) {
+    
+                        // Add a new random value
+                        $val->attemptid = $attempt->uniqueid;
+                        $val->guidedquizvarid = $var->id;
+                        $val->varvalues = programmedresp_serialize(programmedresp_get_random_value($var));
+                        if (!insert_record('guidedquiz_val', $val)) {
+                            print_error('errordb', 'qtype_programmedresp');
+                        }
+                        $values = $val->varvalues;
+                    }
+                    $values = programmedresp_unserialize($values);
+    
+                    $valuetodisplay = implode(', ', $values);
+    
+                    $questiontext = str_replace('{$'.$var->varname.'}', $valuetodisplay, $questiontext);
+                }
             }
             print_box($questiontext, 'generalbox', 'intro');
             // guidedquiz mod end
@@ -521,17 +547,34 @@ $attemptnumber = 1;
             echo '<div>';
 
             /// Print the navigation panel if required
+            // guidedquiz mod
+            // No navigation
             $numpages = guidedquiz_number_of_pages($attempt->layout);
             if ($numpages > 1) {
             	guidedquiz_print_navigation_panel($page, $numpages);
             }
+            // guidedquiz mod end
 
             /// Print all the questions
             $number = guidedquiz_first_questionnumber($attempt->layout, $pagelist);
-            foreach ($pagequestions as $i) {
+            // guidedquiz mod
+            foreach ($pagequestions as $key => $i) {
+                
+                // Take into account showpreviousquestions
+                if (!$quiz->viewpreviousquestions && ($page!= $key)) {
+                    continue;
+                }
+            // guidedquiz mod end
             	$options = guidedquiz_get_renderoptions($quiz->review, $states[$i]);
             	// Print the question
             	print_question($questions[$i], $states[$i], $number, $quiz, $options);
+                // guidedquiz mod
+                // display correct response if it's not the latests question
+                if ($quiz->showcorrectresponses && $page != $key) {
+                    // TODO: Get the $questions[$i]->get_correct_response (or something like that) value and display it
+                    print_box(get_string('showcorrectresponses', 'guidedquiz').': SOC UNA RESPOSTAAA');
+                }
+                // guidedquiz mod end
             	save_question_session($questions[$i], $states[$i]);
             	$number += $questions[$i]->length;
             }
@@ -541,18 +584,28 @@ $attemptnumber = 1;
             $onclick = "return confirm('$strconfirmattempt')";
             echo "<div class=\"submitbtns mdl-align\">\n";
 
-            echo "<input type=\"submit\" name=\"saveattempt\" value=\"".get_string("savenosubmit", "quiz")."\" />\n";
-            if ($quiz->optionflags & QUESTION_ADAPTIVE) {
-            	echo "<input type=\"submit\" name=\"markall\" value=\"".get_string("markall", "quiz")."\" />\n";
+            // guidedquiz mod
+//            echo "<input type=\"submit\" name=\"saveattempt\" value=\"".get_string("savenosubmit", "quiz")."\" />\n";
+//            if ($quiz->optionflags & QUESTION_ADAPTIVE) {
+//                echo "<input type=\"submit\" name=\"markall\" value=\"".get_string("markall", "quiz")."\" />\n";
+//            }
+            if (($page + 1) < $numpages) {
+                echo '<input type="submit" name="nextquestion" value="'.get_string("nextquestion", "guidedquiz").'" onclick="javascript:navigate('.($page + 1).');"/>';
+                echo '<input type="submit" name="nextquestionwithoutanswer" value="'.get_string("nextquestionwithoutanswer", "guidedquiz").'" onclick="javascript:navigate('.($page + 1).');"/>';
+            } else {
+                echo "<input type=\"submit\" name=\"finishattempt\" value=\"".get_string("finishattempt", "quiz")."\" onclick=\"$onclick\" />\n";
+                echo "<input type=\"submit\" name=\"finishattemptwithoutanswer\" value=\"".get_string("finishattemptwithoutanswerlastquestion", "guidedquiz")."\" onclick=\"$onclick\" />\n";
             }
-            echo "<input type=\"submit\" name=\"finishattempt\" value=\"".get_string("finishattempt", "quiz")."\" onclick=\"$onclick\" />\n";
+            // guidedquiz mod end
 
             echo "</div>";
 
             // Print the navigation panel if required
-            if ($numpages > 1) {
-            	guidedquiz_print_navigation_panel($page, $numpages);
-    }
+            // guidedquiz mod
+//            if ($numpages > 1) {
+//            	guidedquiz_print_navigation_panel($page, $numpages);
+//    }
+                // guidedquiz mod end
 
     // Finish the form
     echo '</div>';

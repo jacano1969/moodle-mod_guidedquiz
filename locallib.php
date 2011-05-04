@@ -152,8 +152,17 @@ function guidedquiz_delete_attempt($attempt, $quiz) {
  * @param integer $page   The number of the current page.
  */
 function guidedquiz_questions_on_page($layout, $page) {
+	// guidedquiz mod
     $pages = explode(',0', $layout);
-    return trim($pages[$page], ',');
+
+    $i = 0;
+    while ($i <= $page) {
+    	$questions[] = ltrim($pages[$i], ',');
+    	$i++;
+    }
+
+    return implode(',', $questions);
+    // guidedquiz mod end
 }
 
 /**
