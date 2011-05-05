@@ -98,6 +98,15 @@
         $urloptions .= '&amp;page=' . $page;
     }
 
+    // guidedquiz mod
+    // Redirecting to the last page
+    $numpages = guidedquiz_number_of_pages($attempt->layout);
+    $lastpage = $numpages - 1;
+    if ($page != $lastpage) {
+        redirect($CFG->wwwroot.'/mod/guidedquiz/review.php?attempt='.$attempt->id.'&page='.$lastpage.'&showall='.$showall);
+    }
+    // guidedquiz mod end
+    
     add_to_log($course->id, 'guidedquiz', 'review', 'review.php?attempt=' . $attempt->id . $urloptions, $quiz->id, $cm->id);
 
 /// Load all the questions and states needed by this script
@@ -281,12 +290,16 @@
 
 /// Print the navigation panel if required
     $numpages = guidedquiz_number_of_pages($attempt->layout);
-    if ($numpages > 1 and !$showall) {
-        print_paging_bar($numpages, $page, 1, 'review.php?attempt='.$attempt->id.'&amp;');
-        echo '<div class="controls"><a href="review.php?attempt='.$attempt->id.'&amp;showall=true">';
-        print_string('showall', 'quiz');
-        echo '</a></div>';
-    }
+
+    // guidedquiz mod
+    // Removing navigation bar
+//    if ($numpages > 1 and !$showall) {
+//        print_paging_bar($numpages, $page, 1, 'review.php?attempt='.$attempt->id.'&amp;');
+//        echo '<div class="controls"><a href="review.php?attempt='.$attempt->id.'&amp;showall=true">';
+//        print_string('showall', 'quiz');
+//        echo '</a></div>';
+//    }
+    // guidedquiz mod end
 
 /// Print all the questions
     $quiz->thispageurl = $CFG->wwwroot . '/mod/guidedquiz/review.php?attempt=' . $attempt->id . $urloptions;
@@ -308,10 +321,12 @@
         $number += $questions[$i]->length;
     }
 
+    // guidedquiz mod
     // Print the navigation panel if required
-    if ($numpages > 1 and !$showall) {
-        print_paging_bar($numpages, $page, 1, 'review.php?attempt='.$attempt->id.'&amp;');
-    }
+//    if ($numpages > 1 and !$showall) {
+//        print_paging_bar($numpages, $page, 1, 'review.php?attempt='.$attempt->id.'&amp;');
+//    }
+    // guidedquiz mod end
 
     // print javascript button to close the window, if necessary
     if (!$isteacher) {

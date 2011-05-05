@@ -4,7 +4,6 @@ TODO
 - Backup and restore
 - Security checkings
 - Display the correct response
-- Remove the navigation pages in review.php and display only the last page
 
 mod_form.php
 - Added programmedresp dependencies
@@ -52,3 +51,7 @@ locallib.php
 - Added get_question_args() function
 - Skip the shufflequestions requirement to apply the questionsperpage value
 - Showing already answered questions (guidedquiz_questions_on_page)
+
+review.php
+- Page links hidden
+- Redirect to the last page to display all the questions on the same page

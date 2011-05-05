@@ -466,7 +466,7 @@ $attemptnumber = 1;
             	if (!empty($SESSION->passwordcheckedquizzes[$quiz->id])) {
             		unset($SESSION->passwordcheckedquizzes[$quiz->id]);
             	}
-            	redirect($CFG->wwwroot . '/mod/guidedquiz/review.php?attempt='.$attempt->id, 0);
+            	redirect($CFG->wwwroot . '/mod/guidedquiz/review.php?attempt='.$attempt->id.'&page='.($numpages - 1), 0);
             }
 
             // Now is the right time to check the open and close times.
