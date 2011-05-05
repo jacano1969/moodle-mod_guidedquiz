@@ -157,10 +157,11 @@
         <FIELD NAME="varvalues" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" ENUM="false" PREVIOUS="guidedquizvarid"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="guidedquizvarid"/>
+        <KEY NAME="guidedquizvarid" TYPE="foreign" FIELDS="guidedquizvarid" REFTABLE="guidedquiz_var" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="guidedquiz_var_arg" COMMENT="Stores the programmedresp question arguments value of guidedquiz variables" PREVIOUS="guidedquiz_val">
+    <TABLE NAME="guidedquiz_var_arg" COMMENT="Stores the programmedresp question arguments value of guidedquiz variables" PREVIOUS="guidedquiz_val" NEXT="guidedquiz_remaining_attempt">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quizid"/>
         <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="guidedquizvarid"/>
@@ -169,9 +170,20 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="guidedquizvarid"/>
-
         <KEY NAME="guidedquizvarid" TYPE="foreign" FIELDS="guidedquizvarid" REFTABLE="guidedquiz_var" REFFIELDS="id" PREVIOUS="primary" NEXT="programmedrespargid"/>
         <KEY NAME="programmedrespargid" TYPE="foreign" FIELDS="programmedrespargid" REFTABLE="question_programmedresp_arg" REFFIELDS="id" PREVIOUS="guidedquizvarid"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="guidedquiz_remaining_attempt" COMMENT="The remaining attempts of a guided quiz question instance" PREVIOUS="guidedquiz_var_arg">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="attemptid"/>
+        <FIELD NAME="attemptid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="question"/>
+        <FIELD NAME="question" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="attemptid" NEXT="remainingattempts"/>
+        <FIELD NAME="remainingattempts" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="question"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+
       </KEYS>
     </TABLE>
   </TABLES>

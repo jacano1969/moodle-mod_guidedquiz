@@ -11,5 +11,6 @@ $string['nextquestion'] = 'Next question';
 $string['nextquestionwithoutanswer'] = 'Next question without answer';
 $string['questionpenalty'] = 'Penalty';
 $string['questionattempts'] = 'Attempts';
+$string['remainingattempts'] = 'Remaining attempts';
 $string['viewpreviousquestions'] = 'View previous answered questions';
-$string['showcorrectresponses'] = 'Show correct responses';
+$string['showcorrectresponses'] = 'Show correct response/s';

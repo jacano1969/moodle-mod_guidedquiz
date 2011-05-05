@@ -246,11 +246,13 @@ $attemptnumber = 1;
             	print_error('noquestionsfound', 'quiz', 'view.php?q='.$quiz->id);
             }
 
-            $sql = "SELECT q.*, i.grade AS maxgrade, i.id AS instance".
+            // guidedquiz mod
+            $sql = "SELECT q.*, i.grade AS maxgrade, i.nattempts, i.penalty as questioninstancepenalty, i.id AS instance".
            "  FROM {$CFG->prefix}question q,".
            "       {$CFG->prefix}guidedquiz_question_instance i".
            " WHERE i.quiz = '$quiz->id' AND q.id = i.question".
            "   AND q.id IN ($questionlist)";
+            // guidedquiz mod end 
 
             // Load the questions
             if (!$questions = get_records_sql($sql)) {
@@ -280,9 +282,32 @@ $attemptnumber = 1;
             // Save all the newly created states
             if ($newattempt) {
             	foreach ($questions as $i => $question) {
-            		save_question_session($questions[$i], $states[$i]);
+            		
+            		// guidedquiz mod
+            		// Saving the remaining attempts
+            		$stateid = save_question_session($questions[$i], $states[$i]);
+            		$remainingattempts->attemptid = $attempt->uniqueid;
+            		$remainingattempts->question = $questions[$i]->id;
+            		$remainingattempts->remainingattempts = $questions[$i]->nattempts;
+            		if (!insert_record('guidedquiz_remaining_attempt', $remainingattempts)) {
+            			print_error('dberror', 'qtype_programmedresp');
+            		}
+
+            		$questions[$i]->remainingattempts = $remainingattempts->remainingattempts;
+            		// guidedquiz mod end
             	}
             }
+
+            // guidedquiz mod
+            // Getting remaining attempts info
+            if ($questions) {
+            	foreach ($questions as $i => $question) {
+            		if (empty($questions[$i]->remainingattempts)) {
+            		    $questions[$i]->remainingattempts = get_field('guidedquiz_remaining_attempt', 'remainingattempts', 'attemptid', $attempt->uniqueid, 'question', $question->id);
+            		}
+            	}
+            }
+            // guidedquiz mod end
 
             /// Process form data /////////////////////////////////////////////////
 
@@ -293,7 +318,8 @@ $attemptnumber = 1;
             	($finishattempt ? QUESTION_EVENTCLOSE : QUESTION_EVENTSAVE);
 
             	// guidedquiz mod
-                // TODO: Finish it taking into account the nattempts answered question param
+            	// It's only the default event for question_extract_responses, *submit 
+            	// buttons will be respected
                 $event = QUESTION_EVENTCLOSE;
                 // guidedquiz mod end
 
@@ -337,9 +363,19 @@ $attemptnumber = 1;
             			$actions[$i]->responses = array('' => '');
             			$actions[$i]->event = QUESTION_EVENTOPEN;
             		}
+
             		$actions[$i]->timestamp = $timestamp;
             		if (question_process_responses($questions[$i], $states[$i], $actions[$i], $quiz, $attempt)) {
             			save_question_session($questions[$i], $states[$i]);
+            			// guidedquiz mod
+            			// If it's one of the N question attempts let's decrease it
+            			if ($questions[$i]->remainingattempts > 0) {
+            				$questions[$i]->remainingattempts = $questions[$i]->remainingattempts - 1;
+            				$questionremainingattempt = get_record('guidedquiz_remaining_attempt', 'attemptid', $attempt->uniqueid, 'question', $questions[$i]->id);
+            				$questionremainingattempt->remainingattempts = $questions[$i]->remainingattempts;
+            				update_record('guidedquiz_remaining_attempt', $questionremainingattempt);
+            			}
+            			// guidedquiz mod end
             		} else {
             			$success = false;
             		}
@@ -550,9 +586,9 @@ $attemptnumber = 1;
             // guidedquiz mod
             // No navigation
             $numpages = guidedquiz_number_of_pages($attempt->layout);
-            if ($numpages > 1) {
-            	guidedquiz_print_navigation_panel($page, $numpages);
-            }
+//            if ($numpages > 1) {
+//            	guidedquiz_print_navigation_panel($page, $numpages);
+//            }
             // guidedquiz mod end
 
             /// Print all the questions
@@ -589,12 +625,25 @@ $attemptnumber = 1;
 //            if ($quiz->optionflags & QUESTION_ADAPTIVE) {
 //                echo "<input type=\"submit\" name=\"markall\" value=\"".get_string("markall", "quiz")."\" />\n";
 //            }
+
+            // Only if there remains question attempts
+            $lastindex = $pagequestions[count($pagequestions) - 1];
+            if ($questions[$lastindex]->nattempts > 0 && $questions[$lastindex]->remainingattempts > 0) {
+	            echo '<input type="submit" name="'.$questions[$lastindex]->name_prefix.'submit"onclick="',
+	                "form.action = form.action + '#q", $questions[$lastindex]->id, "'; return true;", '" value="'.get_string('mark', 'quiz').'" />';
+	            echo '&nbsp;'.get_string('remainingattempts', 'guidedquiz').': '.$questions[$lastindex]->remainingattempts.'<br/><br/>';
+            }
+            
             if (($page + 1) < $numpages) {
-                echo '<input type="submit" name="nextquestion" value="'.get_string("nextquestion", "guidedquiz").'" onclick="javascript:navigate('.($page + 1).');"/>';
-                echo '<input type="submit" name="nextquestionwithoutanswer" value="'.get_string("nextquestionwithoutanswer", "guidedquiz").'" onclick="javascript:navigate('.($page + 1).');"/>';
+                echo '<input type="submit" name="nextquestion" value="'.get_string("nextquestion", "guidedquiz").'" 
+                    onclick="javascript:navigate('.($page + 1).');" class="submit btn"/>';
+                echo '<input type="submit" name="nextquestionwithoutanswer" value="'.get_string("nextquestionwithoutanswer", "guidedquiz").'" 
+                    onclick="javascript:navigate('.($page + 1).');" class="submit btn"/>';
             } else {
-                echo "<input type=\"submit\" name=\"finishattempt\" value=\"".get_string("finishattempt", "quiz")."\" onclick=\"$onclick\" />\n";
-                echo "<input type=\"submit\" name=\"finishattemptwithoutanswer\" value=\"".get_string("finishattemptwithoutanswerlastquestion", "guidedquiz")."\" onclick=\"$onclick\" />\n";
+                echo "<input type=\"submit\" name=\"finishattempt\" value=\"".get_string("finishattempt", "quiz")."\" 
+                    onclick=\"$onclick\" class=\"submit btn\"/>\n";
+                echo "<input type=\"submit\" name=\"finishattemptwithoutanswer\" value=\"".get_string("finishattemptwithoutanswerlastquestion", "guidedquiz")."\" 
+                    onclick=\"$onclick\"  class=\"submit btn\" />\n";
             }
             // guidedquiz mod end
 

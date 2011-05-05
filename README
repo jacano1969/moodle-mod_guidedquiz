@@ -28,7 +28,8 @@ attempt.php
 - Respect show previous questions setting value
 - Respect the show correct values setting value
 - Allow users to pass to the next question (question value overwrite by a '') it depends on the 
-show previous questions and show correct values values to display the correct response after answering  
+show previous questions and show correct values values to display the correct response after answering
+- Take into account the spent nattempts 
 
 db/install.xml
 - New tables
