@@ -607,8 +607,13 @@ $attemptnumber = 1;
                 // guidedquiz mod
                 // display correct response if it's not the latests question
                 if ($quiz->showcorrectresponses && $page != $key) {
-                    // TODO: Get the $questions[$i]->get_correct_response (or something like that) value and display it
-                    print_box(get_string('showcorrectresponses', 'guidedquiz').': SOC UNA RESPOSTAAA');
+                	
+                	$correctresponses = $QTYPES[$question->qtype]->get_correct_responses($questions[$i], $states[$i]);
+                	if ($correctresponses) {
+                		$htmlresponsecontent = '<strong>'.get_string('showcorrectresponses', 'guidedquiz').'</strong>: ';
+                		$htmlresponsecontent.= implode(', ', $correctresponses);
+                		print_box($htmlresponsecontent);
+                	}
                 }
                 // guidedquiz mod end
             	save_question_session($questions[$i], $states[$i]);

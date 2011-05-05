@@ -3,7 +3,6 @@ Quiz module for Moodle 1.9 modified and renamed to guidedquiz
 TODO
 - Backup and restore
 - Security checkings
-- Display the correct response
 
 mod_form.php
 - Added programmedresp dependencies
@@ -23,7 +22,7 @@ attempt.php
 - Hide navigation pages
 - Change submit buttons
 - Change data_submitted() process
-- The event state should always be QUESTION_EVENTCLOSE          # TODO: Take into account question_instance attrs
+- The event state should always be QUESTION_EVENTCLOSE
 - Respect show previous questions setting value
 - Respect the show correct values setting value
 - Allow users to pass to the next question (question value overwrite by a '') it depends on the 
@@ -55,3 +54,4 @@ locallib.php
 review.php
 - Page links hidden
 - Redirect to the last page to display all the questions on the same page
+- Show correct responses

@@ -318,6 +318,18 @@
         $options->history = ($isteacher and !$attempt->preview) ? 'all' : 'graded';
         // Print the question
         print_question($questions[$i], $states[$i], $number, $quiz, $options);
+        // guidedquiz mod
+        // display correct response if it's not the latests question
+        if ($quiz->showcorrectresponses) {
+                    
+            $correctresponses = $QTYPES[$questions[$i]->qtype]->get_correct_responses($questions[$i], $states[$i]);
+            if ($correctresponses) {
+                $htmlresponsecontent = '<strong>'.get_string('showcorrectresponses', 'guidedquiz').'</strong>: ';
+                $htmlresponsecontent.= implode(', ', $correctresponses);
+                print_box($htmlresponsecontent);
+            }
+        }
+        // guidedquiz mod end
         $number += $questions[$i]->length;
     }
 
