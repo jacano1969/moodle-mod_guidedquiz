@@ -610,7 +610,7 @@ $attemptnumber = 1;
                 	
                 	$correctresponses = $QTYPES[$question->qtype]->get_correct_responses($questions[$i], $states[$i]);
                 	if ($correctresponses) {
-                		$htmlresponsecontent = '<strong>'.get_string('showcorrectresponses', 'guidedquiz').'</strong>: ';
+                		$htmlresponsecontent = '<strong>'.get_string('correctanswer', 'guidedquiz').'</strong>: ';
                 		$htmlresponsecontent.= implode(', ', $correctresponses);
                 		print_box($htmlresponsecontent);
                 	}
