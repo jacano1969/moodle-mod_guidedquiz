@@ -26,12 +26,6 @@ $finishattempt = optional_param('finishattempt', 0, PARAM_BOOL);
 $timeup = optional_param('timeup', 0, PARAM_BOOL); // True if form was submitted by timer.
 $forcenew = optional_param('forcenew', false, PARAM_BOOL); // Teacher has requested new preview
 
-// guidedquiz mod
-// Take into account the finishattempt without answering the last question
-if (!$finishattempt && optional_param('finishattemptwithoutanswer', false, PARAM_RAW)) {
-    $finishattempt = true;
-}
-// guidedquiz mod end 
 if ($id) {
 	if (! $cm = get_coursemodule_from_id('guidedquiz', $id)) {
 		error("There is no coursemodule with id $id");
@@ -247,6 +241,12 @@ $attemptnumber = 1;
             }
 
             // guidedquiz mod
+            // Getting the actual question
+            $questionidsarray = explode(',', $pagelist);
+            $lastquestionid = $questionidsarray[count($questionidsarray) - 1];
+            // guidedquiz mod end
+            
+            // guidedquiz mod
             $sql = "SELECT q.*, i.grade AS maxgrade, i.nattempts, i.penalty as questioninstancepenalty, i.id AS instance".
            "  FROM {$CFG->prefix}question q,".
            "       {$CFG->prefix}guidedquiz_question_instance i".
@@ -282,10 +282,10 @@ $attemptnumber = 1;
             // Save all the newly created states
             if ($newattempt) {
             	foreach ($questions as $i => $question) {
+                    save_question_session($questions[$i], $states[$i]);
             		
-            		// guidedquiz mod
-            		// Saving the remaining attempts
-            		$stateid = save_question_session($questions[$i], $states[$i]);
+                    // guidedquiz mod
+                    // TODO: Create guidedquiz_update_question_remaining_attempts($attempt->uniqueid, $lastquestionid, $remainingattempts);
             		$remainingattempts->attemptid = $attempt->uniqueid;
             		$remainingattempts->question = $questions[$i]->id;
             		$remainingattempts->remainingattempts = $questions[$i]->nattempts;
@@ -318,8 +318,9 @@ $attemptnumber = 1;
             	($finishattempt ? QUESTION_EVENTCLOSE : QUESTION_EVENTSAVE);
 
             	// guidedquiz mod
-            	// It's only the default event for question_extract_responses, *submit 
-            	// buttons will be respected
+            	// It's only the default event for question_extract_responses
+            	// If someone tries you access the next questions without answer all the previous the 
+            	// all the previous questions will be graded with '' response 
                 $event = QUESTION_EVENTCLOSE;
                 // guidedquiz mod end
 
@@ -342,21 +343,51 @@ $attemptnumber = 1;
             	// Process each question in turn
 
             	$questionidarray = explode(',', $questionids);
+            	
                 // guidedquiz mod
-                // If it's marked as nextquestionwithoutanswer leave the response blank
-                if (optional_param('nextquestionwithoutanswer', false, PARAM_RAW) || 
-                    optional_param('finishattemptwithoutanswer', false, PARAM_RAW)) {
-                        
-                        // Only the response of the last question answered
-                        $lastindexkey = count($questionidarray) - 1;
-                        $lastindex = $questionidarray[$lastindexkey];
-                        if (!empty($actions[$lastindex]) && $actions[$lastindex]->responses) {
-                            foreach ($actions[$lastindex]->responses as $key => $response) {
-                                $actions[$lastindex]->responses[$key] = '';
-                            }
+                
+                // If it's marked as nextquestionwithoutanswer:
+                // - Leave the response blank
+                // - Close the event 
+                // - Go to next question
+                if (optional_param('nextquestionwithoutanswer', false, PARAM_RAW)) {
+
+                    if (!empty($actions[$lastquestionid]) && $actions[$lastquestionid]->responses) {
+                        foreach ($actions[$lastquestionid]->responses as $key => $response) {
+                            $actions[$lastquestionid]->responses[$key] = '';
                         }
+                        $actions[$lastquestionid]->event = QUESTION_EVENTCLOSE;
+                        $remainingattempts = 0;
+                        $redirectnextpage = true;
+                    }
+
+                // If the question response is OK go to the next question
+                // TODO: Create the function to check the correct question
+                } else if ($correct = false) {
+                	$actions[$lastquestionid]->event = QUESTION_EVENTCLOSE;
+                	$remainingattempts = 0;
+                    $redirectnextpage = true;
+
+                // If this is the last attempt close question and go to the next question
+                } else if ($questions[$lastquestionid]->remainingattempts <= 1) {
+                	$actions[$lastquestionid]->event = QUESTION_EVENTCLOSE;
+                	$remainingattempts = 0;
+                	$redirectnextpage = true;
+
+                // If is just another attempt update the remaining attempts
+                } else {
+                	$actions[$lastquestionid]->event = QUESTION_EVENTSUBMIT;
+                	$remainingattempts = $questions[$lastquestionid]->remainingattempts - 1; // One less
                 }
+
+                // Update the remaining attempts on DB
+                // TODO: Create guidedquiz_update_question_remaining_attempts($attempt->uniqueid, $lastquestionid, $remainingattempts);
+                $questionremainingattempt = get_record('guidedquiz_remaining_attempt', 'attemptid', $attempt->uniqueid, 'question', $lastquestionid);
+                $questionremainingattempt->remainingattempts = $remainingattempts;
+                update_record('guidedquiz_remaining_attempt', $questionremainingattempt);
+                $questions[$lastquestionid]->remainingattempts = $remainingattempts;
                 // guidedquiz mod end
+                
             	$success = true;
             	foreach($questionidarray as $i) {
             		if (!isset($actions[$i])) {
@@ -367,15 +398,6 @@ $attemptnumber = 1;
             		$actions[$i]->timestamp = $timestamp;
             		if (question_process_responses($questions[$i], $states[$i], $actions[$i], $quiz, $attempt)) {
             			save_question_session($questions[$i], $states[$i]);
-            			// guidedquiz mod
-            			// If it's one of the N question attempts let's decrease it
-            			if ($questions[$i]->remainingattempts > 0) {
-            				$questions[$i]->remainingattempts = $questions[$i]->remainingattempts - 1;
-            				$questionremainingattempt = get_record('guidedquiz_remaining_attempt', 'attemptid', $attempt->uniqueid, 'question', $questions[$i]->id);
-            				$questionremainingattempt->remainingattempts = $questions[$i]->remainingattempts;
-            				update_record('guidedquiz_remaining_attempt', $questionremainingattempt);
-            			}
-            			// guidedquiz mod end
             		} else {
             			$success = false;
             		}
@@ -394,7 +416,15 @@ $attemptnumber = 1;
 
             	// We have now finished processing form data
             }
-
+            
+            // One page per question
+            $numpages = guidedquiz_number_of_pages($attempt->layout);
+            
+            // If it's the last question redirect to finish the attempt
+            if (!empty($redirectnextpage) && ($page + 1) == $numpages) {
+                $finishattempt = true;
+            }
+            
             /// Finish attempt if requested
             if ($finishattempt) {
 
@@ -462,6 +492,13 @@ $attemptnumber = 1;
             	guidedquiz_send_notification_emails($course, $quiz, $attempt, $context, $cm);
             }
 
+            // guidedquiz mod
+            // Redirecting to the next page if it's not the end and this question has been closed and graded
+            if (!$finishattempt && !empty($redirectnextpage)) {
+                redirect($CFG->wwwroot.'/mod/guidedquiz/attempt.php?q='.$quiz->id.'&amp;page='.($page + 1), get_string('nextquestion', 'guidedquiz'), 2);
+            }
+            // guidedquiz mod end
+            
             if ($finishattempt) {
             	if (!empty($SESSION->passwordcheckedquizzes[$quiz->id])) {
             		unset($SESSION->passwordcheckedquizzes[$quiz->id]);
@@ -585,7 +622,7 @@ $attemptnumber = 1;
             /// Print the navigation panel if required
             // guidedquiz mod
             // No navigation
-            $numpages = guidedquiz_number_of_pages($attempt->layout);
+//            $numpages = guidedquiz_number_of_pages($attempt->layout);
 //            if ($numpages > 1) {
 //            	guidedquiz_print_navigation_panel($page, $numpages);
 //            }
@@ -626,29 +663,18 @@ $attemptnumber = 1;
             echo "<div class=\"submitbtns mdl-align\">\n";
 
             // guidedquiz mod
-//            echo "<input type=\"submit\" name=\"saveattempt\" value=\"".get_string("savenosubmit", "quiz")."\" />\n";
-//            if ($quiz->optionflags & QUESTION_ADAPTIVE) {
-//                echo "<input type=\"submit\" name=\"markall\" value=\"".get_string("markall", "quiz")."\" />\n";
-//            }
-
-            // Only if there remains question attempts
-            $lastindex = $pagequestions[count($pagequestions) - 1];
-            if ($questions[$lastindex]->nattempts > 0 && $questions[$lastindex]->remainingattempts > 0) {
-	            echo '<input type="submit" name="'.$questions[$lastindex]->name_prefix.'submit"onclick="',
-	                "form.action = form.action + '#q", $questions[$lastindex]->id, "'; return true;", '" value="'.get_string('mark', 'quiz').'" />';
-	            echo '&nbsp;'.get_string('remainingattempts', 'guidedquiz').': '.$questions[$lastindex]->remainingattempts.'<br/><br/>';
-            }
-            
             if (($page + 1) < $numpages) {
-                echo '<input type="submit" name="nextquestion" value="'.get_string("nextquestion", "guidedquiz").'" 
-                    onclick="javascript:navigate('.($page + 1).');" class="submit btn"/>';
+                echo '<input type="submit" name="nextquestion" value="'.get_string('mark', 'quiz').'" 
+                    onclick="javascript:navigate('.$page.');" class="submit btn"/>';
+                echo '&nbsp;'.get_string('remainingattempts', 'guidedquiz').': '.$questions[$lastquestionid]->remainingattempts.'<br/><br/>';
                 echo '<input type="submit" name="nextquestionwithoutanswer" value="'.get_string("nextquestionwithoutanswer", "guidedquiz").'" 
-                    onclick="javascript:navigate('.($page + 1).');" class="submit btn"/>';
+                    onclick="javascript:navigate('.$page.');" class="submit btn"/>';
             } else {
-                echo "<input type=\"submit\" name=\"finishattempt\" value=\"".get_string("finishattempt", "quiz")."\" 
-                    onclick=\"$onclick\" class=\"submit btn\"/>\n";
-                echo "<input type=\"submit\" name=\"finishattemptwithoutanswer\" value=\"".get_string("finishattemptwithoutanswerlastquestion", "guidedquiz")."\" 
-                    onclick=\"$onclick\"  class=\"submit btn\" />\n";
+                echo '<input type="submit" name="nextquestion" value="'.get_string("finishattempt", "quiz").'" 
+                    onclick="javascript:navigate('.$page.');" class="submit btn"/>';
+                echo '&nbsp;'.get_string('remainingattempts', 'guidedquiz').': '.$questions[$lastquestionid]->remainingattempts.'<br/><br/>';
+                echo '<input type="submit" name="nextquestionwithoutanswer" value="'.get_string("nextquestionwithoutanswer", "guidedquiz").'" 
+                    onclick="javascript:navigate('.$page.');" class="submit btn"/>';
             }
             // guidedquiz mod end
 
