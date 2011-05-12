@@ -348,7 +348,7 @@ function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $sho
         
         // Question attempts
         echo '</td><td align="left"><select name="na'.$qnum.'" tabindex="'.($lastindex+$qno).'">';
-        for ($i = 0; $i < $maxnattempts; $i++) {
+        for ($i = 1; $i < $maxnattempts; $i++) {
         	$selectedvalue = '';
         	if ($i == $quiz->nattempts[$qnum]) {
         		$selectedvalue = 'selected="selected"';
@@ -360,7 +360,9 @@ function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $sho
         // guidedquiz mod end
         echo '</td><td align="center">';
 
-        if (($question->qtype != 'random')){
+        // guidedquiz mod
+        if (($question->qtype != 'random' && $question->qtype != 'programmedresp')){
+        // guidedquiz mod end
             echo guidedquiz_question_preview_button($quiz, $question);
         }
         $returnurl = $pageurl->out();
