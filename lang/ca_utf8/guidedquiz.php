@@ -12,5 +12,6 @@ $string['nextquestionwithoutanswer'] = 'Deixa sense contestar i pasa a la següe
 $string['questionpenalty'] = 'Penalització';
 $string['questionattempts'] = 'Intents';
 $string['remainingattempts'] = 'Intents restants';
+$string['sendandfinish'] = 'Envia i acaba';
 $string['viewpreviousquestions'] = 'Veure preguntes previament contestades';
 $string['showcorrectresponses'] = 'Mostrar resposta/es correcta/es';

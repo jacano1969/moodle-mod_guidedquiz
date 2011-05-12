@@ -670,7 +670,7 @@ $attemptnumber = 1;
                 echo '<input type="submit" name="nextquestionwithoutanswer" value="'.get_string("nextquestionwithoutanswer", "guidedquiz").'" 
                     onclick="javascript:navigate('.$page.');" class="submit btn"/>';
             } else {
-                echo '<input type="submit" name="nextquestion" value="'.get_string("finishattempt", "quiz").'" 
+                echo '<input type="submit" name="nextquestion" value="'.get_string("sendandfinish", "guidedquiz").'" 
                     onclick="javascript:navigate('.$page.');" class="submit btn"/>';
                 echo '&nbsp;'.get_string('remainingattempts', 'guidedquiz').': '.$questions[$lastquestionid]->remainingattempts.'<br/><br/>';
                 echo '<input type="submit" name="nextquestionwithoutanswer" value="'.get_string("nextquestionwithoutanswer", "guidedquiz").'" 

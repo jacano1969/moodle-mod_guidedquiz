@@ -39,6 +39,7 @@ editlib.php
 - Added the button to assign guided quiz vars to question function arguments
 - Guided quiz vars assign to the programmedresp function arguments also deleted 
 - New guidedquiz columns
+- Hide programmedresp questions preview button 
 
 assignvars.php
 - New file
@@ -50,6 +51,7 @@ locallib.php
 - Added get_question_args() function
 - Skip the shufflequestions requirement to apply the questionsperpage value
 - Showing already answered questions (guidedquiz_questions_on_page)
+- Changing preview questions link
 
 review.php
 - Page links hidden

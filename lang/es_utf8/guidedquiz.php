@@ -12,5 +12,6 @@ $string['nextquestionwithoutanswer'] = 'Siguiente pregunta sin contestar';
 $string['questionpenalty'] = 'Penalización';
 $string['questionattempts'] = 'Intentos';
 $string['remainingattempts'] = 'Intentos restantes';
+$string['sendandfinish'] = 'Envia y acaba';
 $string['viewpreviousquestions'] = 'Ver preguntas ya contestadas';
 $string['showcorrectresponses'] = 'Mostrar respuesta/s correcta/s';
