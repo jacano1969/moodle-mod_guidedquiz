@@ -596,6 +596,11 @@ $attemptnumber = 1;
                 }
             }
             print_box($questiontext, 'generalbox', 'intro');
+            
+            // Show the question number
+            $qnumbers->this = $page + 1;
+            $qnumbers->of = $numpages;
+            print_box(get_string("questionnumberof", "guidedquiz", $qnumbers), 'generalbox', 'intro');
             // guidedquiz mod end
 
             // Start the form
@@ -631,10 +636,12 @@ $attemptnumber = 1;
             /// Print all the questions
             $number = guidedquiz_first_questionnumber($attempt->layout, $pagelist);
             // guidedquiz mod
+//            echo get_string()
             foreach ($pagequestions as $key => $i) {
                 
                 // Take into account showpreviousquestions
                 if (!$quiz->viewpreviousquestions && ($page!= $key)) {
+                	$number += $questions[$i]->length;
                     continue;
                 }
             // guidedquiz mod end
@@ -656,7 +663,7 @@ $attemptnumber = 1;
             	save_question_session($questions[$i], $states[$i]);
             	$number += $questions[$i]->length;
             }
-
+            
             /// Print the submit buttons
             $strconfirmattempt = addslashes(get_string("confirmclose", "quiz"));
             $onclick = "return confirm('$strconfirmattempt')";
