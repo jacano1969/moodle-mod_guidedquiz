@@ -640,10 +640,11 @@ function guidedquiz_question_preview_button($quiz, $question) {
         return '';
     }
     $strpreview = get_string('previewquestion', 'quiz');
-    $quizorcourseid = $quiz->id?('&amp;quizid=' . $quiz->id):('&amp;courseid=' .$COURSE->id);
-    return link_to_popup_window('/question/preview.php?id=' . $question->id . $quizorcourseid, 'questionpreview',
+    // guidedquiz mod
+    return link_to_popup_window('/question/preview.php?id=' . $question->id . '&amp;courseid=' .$COURSE->id, 'questionpreview',
             "<img src=\"$CFG->pixpath/t/preview.gif\" class=\"iconsmall\" alt=\"$strpreview\" />",
             0, 0, $strpreview, QUESTION_PREVIEW_POPUP_OPTIONS, true);
+    // guidedquiz mod end
 }
 
 /**
