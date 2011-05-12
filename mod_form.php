@@ -49,7 +49,9 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
         
         // Guided quiz own settings
         $mform->addElement('selectyesno', 'viewpreviousquestions', get_string('viewpreviousquestions', 'guidedquiz'));
+        $mform->setDefault('viewpreviousquestions', true);
         $mform->addElement('selectyesno', 'showcorrectresponses', get_string('showcorrectresponses', 'guidedquiz'));
+        $mform->setDefault('showcorrectresponses', true);
         
         // Button label
         if (!empty($this->_instance)) {
