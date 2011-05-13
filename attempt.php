@@ -339,6 +339,13 @@ $attemptnumber = 1;
             	
                 // guidedquiz mod
                 
+            	// Is the question response ok? the question grading is repeated on question_process_responses
+            	// Cloning instances to not interfer with the usual process
+            	$tmpquestion = clone $questions[$lastquestionid];
+            	$tmpstate = clone $states[$lastquestionid];
+                $tmpstate->responses = $actions[$lastquestionid]->responses;
+            	$QTYPES[$question->qtype]->grade_responses($tmpquestion, $tmpstate, $quiz);
+
                 // If it's marked as nextquestionwithoutanswer:
                 // - Leave the response blank
                 // - Close the event 
@@ -355,8 +362,7 @@ $attemptnumber = 1;
                     }
 
                 // If the question response is OK go to the next question
-                // TODO: Create the function to check the correct question
-                } else if ($correct = false) {
+                } else if ($tmpstate->raw_grade == $tmpquestion->maxgrade) {
                 	$actions[$lastquestionid]->event = QUESTION_EVENTCLOSE;
                 	$remainingattempts = 0;
                     $redirectnextpage = true;
@@ -384,7 +390,7 @@ $attemptnumber = 1;
             			$actions[$i]->responses = array('' => '');
             			$actions[$i]->event = QUESTION_EVENTOPEN;
             		}
-
+notify('El penalty de '.$questions[$i]->id.' és: '.$questions[$i]->penalty);
             		$actions[$i]->timestamp = $timestamp;
             		if (question_process_responses($questions[$i], $states[$i], $actions[$i], $quiz, $attempt)) {
             			save_question_session($questions[$i], $states[$i]);
