@@ -105,6 +105,40 @@ function guidedquiz_get_user_attempt_unfinished($quizid, $userid) {
     }
 }
 
+// guidedquiz mod
+/**
+ * Updates the remaining attempts for this question and quiz attempt into the database
+ * 
+ * @param integer $attemptid
+ * @param integer $questionid
+ * @param integer $nattempts
+ * @return object $obj
+ */
+function guidedquiz_update_question_remaining_attempts($attemptid, $questionid, $nattempts) {
+	
+	// Retrieve from DB and update with $nattempts
+	if ($obj = get_record('guidedquiz_remaining_attempt', 'attemptid', $attemptid, 'question', $questionid)) {
+		
+		$obj->remainingattempts = $nattempts;
+		if (!update_record('guidedquiz_remaining_attempt', $obj)) {
+			print_error('dberror', 'qtype_programmedresp');
+		}
+		
+    // Create a new record
+	} else {
+	
+	    $obj->attemptid = $attemptid;
+	    $obj->question = $questionid;
+	    $obj->remainingattempts = $nattempts;
+	    if (!$obj->id = insert_record('guidedquiz_remaining_attempt', $obj)) {
+	        print_error('dberror', 'qtype_programmedresp');
+	    }
+	}
+    
+    return $obj;
+}
+// guidedquiz mod end
+
 /**
  * Delete a quiz attempt.
  * @param mixed $attempt an integer attempt id or an attempt object (row of the quiz_attempts table).

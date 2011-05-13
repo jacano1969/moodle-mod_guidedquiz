@@ -285,14 +285,7 @@ $attemptnumber = 1;
                     save_question_session($questions[$i], $states[$i]);
             		
                     // guidedquiz mod
-                    // TODO: Create guidedquiz_update_question_remaining_attempts($attempt->uniqueid, $lastquestionid, $remainingattempts);
-            		$remainingattempts->attemptid = $attempt->uniqueid;
-            		$remainingattempts->question = $questions[$i]->id;
-            		$remainingattempts->remainingattempts = $questions[$i]->nattempts;
-            		if (!insert_record('guidedquiz_remaining_attempt', $remainingattempts)) {
-            			print_error('dberror', 'qtype_programmedresp');
-            		}
-
+                    $remainingattempts = guidedquiz_update_question_remaining_attempts($attempt->uniqueid, $questions[$i]->id, $questions[$i]->nattempts);
             		$questions[$i]->remainingattempts = $remainingattempts->remainingattempts;
             		// guidedquiz mod end
             	}
@@ -381,11 +374,8 @@ $attemptnumber = 1;
                 }
 
                 // Update the remaining attempts on DB
-                // TODO: Create guidedquiz_update_question_remaining_attempts($attempt->uniqueid, $lastquestionid, $remainingattempts);
-                $questionremainingattempt = get_record('guidedquiz_remaining_attempt', 'attemptid', $attempt->uniqueid, 'question', $lastquestionid);
-                $questionremainingattempt->remainingattempts = $remainingattempts;
-                update_record('guidedquiz_remaining_attempt', $questionremainingattempt);
-                $questions[$lastquestionid]->remainingattempts = $remainingattempts;
+                $questionremainingattempt = guidedquiz_update_question_remaining_attempts($attempt->uniqueid, $lastquestionid, $remainingattempts);
+                $questions[$lastquestionid]->remainingattempts = $questionremainingattempt->remainingattempts;
                 // guidedquiz mod end
                 
             	$success = true;
