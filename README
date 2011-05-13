@@ -52,6 +52,7 @@ locallib.php
 - Skip the shufflequestions requirement to apply the questionsperpage value
 - Showing already answered questions (guidedquiz_questions_on_page)
 - Changing preview questions link
+- Added a function to manage the remaining attempts of a question inside a quiz attempt
 
 review.php
 - Page links hidden
