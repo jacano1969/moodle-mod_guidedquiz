@@ -282,6 +282,14 @@ $attemptnumber = 1;
             // Save all the newly created states
             if ($newattempt) {
             	foreach ($questions as $i => $question) {
+
+            		// guidedquiz mod
+            		// Taking into account the question attempt penalty
+            		if ($quiz->penaltyscheme) {
+            			$states[$i]->penalty = $questions[$i]->penalty + $questions[$i]->questioninstancepenalty;
+            		}
+            		// guidedquiz mod end
+                    
                     save_question_session($questions[$i], $states[$i]);
             		
                     // guidedquiz mod
@@ -382,6 +390,9 @@ $attemptnumber = 1;
                 // Update the remaining attempts on DB
                 $questionremainingattempt = guidedquiz_update_question_remaining_attempts($attempt->uniqueid, $lastquestionid, $remainingattempts);
                 $questions[$lastquestionid]->remainingattempts = $questionremainingattempt->remainingattempts;
+                
+                // Apply the penalty
+                $states[$lastquestionid]->penalty = $questions[$lastquestionid]->penalty;
                 // guidedquiz mod end
                 
             	$success = true;
@@ -390,7 +401,7 @@ $attemptnumber = 1;
             			$actions[$i]->responses = array('' => '');
             			$actions[$i]->event = QUESTION_EVENTOPEN;
             		}
-notify('El penalty de '.$questions[$i]->id.' és: '.$questions[$i]->penalty);
+
             		$actions[$i]->timestamp = $timestamp;
             		if (question_process_responses($questions[$i], $states[$i], $actions[$i], $quiz, $attempt)) {
             			save_question_session($questions[$i], $states[$i]);
