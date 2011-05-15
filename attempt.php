@@ -352,7 +352,7 @@ $attemptnumber = 1;
             	$tmpquestion = clone $questions[$lastquestionid];
             	$tmpstate = clone $states[$lastquestionid];
                 $tmpstate->responses = $actions[$lastquestionid]->responses;
-            	$QTYPES[$question->qtype]->grade_responses($tmpquestion, $tmpstate, $quiz);
+            	$QTYPES[$questions[$lastquestionid]->qtype]->grade_responses($tmpquestion, $tmpstate, $quiz);
 
                 // If it's marked as nextquestionwithoutanswer:
                 // - Leave the response blank
@@ -659,7 +659,7 @@ $attemptnumber = 1;
                 // display correct response if it's not the latests question
                 if ($quiz->showcorrectresponses && $page != $key) {
                 	
-                	$correctresponses = $QTYPES[$question->qtype]->get_correct_responses($questions[$i], $states[$i]);
+                	$correctresponses = $QTYPES[$questions[$i]->qtype]->get_correct_responses($questions[$i], $states[$i]);
                 	if ($correctresponses) {
                 		$htmlresponsecontent = '<strong>'.get_string('correctanswer', 'guidedquiz').'</strong>: ';
                 		$htmlresponsecontent.= implode(', ', $correctresponses);
