@@ -360,9 +360,7 @@ function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $sho
         // guidedquiz mod end
         echo '</td><td align="center">';
 
-        // guidedquiz mod
-        if (($question->qtype != 'random' && $question->qtype != 'programmedresp')){
-        // guidedquiz mod end
+        if ($question->qtype != 'random'){
             echo guidedquiz_question_preview_button($quiz, $question);
         }
         $returnurl = $pageurl->out();
