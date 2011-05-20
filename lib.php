@@ -131,6 +131,23 @@ function guidedquiz_delete_instance($id) {
         }
     }
 
+    // guidedquiz mod
+    if ($vars = get_records_select('guidedquiz_var', "quizid = '$quiz->id'")) {
+        foreach ($vars as $var) {
+        	
+        	// Deleting instance values
+        	if ($vals = get_records_select('guidedquiz_val', "guidedquizvarid = '$var->id'")) {
+        		foreach ($vals as $val) {
+        			delete_records('guidedquiz_remaining_attempt', 'attemptid', $val->attemptid);
+        		}
+        		delete_records('guidedquiz_val', 'guidedquizvarid', $var->id);
+        	}
+        }
+        delete_records('guidedquiz_var', 'quizid', $quiz->id);
+        delete_records('guidedquiz_var_arg', 'quizid', $quiz->id);
+    }
+    // guidedquiz mod end
+    
     guidedquiz_grade_item_delete($quiz);
 
     return $result;

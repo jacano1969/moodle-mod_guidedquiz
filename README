@@ -16,6 +16,7 @@ mod_form.php
 
 lib.php
 - Added guidedquiz_vars inserting / edition
+- Added guidedquiz extra tables data deletion
 
 attempt.php
 - Display the question text and replace vars for random values
