@@ -5,6 +5,7 @@ $string['correctanswer'] = 'Resposta correcta';
 $string['errornoargs'] = 'No hi ha arguments de tipus qüestionari guiat en aquesta pregunta';
 $string['errornoquizvars'] = 'El qüestionari solicitat no conté variables';
 $string['finishattemptwithoutanswerlastquestion'] = 'Deixa la pregunta sense respondre i finalitza';
+$string['mainquestionhidden'] = 'Per a veure l\'enunciat has d\'iniciar un intent';
 $string['modulename'] = 'Qüestionari guiat';
 $string['modulenameplural'] = 'Qüestionaris guiats';
 $string['nextquestion'] = 'Següent pregunta';

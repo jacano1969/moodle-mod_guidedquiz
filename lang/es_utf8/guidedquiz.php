@@ -5,6 +5,7 @@ $string['correctanswer'] = 'Respuesta/s correcta/s';
 $string['errornoargs'] = 'No hay argumentos de tipo cuestionario guiado en esta pregunta';
 $string['errornoquizvars'] = 'El cuestionario solicitado no tiene variables';
 $string['finishattemptwithoutanswerlastquestion'] = 'Deja la pregunta en blanco y finaliza';
+$string['mainquestionhidden'] = 'Para ver el enunciado debes inicar un intento';
 $string['modulename'] = 'Cuestionario guiado';
 $string['modulenameplural'] = 'Cuestionarios guiados';
 $string['nextquestion'] = 'Siguiente pregunta';

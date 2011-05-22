@@ -60,3 +60,6 @@ review.php
 - Page links hidden
 - Redirect to the last page to display all the questions on the same page
 - Show correct responses
+
+view.php
+- Don't show the quiz main question until the attempt begins

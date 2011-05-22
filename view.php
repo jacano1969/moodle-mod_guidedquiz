@@ -89,7 +89,9 @@
         if (trim(strip_tags($quiz->intro))) {
             $formatoptions->noclean = true;
             $formatoptions->para    = false;
-            print_box(format_text($quiz->intro, FORMAT_MOODLE, $formatoptions), 'generalbox', 'intro');
+            // guidedquiz mod
+            print_box(get_string('mainquestionhidden', 'guidedquiz'), 'generalbox', 'intro');
+            // guidedquiz mod
         }
 
         echo '<div class="quizinfo">';
