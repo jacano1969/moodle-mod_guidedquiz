@@ -11,7 +11,8 @@ class guidedquiz_assignvars_form extends moodleform {
 		$mform->addElement('header', 'assignvars', get_string('assignvars', 'guidedquiz'));
 		
 		foreach ($this->_customdata['args'] as $argid => $arg) {
-			$mform->addElement('select', 'arg_'.$argid, $argid, $this->_customdata['guidedquizvars']);
+			$functionparams = programmedresp_unserialize($arg->params);
+			$mform->addElement('select', 'arg_'.$argid, $functionparams[$arg->argkey]->description, $this->_customdata['guidedquizvars']);
 		}
 		
 		$mform->addElement('hidden', 'quizid');

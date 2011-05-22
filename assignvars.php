@@ -11,7 +11,7 @@ $quizid = required_param('quizid', PARAM_INT);
 $questionid = required_param('questionid', PARAM_INT);
 
 // Arguments
-$args = guidedquiz_get_question_guidedquiz_args($questionid);
+$args = guidedquiz_get_question_guidedquiz_args($questionid, true);
 if (!$args) {
 	print_error('errornoargs', 'guidedquiz');
 }

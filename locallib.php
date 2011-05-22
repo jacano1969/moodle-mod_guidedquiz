@@ -990,15 +990,34 @@ function guidedquiz_check_safe_browser() {
     return strpos($_SERVER['HTTP_USER_AGENT'], "SEB") !== false;
 }
 
-function guidedquiz_get_question_guidedquiz_args($questionid) {
+
+// guidedquiz mod
+/**
+ * Returns the argument/s data
+ * 
+ * @param $questionid
+ * @param boolean $allfields
+ * @return array Arguments data
+ */
+function guidedquiz_get_question_guidedquiz_args($questionid, $allfields = false) {
 
 	global $CFG;
 	
-    $sql = "SELECT pra.id FROM {$CFG->prefix}question_programmedresp pr
-            JOIN {$CFG->prefix}question_programmedresp_arg pra ON pra.programmedrespid = pr.id 
-            WHERE pr.question = '$questionid' AND pra.type = ".PROGRAMMEDRESP_ARG_GUIDEDQUIZ;
+	if (!$allfields) {
+		$select = 'pra.id';
+	} else {
+		$select = 'pra.*, prf.name, prf.description, prf.params';
+	}
+    $sql = "SELECT ".$select." FROM {$CFG->prefix}question_programmedresp pr
+            JOIN {$CFG->prefix}question_programmedresp_arg pra ON pra.programmedrespid = pr.id ";
+
+    if ($allfields) {
+    	$sql.= "JOIN {$CFG->prefix}question_programmedresp_f prf ON prf.id = pr.programmedrespfid ";
+    }
+    $sql.= "WHERE pr.question = '$questionid' AND pra.type = ".PROGRAMMEDRESP_ARG_GUIDEDQUIZ;
     
     return get_records_sql($sql);
 }
+// guidedquiz mod
 
 ?>
