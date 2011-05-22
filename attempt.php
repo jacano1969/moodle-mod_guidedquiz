@@ -243,7 +243,8 @@ $attemptnumber = 1;
             // guidedquiz mod
             // Getting the actual question
             $questionidsarray = explode(',', $pagelist);
-            $lastquestionid = $questionidsarray[count($questionidsarray) - 1];
+            $lastquestionindex = count($questionidsarray) - 1;
+            $lastquestionid = $questionidsarray[$lastquestionindex];
             // guidedquiz mod end
             
             // guidedquiz mod
@@ -518,6 +519,24 @@ $attemptnumber = 1;
             	print_error('notavailable', 'quiz', "view.php?id={$cm->id}");
             }
 
+            // guidedquiz mod
+            
+            // Trying to access a previous question ehhh
+            if ($states[$lastquestionid]->event == QUESTION_EVENTCLOSEANDGRADE || 
+                $states[$lastquestionid]->event == QUESTION_EVENTCLOSE) {
+                	redirect($CFG->wwwroot.'/mod/guidedquiz/attempt.php?q='.$quiz->id.'&page='.($page + 1), 'pillat cap endarrere', 2);
+            }
+            
+            // Checking if the user has advanced to a next question
+            foreach ($questionidsarray as $i => $questionid) {
+            	if ($states[$questionid]->event != QUESTION_EVENTCLOSEANDGRADE &&
+            	    $states[$questionid]->event != QUESTION_EVENTCLOSE && 
+            	    $i < $lastquestionindex) {
+            	    	redirect($CFG->wwwroot.'/mod/guidedquiz/attempt.php?q='.$quiz->id.'&page='.($page - 1), 'pillat massa endavant', 2);
+            	}
+            }
+            // guidedquiz mod
+            
             /// Print the quiz page ////////////////////////////////////////////////////////
 
             // Print the page header

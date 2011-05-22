@@ -29,7 +29,8 @@ attempt.php
 - Allow users to pass to the next question (question value overwrite by a '') it depends on the 
 show previous questions and show correct values values to display the correct response after answering
 - Take into account the spent nattempts
-- Take into account the penalty 
+- Take into account the penalty
+- Check the page the user tries to access 
 
 db/install.xml
 - New tables
