@@ -524,7 +524,7 @@ $attemptnumber = 1;
             // Trying to access a previous question ehhh
             if ($states[$lastquestionid]->event == QUESTION_EVENTCLOSEANDGRADE || 
                 $states[$lastquestionid]->event == QUESTION_EVENTCLOSE) {
-                	redirect($CFG->wwwroot.'/mod/guidedquiz/attempt.php?q='.$quiz->id.'&page='.($page + 1), 'pillat cap endarrere', 2);
+                	redirect($CFG->wwwroot.'/mod/guidedquiz/attempt.php?q='.$quiz->id.'&page='.($page + 1), get_string('previousquestionaccess', 'guidedquiz'), 2);
             }
             
             // Checking if the user has advanced to a next question
@@ -532,7 +532,7 @@ $attemptnumber = 1;
             	if ($states[$questionid]->event != QUESTION_EVENTCLOSEANDGRADE &&
             	    $states[$questionid]->event != QUESTION_EVENTCLOSE && 
             	    $i < $lastquestionindex) {
-            	    	redirect($CFG->wwwroot.'/mod/guidedquiz/attempt.php?q='.$quiz->id.'&page='.($page - 1), 'pillat massa endavant', 2);
+            	    	redirect($CFG->wwwroot.'/mod/guidedquiz/attempt.php?q='.$quiz->id.'&page='.($page - 1), get_string('nextquestionaccess', 'guidedquiz'), 2);
             	}
             }
             // guidedquiz mod
