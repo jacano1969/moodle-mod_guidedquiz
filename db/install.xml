@@ -197,7 +197,7 @@
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'attempt', 'guidedquiz', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'submit', 'guidedquiz', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'review', 'guidedquiz', 'name')" />
-        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'editquestions', 'guideequiz', 'name')" />
+        <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'editquestions', 'guidedquiz', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'preview', 'guidedquiz', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'start attempt', 'guidedquiz', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'close attempt', 'guidedquiz', 'name')" />
