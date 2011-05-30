@@ -59,7 +59,7 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
         } else {
             $buttonlabel = get_string('assignvarsvalues', 'qtype_programmedresp');
         }
-        $varsattrs = array('onclick' => 'display_vars(this, "'.get_string("novars", "qtype_programmedresp").'", false, \'false\');');
+        $varsattrs = array('onclick' => 'display_vars(this, false, \'false\');');
         $mform->addElement('button', 'vars', $buttonlabel, $varsattrs);
         
         // Link to fill vars data
