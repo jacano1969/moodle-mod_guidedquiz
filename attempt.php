@@ -709,6 +709,11 @@ $attemptnumber = 1;
                 echo '<input type="submit" name="nextquestionwithoutanswer" value="'.get_string("nextquestionwithoutanswer", "guidedquiz").'" 
                     onclick="javascript:navigate('.$page.');" class="submit btn"/>';
             }
+
+            // To finish the attempt
+            $strconfirmattempt = addslashes(get_string("confirmclose", "quiz"));
+            $onclick = "return confirm('$strconfirmattempt')";
+            echo "<input type=\"submit\" name=\"finishattempt\" value=\"".get_string("finishattempt", "quiz")."\" onclick=\"$onclick\" />\n";
             // guidedquiz mod end
 
             echo "</div>";
