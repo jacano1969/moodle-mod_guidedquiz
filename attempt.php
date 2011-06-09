@@ -118,10 +118,12 @@ $attemptnumber = 1;
 
             		print_header('', '', '', 'quizpassword');
 
-            		if (trim(strip_tags($quiz->intro))) {
-            			$formatoptions->noclean = true;
-            			print_box(format_text($quiz->intro, FORMAT_MOODLE, $formatoptions), 'generalbox', 'intro');
-            		}
+            		// guidedquiz mod
+//            		if (trim(strip_tags($quiz->intro))) {
+//            			$formatoptions->noclean = true;
+//            			print_box(format_text($quiz->intro, FORMAT_MOODLE, $formatoptions), 'generalbox', 'intro');
+//            		}
+            		// guidedquiz mod end
             		print_box_start('generalbox', 'passwordbox');
             		if (!empty($enteredpassword)) {
             			echo '<p class="notifyproblem">', get_string('passworderror', 'quiz'), '</p>';
