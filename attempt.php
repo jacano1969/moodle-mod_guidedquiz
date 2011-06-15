@@ -395,6 +395,7 @@ $attemptnumber = 1;
                 $questions[$lastquestionid]->remainingattempts = $questionremainingattempt->remainingattempts;
                 
                 // Apply the penalty
+                $questions[$lastquestionid]->penalty = $questions[$lastquestionid]->penalty + $questions[$lastquestionid]->questioninstancepenalty;
                 $states[$lastquestionid]->penalty = $questions[$lastquestionid]->penalty;
                 // guidedquiz mod end
                 
