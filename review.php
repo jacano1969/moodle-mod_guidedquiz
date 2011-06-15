@@ -172,6 +172,14 @@
 
 /// Print heading.
     print_heading(format_string($quiz->name));
+    
+    // guidedquiz mod
+    // Print guided quiz question
+    $formatoptions->noclean = true;
+    $quizintro = preg_replace('/\{\$[a-zA-Z0-9]*\}/', '(variable)', $quiz->intro);
+    $questiontext = format_text($quizintro, FORMAT_MOODLE, $formatoptions);
+    print_box($questiontext, 'generalbox', 'intro');
+    // guidedquiz mod end
     if ($isteacher and $attempt->userid == $USER->id) {
         // the teacher is at the end of a preview. Print button to start new preview
         unset($buttonoptions);
