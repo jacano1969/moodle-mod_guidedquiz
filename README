@@ -31,7 +31,8 @@ show previous questions and show correct values values to display the correct re
 - Take into account the spent nattempts
 - Take into account the penalty
 - Check the page the user tries to access
-- Hide quiz question when asking for password 
+- Hide quiz question when asking for password
+- Ensure there is a $actions[$lastquestionid] 
 
 db/install.xml
 - New tables

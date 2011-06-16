@@ -344,6 +344,13 @@ $attemptnumber = 1;
             	// $actions is an array indexed by the questions ids
             	$actions = question_extract_responses($questions, $responses, $event);
 
+            	// guidedquiz mod
+            	// Ensure there is a $actions[$lastquestionid] (multichoice)
+            	if (empty($actions) && empty($actions[$lastquestionid])) {
+            		$actions[$lastquestionid]->responses[0] = '';
+            	}
+                // guidedquiz mod end 
+                
             	// Process each question in turn
 
             	$questionidarray = explode(',', $questionids);
