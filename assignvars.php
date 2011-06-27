@@ -19,7 +19,7 @@ if (!$args) {
 // Getting stored data
 foreach ($args as $key => $arg) {
 	if ($vararg = get_record('guidedquiz_var_arg', 'quizid', $quizid, 'programmedrespargid', $arg->id)) {
-	    $toform->{'arg_'.$arg->id} = $vararg->guidedquizvarid;
+	    $toform->{'arg_'.$arg->id} = $vararg->type.'_'.$vararg->instanceid;
 	}
 }
 
@@ -29,9 +29,18 @@ if (!$guidedquizvars) {
 	print_error('errornoquizvars', 'guidedquiz');
 }
 
+$concatvars = get_records_select('question_programmedresp_conc', "origin = 'quiz' AND instanceid = '$quizid'");
+
 // Preprocess quiz vars -> options
 foreach ($guidedquizvars as $guidedquizvar) {
-	$options[$guidedquizvar->id] = $guidedquizvar->varname;
+    $options['var_'.$guidedquizvar->id] = $guidedquizvar->varname.' ('.get_string('vartypevar', 'guidedquiz').')';
+}
+
+// Now the concat vars
+if ($concatvars) {
+	foreach ($concatvars as $var) {
+	    $options['concatvar_'.$var->id] = $var->name.' ('.get_string('vartypeconcatvar', 'guidedquiz').')';
+	}
 }
 
 $toform->quizid = $quizid;
@@ -61,7 +70,9 @@ if ($values = $form->get_data()) {
 			// Deleting old values
             delete_records('guidedquiz_var_arg', 'quizid', $quizid, 'programmedrespargid', $argdata[1]);
             
-            $obj->guidedquizvarid = $value;
+            $selectedvalue = explode('_', $value);
+            $obj->type = clean_param($selectedvalue[0], PARAM_ALPHA);
+            $obj->instanceid = clean_param($selectedvalue[1], PARAM_INT);
             $obj->programmedrespargid = $argdata[1];
             
             if (!$obj->id = insert_record('guidedquiz_var_arg', $obj)) {

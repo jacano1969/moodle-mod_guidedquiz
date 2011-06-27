@@ -964,6 +964,12 @@ function guidedquiz_store_vars($quizid) {
             $vars[$vardata[2]]->{$vardata[1]} = clean_param($value, PARAM_NUMBER);   // integer or float
         }
         
+        // Storing to insert/update after the vars insertion
+        if (substr($varname, 0, 10) == 'concatvar_') {
+        	$concatvars[$varname]->name = $varname;
+        	$concatvars[$varname]->vars = programmedresp_serialize(optional_param($varname, false, PARAM_ALPHANUM));
+        }
+        
         // Inserting into DB
         if (!empty($vars)) {
 	        foreach ($vars as $varname => $var) {
@@ -984,6 +990,19 @@ function guidedquiz_store_vars($quizid) {
 	                }
 	            }   
 	        }
+        }
+        
+        
+        // Inserting/Updating concat vars
+        delete_records('question_programmedresp_conc', 'origin', 'quiz', 'instanceid', $quizid);
+        if (!empty($concatvars)) {
+        	foreach ($concatvars as $obj) {
+        		$obj->origin = 'quiz';
+        		$obj->instanceid = $quizid;
+        		if (!insert_record('question_programmedresp_conc', $obj)) {
+        			print_error('errordb', 'qtype_programmedresp');
+        		}
+        	}
         }
     }
 }

@@ -17,5 +17,7 @@ $string['questionnumberof'] = 'Question {$a->this} of {$a->of}';
 $string['questionpenalty'] = 'Penalty';
 $string['remainingattempts'] = 'Remaining attempts';
 $string['sendandfinish'] = 'Send and finish';
+$string['vartypevar'] = 'variable';
+$string['vartypeconcatvar'] = 'concat variable';
 $string['viewpreviousquestions'] = 'View previous answered questions';
 $string['showcorrectresponses'] = 'Show correct response/s';

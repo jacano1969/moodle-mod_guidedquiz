@@ -70,8 +70,11 @@ class mod_guidedquiz_mod_form extends moodleform_mod {
         	
         	$intro = get_field('guidedquiz', 'intro', 'id', $this->_instance);
         	
+        	// Has the guided quiz concatenated vars
+        	$concatvars = get_records_select('question_programmedresp_conc', "origin = 'quiz' AND instanceid = '$this->_instance'");
+
         	$outputmanager = new programmedresp_output($mform);
-            $outputmanager->display_vars($intro, false, false);
+            $outputmanager->display_vars($intro, false, false, $concatvars);
         }
         $mform->addElement('html', '</div>');
         // quidedquiz mod end
