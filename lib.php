@@ -145,7 +145,7 @@ function guidedquiz_delete_instance($id) {
         }
         delete_records('guidedquiz_var', 'quizid', $quiz->id);
         delete_records('guidedquiz_var_arg', 'quizid', $quiz->id);
-        delete_records('question_programmedresp_conc', 'type', 'quiz', $quiz->id);
+        delete_records('question_programmedresp_conc', 'type', 'quiz', 'instanceid', $quiz->id);
     }
     // guidedquiz mod end
     
