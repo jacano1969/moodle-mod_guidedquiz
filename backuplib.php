@@ -260,6 +260,10 @@
         fwrite ($bf,full_tag("QUESTIONS",4,false,$quiz->questions));
         fwrite ($bf,full_tag("SUMGRADES",4,false,$quiz->sumgrades));
         fwrite ($bf,full_tag("GRADE",4,false,$quiz->grade));
+        // guidedquiz mod
+        fwrite ($bf,full_tag("VIEWPREVIOUSQUESTIONS",4,false,$quiz->viewpreviousquestions));
+        fwrite ($bf,full_tag("SHOWCORRECTRESPONSES",4,false,$quiz->showcorrectresponses));
+        // guidedquiz mod end
         fwrite ($bf,full_tag("TIMECREATED",4,false,$quiz->timecreated));
         fwrite ($bf,full_tag("TIMEMODIFIED",4,false,$quiz->timemodified));
         fwrite ($bf,full_tag("TIMELIMIT",4,false,$quiz->timelimit));
@@ -268,6 +272,22 @@
         fwrite ($bf,full_tag("POPUP",4,false,$quiz->popup));
         fwrite ($bf,full_tag("DELAY1",4,false,$quiz->delay1));
         fwrite ($bf,full_tag("DELAY2",4,false,$quiz->delay2));
+        
+        // guidedquiz mod
+        // Guidedquiz variables
+        if ($quizvars = get_records('guidedquiz_var', 'quizid', $quiz->id)) {
+        	fwrite ($bf,start_tag("VARS",4,true));
+        	foreach ($quizvars as $quizvar) {
+        		fwrite ($bf,full_tag("VARNAME",5,false,$quizvar->varname));
+        		fwrite ($bf,full_tag("NVALUES",5,false,$quizvar->nvalues));
+        		fwrite ($bf,full_tag("MINIMUM",5,false,$quizvar->minimum));
+        		fwrite ($bf,full_tag("MAXIMUM",5,false,$quizvar->maximum));
+        		fwrite ($bf,full_tag("VALUEINCREMENT",5,false,$quizvar->valueincrement));
+        	}
+        	fwrite ($bf,end_tag("VARS",4,true));
+        }
+        // guidedquiz mod end
+        
         //Now we print to xml question_instances (Course Level)
         $status = backup_guidedquiz_question_instances($bf,$preferences,$quiz->id);
         //Now we print to xml quiz_feedback (Course Level)
@@ -325,6 +345,12 @@
                 fwrite ($bf,full_tag("ID",6,false,$que_ins->id));
                 fwrite ($bf,full_tag("QUESTION",6,false,$que_ins->question));
                 fwrite ($bf,full_tag("GRADE",6,false,$que_ins->grade));
+                
+                // guidedquiz mod
+                fwrite ($bf,full_tag("PENALTY",6,false,$que_ins->penalty));
+                fwrite ($bf,full_tag("NATTEMPTS",6,false,$que_ins->nattempts));
+                // guidedquiz mod end
+                
                 //End question instance
                 $status = fwrite ($bf,end_tag("QUESTION_INSTANCE",5,true));
             }

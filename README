@@ -1,8 +1,43 @@
 Quiz module for Moodle 1.9 modified and renamed to guidedquiz
 
 TODO
-- Backup and restore
 - Security checkings
+
+
+
+
+
+
+
+BACKUP - RESTAURACIO
+- nous camps viewpreviousquestions i showcorrectresponses a guidedquiz
+- guidedquiz_var
+- guidedquiz_var_arg
+- remaining attempts?
+
+
+
+
+
+
+
+
+
+
+
+
+
+backuplib.php
+- New fields added
+- New question instances fields added
+- Vars table added
+- Arguments table added
+
+restorelib.php
+- New fields added
+- New question instances fields added
+- Vars table added
+- Arguments table added
 
 mod_form.php
 - Added programmedresp dependencies
