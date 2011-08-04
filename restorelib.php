@@ -157,7 +157,7 @@
         for($i = 0; $i < sizeof($vars); $i++) {
             $varinfo = $vars[$i];
             
-            $var->quiz = $quiz_id;
+            $var->quizid = $quiz_id;
             $var->varname = backup_todb($varinfo['#']['VARNAME']['0']['#']);
             $var->nvalues = backup_todb($varinfo['#']['NVALUES']['0']['#']);
             $var->minimum = backup_todb($varinfo['#']['MINIMUM']['0']['#']);
