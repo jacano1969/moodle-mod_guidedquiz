@@ -278,11 +278,13 @@
         if ($quizvars = get_records('guidedquiz_var', 'quizid', $quiz->id)) {
         	fwrite ($bf,start_tag("VARS",4,true));
         	foreach ($quizvars as $quizvar) {
-        		fwrite ($bf,full_tag("VARNAME",5,false,$quizvar->varname));
-        		fwrite ($bf,full_tag("NVALUES",5,false,$quizvar->nvalues));
-        		fwrite ($bf,full_tag("MINIMUM",5,false,$quizvar->minimum));
-        		fwrite ($bf,full_tag("MAXIMUM",5,false,$quizvar->maximum));
-        		fwrite ($bf,full_tag("VALUEINCREMENT",5,false,$quizvar->valueincrement));
+        		fwrite ($bf,start_tag("VAR",5,true));
+        		fwrite ($bf,full_tag("VARNAME",6,false,$quizvar->varname));
+        		fwrite ($bf,full_tag("NVALUES",6,false,$quizvar->nvalues));
+        		fwrite ($bf,full_tag("MINIMUM",6,false,$quizvar->minimum));
+        		fwrite ($bf,full_tag("MAXIMUM",6,false,$quizvar->maximum));
+        		fwrite ($bf,full_tag("VALUEINCREMENT",6,false,$quizvar->valueincrement));
+        		fwrite ($bf,end_tag("VAR",5,true));
         	}
         	fwrite ($bf,end_tag("VARS",4,true));
         }
