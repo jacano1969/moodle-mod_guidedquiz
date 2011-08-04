@@ -146,7 +146,6 @@
     	
     	$status = true;
     	
-        //Get the quiz_question_instances array
         if (array_key_exists('VARS', $info['MOD']['#'])) {
             $vars = $info['MOD']['#']['VARS']['0']['#']['VAR'];
         } else {
@@ -166,6 +165,26 @@
             
             if (!insert_record('guidedquiz_var', $var)) {
             	$status = false;
+            }
+        }
+        
+        if (array_key_exists('CONCATVARS', $info['MOD']['#'])) {
+            $concatvars = $info['MOD']['#']['CONCATVARS']['0']['#']['CONCATVAR'];
+        } else {
+            $concatvars = array();
+        }
+        
+        // Iterate through the guidedquiz vars
+        for($i = 0; $i < sizeof($concatvars); $i++) {
+            $varinfo = $concatvars[$i];
+            
+            $var->origin = 'quiz';
+            $var->instanceid = $quiz_id;
+            $var->name = backup_todb($varinfo['#']['NAME']['0']['#']);
+            $var->vars = backup_todb($varinfo['#']['VARS']['0']['#']);
+            
+            if (!insert_record('question_programmedresp_conc', $var)) {
+                $status = false;
             }
         }
         

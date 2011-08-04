@@ -288,6 +288,19 @@
         	}
         	fwrite ($bf,end_tag("VARS",4,true));
         }
+        
+        // Guidedquiz concat vars
+        $where = "origin = 'quiz' AND instanceid = '$quiz->id'";
+        if ($concatvars = get_records_select('question_programmedresp_conc', $where)) {
+        	fwrite($bf, start_tag("CONCATVARS", 4, true));
+        	foreach ($concatvars as $concatvar) {
+        		fwrite($bf, start_tag("CONCATVAR", 5, true));
+        		fwrite($bf, full_tag("NAME", 6, false, $concatvar->name));
+        		fwrite($bf, full_tag("VARS", 6, false, $concatvar->vars));
+        		fwrite($bf, end_tag("CONCATVAR", 5, true));
+        	}
+        	fwrite($bf, end_tag("CONCATVARS", 4, true));
+        }
         // guidedquiz mod end
         
         //Now we print to xml question_instances (Course Level)
