@@ -82,6 +82,10 @@
             $quiz->questions = backup_todb($info['MOD']['#']['QUESTIONS']['0']['#']);
             $quiz->sumgrades = backup_todb($info['MOD']['#']['SUMGRADES']['0']['#']);
             $quiz->grade = backup_todb($info['MOD']['#']['GRADE']['0']['#']);
+            // guidedquiz mod
+            $quiz->viewpreviousquestions = backup_todb($info['MOD']['#']['VIEWPREVIOUSQUESTIONS']['0']['#']);
+            $quiz->showcorrectresponses = backup_todb($info['MOD']['#']['SHOWCORRECTRESPONSES']['0']['#']);
+            // guidedquiz mod end
             $quiz->timecreated = backup_todb($info['MOD']['#']['TIMECREATED']['0']['#']);
             $quiz->timemodified = backup_todb($info['MOD']['#']['TIMEMODIFIED']['0']['#']);
             $quiz->timelimit = backup_todb($info['MOD']['#']['TIMELIMIT']['0']['#']);
@@ -91,7 +95,7 @@
             $quiz->delay1 = isset($info['MOD']['#']['DELAY1']['0']['#'])?backup_todb($info['MOD']['#']['DELAY1']['0']['#']):'';
             $quiz->delay2 = isset($info['MOD']['#']['DELAY2']['0']['#'])?backup_todb($info['MOD']['#']['DELAY2']['0']['#']):'';
             //We have to recode the questions field (a list of questions id and pagebreaks)
-            $quiz->questions = quiz_recode_layout($quiz->questions, $restore);
+            $quiz->questions = guidedquiz_recode_layout($quiz->questions, $restore);
 
             //The structure is equal to the db, so insert the quiz
             $newid = insert_record ("guidedquiz",$quiz);
@@ -103,6 +107,11 @@
             backup_flush(300);
 
             if ($newid) {
+            	
+            	// guidedquiz mod
+                $status = guidedquiz_vars_restore_mods($newid, $info, $restore);
+                // guidedquiz mod end
+                
                 //We have the newid, update backup_ids
                 backup_putid($restore->backup_unique_code,$mod->modtype,
                              $mod->id, $newid);
@@ -131,6 +140,40 @@
         return $status;
     }
 
+    // guidedquiz mod
+    // Getting vars info
+    function guidedquiz_vars_restore_mods($quiz_id, $info, $restore) {
+    	
+    	$status = true;
+    	
+        //Get the quiz_question_instances array
+        if (array_key_exists('VARS', $info['MOD']['#'])) {
+            $vars = $info['MOD']['#']['VARS']['0']['#']['VAR'];
+        } else {
+            $vars = array();
+        }
+        
+        // Iterate through the guidedquiz vars
+        for($i = 0; $i < sizeof($vars); $i++) {
+            $varinfo = $vars[$i];
+            
+            $var->quiz = $quiz_id;
+            $var->varname = backup_todb($varinfo['#']['VARNAME']['0']['#']);
+            $var->nvalues = backup_todb($varinfo['#']['NVALUES']['0']['#']);
+            $var->minimum = backup_todb($varinfo['#']['MINIMUM']['0']['#']);
+            $var->maximum = backup_todb($varinfo['#']['MAXIMUM']['0']['#']);
+            $var->valueincrement = backup_todb($varinfo['#']['VALUEINCREMENT']['0']['#']);
+            
+            if (!insert_record('guidedquiz_var', $var)) {
+            	$status = false;
+            }
+        }
+        
+        return $status;
+    }
+    // guidedquiz mod end
+    
+    
     //This function restores the quiz_question_instances
     function guidedquiz_question_instances_restore_mods($quiz_id,$info,$restore) {
 
@@ -160,6 +203,10 @@
             $instance->quiz = $quiz_id;
             $instance->question = backup_todb($gra_info['#']['QUESTION']['0']['#']);
             $instance->grade = backup_todb($gra_info['#']['GRADE']['0']['#']);
+            // guidedquiz mod
+            $instance->penalty = backup_todb($gra_info['#']['PENALTY']['0']['#']);
+            $instance->nattempts = backup_todb($gra_info['#']['NATTEMPTS']['0']['#']);
+            // guidedquiz mod end
 
             //We have to recode the question field
             $question = backup_getid($restore->backup_unique_code,"question",$instance->question);
