@@ -253,13 +253,9 @@
             		$newvararg->type = $varargs[$i]['#']['TYPE']['0']['#'];
             		$varname = $varargs[$i]['#']['VARNAME']['0']['#'];
             		if ($newvararg->type == 'var') {
-            			if (!$newvararg->instanceid = get_field('guidedquiz_var', 'id', 'quizid', $quiz_id, 'varname', $varname)) {
-            			    error('caca al obtenir variable de guidedquiz id = '.$quiz_id.' amb nom  '.$varname);
-            			}
+            			$newvararg->instanceid = get_field('guidedquiz_var', 'id', 'quizid', $quiz_id, 'varname', $varname);
             		} else {
-            			if (!$newvararg->instanceid = get_field('question_programmedresp_conc', 'id', 'origin', 'quiz', 'instanceid', $quiz_id, 'name', $varname)) {
-            				error('caca al obtenir variable de guidedquiz id = '.$quiz_id.' amb nom  '.$varname);
-            			}
+            			$newvararg->instanceid = get_field('question_programmedresp_conc', 'id', 'origin', 'quiz', 'instanceid', $quiz_id, 'name', $varname);
             		}
 
             		$newvararg->quizid = $quiz_id;
