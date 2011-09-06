@@ -30,6 +30,9 @@
     // the data about student interaction with the questions. The functions to do
     // that are included with the following library
     require_once("$CFG->dirroot/question/backuplib.php");
+    // guidedquiz mod
+    require_once($CFG->dirroot.'/question/type/programmedresp/lib.php');
+    // guidedquiz mod
 
     /*
      * Insert necessary category ids to backup_ids table. Called during backup_check.html
@@ -364,6 +367,45 @@
                 // guidedquiz mod
                 fwrite ($bf,full_tag("PENALTY",6,false,$que_ins->penalty));
                 fwrite ($bf,full_tag("NATTEMPTS",6,false,$que_ins->nattempts));
+                
+                // Getting the guidedguiz vars arguments in the guidedquiz vars & concatvars
+                $programmedrespid = get_field('question_programmedresp', 'id', 'question', $que_ins->question);
+                $args = get_records_select('question_programmedresp_arg', "programmedrespid = '$programmedrespid' AND type = " . PROGRAMMEDRESP_ARG_GUIDEDQUIZ);
+                if ($args) {
+                	
+                	fwrite ($bf, start_tag("VARARGS", 6, true));
+	                foreach ($args as $arg) {
+	                	
+	                	// Only if a guidedquiz var has been assigned
+	                	$varargs = get_records_select('guidedquiz_var_arg', "quizid = '$quiz' AND programmedrespargid = '$arg->id'");
+	                	if ($varargs) {
+	                		foreach ($varargs as $vararg) {
+			                	fwrite ($bf, start_tag("VARARG", 7, true));
+			                	
+			                    // Var
+			                    if ($vararg->type == 'var') {
+			                    	
+			                        $varname = get_field('guidedquiz_var', 'varname', 'id', $vararg->instanceid);
+			                        fwrite ($bf, full_tag("VARNAME", 8, false, $varname));
+		                            fwrite ($bf, full_tag("TYPE", 8, false, 'var'));
+			                    	
+			                    // Concat var
+			                    } else {
+			                    	
+			                    	$concatvarname = get_field('question_programmedresp_conc', 'name', 'origin', 'quiz', 'instanceid', $vararg->instanceid);
+			                    	fwrite ($bf, full_tag("VARNAME", 8, false, $concatvarname));
+			                    	fwrite ($bf, full_tag("TYPE", 8, false, 'concatvar'));
+			                    }
+			                    
+		                        // Better to use the argument key to avoid new id problems
+		                        fwrite ($bf, full_tag("ARGKEY", 8, false, $arg->argkey));
+		                        
+			                    fwrite ($bf, end_tag("VARARG", 7, true));
+	                		}
+	                	}
+	                }
+	                fwrite ($bf, end_tag("VARARGS", 6, true));
+                }
                 // guidedquiz mod end
                 
                 //End question instance

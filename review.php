@@ -330,11 +330,18 @@
         	
             // Print the question
             print_question($questions[$i], $states[$i], $number, $quiz, $options);
-                    
+
             $correctresponses = $QTYPES[$questions[$i]->qtype]->get_correct_responses($questions[$i], $states[$i]);
             if ($correctresponses) {
                 $htmlresponsecontent = '<strong>'.get_string('showcorrectresponses', 'guidedquiz').'</strong>: ';
-                $htmlresponsecontent.= implode(', ', $correctresponses);
+                if ($questions[$i]->qtype == 'multichoice') {
+                            
+                    // Only one response
+                    $singlecorrectresponse = reset($correctresponses);
+                    $htmlresponsecontent .= $questions[$i]->options->answers[$singlecorrectresponse]->answer;
+                } else {
+                    $htmlresponsecontent .= implode(', ', $correctresponses);
+                }
                 print_box($htmlresponsecontent);
             }
         }

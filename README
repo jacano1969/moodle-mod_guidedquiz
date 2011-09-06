@@ -8,6 +8,7 @@ backuplib.php
 - New question instances fields added
 - Vars table added
 - Arguments table added
+- Vars assigned to questions arguments
 
 restorelib.php
 - New fields added

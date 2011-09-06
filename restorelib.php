@@ -236,6 +236,39 @@
             //The structure is equal to the db, so insert the quiz_question_instances
             $newid = insert_record ("guidedquiz_question_instance",$instance);
 
+            // guidedquiz mod
+            // Adding guidedquiz vars arguments
+            if (!empty($instances[$i]['#']['VARARGS'])) {
+            	$varargs = $instances[$i]['#']['VARARGS']['0']['#']['VARARG'];
+            	for ($i = 0; $i < sizeof($varargs); $i++) {
+            		
+            		unset($newvararg);
+            		
+            		// Getting the programmedrespid to get the programmedresp argument id
+            		$programmedrespid = get_field('question_programmedresp', 'id', 'question', $instance->question);
+            		$argkey = $varargs[$i]['#']['ARGKEY']['0']['#'];
+            		$newvararg->programmedrespargid = get_field('question_programmedresp_arg', 'id', 'programmedrespid', $programmedrespid, 'argkey', $argkey);
+            		
+            		// Getting the var new id
+            		$newvararg->type = $varargs[$i]['#']['TYPE']['0']['#'];
+            		$varname = $varargs[$i]['#']['VARNAME']['0']['#'];
+            		if ($newvararg->type == 'var') {
+            			if (!$newvararg->instanceid = get_field('guidedquiz_var', 'id', 'quizid', $quiz_id, 'varname', $varname)) {
+            			    error('caca al obtenir variable de guidedquiz id = '.$quiz_id.' amb nom  '.$varname);
+            			}
+            		} else {
+            			if (!$newvararg->instanceid = get_field('question_programmedresp_conc', 'id', 'origin', 'quiz', 'instanceid', $quiz_id, 'name', $varname)) {
+            				error('caca al obtenir variable de guidedquiz id = '.$quiz_id.' amb nom  '.$varname);
+            			}
+            		}
+
+            		$newvararg->quizid = $quiz_id;
+            		insert_record('guidedquiz_var_arg', $newvararg);
+            	}
+            	
+            }
+            // guidedquiz mod
+            
             //Do some output
             if (($i+1) % 10 == 0) {
                 if (!defined('RESTORE_SILENTLY')) {
