@@ -240,7 +240,7 @@
             // Adding guidedquiz vars arguments
             if (!empty($instances[$i]['#']['VARARGS'])) {
             	$varargs = $instances[$i]['#']['VARARGS']['0']['#']['VARARG'];
-            	for ($i = 0; $i < sizeof($varargs); $i++) {
+            	for ($j = 0; $j < sizeof($varargs); $j++) {
             		
             		unset($newvararg);
             		
@@ -261,7 +261,7 @@
             		$newvararg->quizid = $quiz_id;
             		insert_record('guidedquiz_var_arg', $newvararg);
             	}
-            	
+
             }
             // guidedquiz mod
             

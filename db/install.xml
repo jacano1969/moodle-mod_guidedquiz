@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/guidedquiz/db" VERSION="20070522" COMMENT="XMLDB file for Moodle mod/guidedquiz"
+<XMLDB PATH="mod/guidedquiz/db" VERSION="20110906" COMMENT="XMLDB file for Moodle mod/guidedquiz"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -11,9 +11,9 @@
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="course" NEXT="intro"/>
         <FIELD NAME="intro" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="name" NEXT="timeopen"/>
         <FIELD NAME="timeopen" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="intro" NEXT="timeclose"/>
+
         <FIELD NAME="timeclose" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="timeopen" NEXT="optionflags"/>
         <FIELD NAME="optionflags" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="timeclose" NEXT="penaltyscheme"/>
-
         <FIELD NAME="penaltyscheme" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="optionflags" NEXT="attempts"/>
         <FIELD NAME="attempts" TYPE="int" LENGTH="6" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="penaltyscheme" NEXT="attemptonlast"/>
         <FIELD NAME="attemptonlast" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="attempts" NEXT="grademethod"/>
@@ -21,9 +21,9 @@
         <FIELD NAME="decimalpoints" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="false" DEFAULT="2" SEQUENCE="false" ENUM="false" PREVIOUS="grademethod" NEXT="review"/>
         <FIELD NAME="review" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="decimalpoints" NEXT="questionsperpage"/>
         <FIELD NAME="questionsperpage" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="review" NEXT="shufflequestions"/>
+
         <FIELD NAME="shufflequestions" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="questionsperpage" NEXT="shuffleanswers"/>
         <FIELD NAME="shuffleanswers" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="shufflequestions" NEXT="questions"/>
-
         <FIELD NAME="questions" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="shuffleanswers" NEXT="sumgrades"/>
         <FIELD NAME="sumgrades" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="questions" NEXT="grade"/>
         <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="sumgrades" NEXT="viewpreviousquestions"/>
@@ -31,9 +31,9 @@
         <FIELD NAME="showcorrectresponses" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="viewpreviousquestions" NEXT="timecreated"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="showcorrectresponses" NEXT="timemodified"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="timecreated" NEXT="timelimit"/>
+
         <FIELD NAME="timelimit" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="timemodified" NEXT="password"/>
         <FIELD NAME="password" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="timelimit" NEXT="subnet"/>
-
         <FIELD NAME="subnet" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="password" NEXT="popup"/>
         <FIELD NAME="popup" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="subnet" NEXT="delay1"/>
         <FIELD NAME="delay1" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="popup" NEXT="delay2"/>
@@ -41,9 +41,9 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+
       </KEYS>
       <INDEXES>
-
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
@@ -51,6 +51,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="uniqueid"/>
         <FIELD NAME="uniqueid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="quiz"/>
+
         <FIELD NAME="quiz" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="uniqueid" NEXT="userid"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="quiz" NEXT="attempt"/>
         <FIELD NAME="attempt" TYPE="int" LENGTH="6" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="userid" NEXT="sumgrades"/>
@@ -60,6 +61,7 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="timefinish" NEXT="layout"/>
         <FIELD NAME="layout" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="timemodified" NEXT="preview"/>
         <FIELD NAME="preview" TYPE="int" LENGTH="3" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="layout"/>
+
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="uniqueid"/>
@@ -69,6 +71,7 @@
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
+
     </TABLE>
     <TABLE NAME="guidedquiz_grades" COMMENT="Final quiz grade (may be best of several attempts)" PREVIOUS="guidedquiz_attempts" NEXT="guidedquiz_question_instance">
       <FIELDS>
@@ -78,6 +81,7 @@
         <FIELD NAME="grade" TYPE="float" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="userid" NEXT="timemodified"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="grade"/>
       </FIELDS>
+
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="quiz"/>
         <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="guidedquiz" REFFIELDS="id" PREVIOUS="primary"/>
@@ -87,16 +91,17 @@
       </INDEXES>
     </TABLE>
     <TABLE NAME="guidedquiz_question_instance" COMMENT="The grade for a question in a quiz" PREVIOUS="guidedquiz_grades" NEXT="guidedquiz_question_version">
+
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quiz"/>
         <FIELD NAME="quiz" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="question"/>
         <FIELD NAME="question" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="quiz" NEXT="grade"/>
         <FIELD NAME="grade" TYPE="int" LENGTH="6" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="question" NEXT="penalty"/>
-        <FIELD NAME="penalty" TYPE="number" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" ENUM="false" DECIMALS="5" DEFAULT="0" PREVIOUS="grade" NEXT="nattempts"/>
+        <FIELD NAME="penalty" TYPE="number" LENGTH="10" NOTNULL="false" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" DECIMALS="5" PREVIOUS="grade" NEXT="nattempts"/>
         <FIELD NAME="nattempts" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" ENUM="false" PREVIOUS="penalty"/>
       </FIELDS>
-
       <KEYS>
+
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="quiz"/>
         <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="guidedquiz" REFFIELDS="id" PREVIOUS="primary" NEXT="question"/>
         <KEY NAME="question" TYPE="foreign" FIELDS="question" REFTABLE="question" REFFIELDS="id" PREVIOUS="quiz"/>
@@ -106,6 +111,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quiz"/>
         <FIELD NAME="quiz" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="oldquestion"/>
+
         <FIELD NAME="oldquestion" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="quiz" NEXT="newquestion"/>
         <FIELD NAME="newquestion" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="oldquestion" NEXT="originalquestion"/>
         <FIELD NAME="originalquestion" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="newquestion" NEXT="userid"/>
@@ -115,6 +121,7 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="quiz"/>
         <KEY NAME="quiz" TYPE="foreign" FIELDS="quiz" REFTABLE="guidedquiz" REFFIELDS="id" PREVIOUS="primary" NEXT="oldquestion"/>
+
         <KEY NAME="oldquestion" TYPE="foreign" FIELDS="oldquestion" REFTABLE="question" REFFIELDS="id" PREVIOUS="quiz" NEXT="newquestion"/>
         <KEY NAME="newquestion" TYPE="foreign" FIELDS="newquestion" REFTABLE="question" REFFIELDS="id" PREVIOUS="oldquestion" NEXT="originalquestion"/>
         <KEY NAME="originalquestion" TYPE="foreign" FIELDS="originalquestion" REFTABLE="question" REFFIELDS="id" PREVIOUS="newquestion"/>
@@ -124,6 +131,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quizid"/>
         <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="feedbacktext"/>
+
         <FIELD NAME="feedbacktext" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" ENUM="false" PREVIOUS="quizid" NEXT="mingrade"/>
         <FIELD NAME="mingrade" TYPE="float" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="feedbacktext" NEXT="maxgrade"/>
         <FIELD NAME="maxgrade" TYPE="float" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="mingrade"/>
@@ -133,6 +141,7 @@
         <KEY NAME="quizid" TYPE="foreign" FIELDS="quizid" REFTABLE="guidedquiz" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
     </TABLE>
+
     <TABLE NAME="guidedquiz_var" COMMENT="Vars data" PREVIOUS="guidedquiz_feedback" NEXT="guidedquiz_val">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quizid"/>
@@ -148,7 +157,11 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="quizid"/>
         <KEY NAME="quizid" TYPE="foreign" FIELDS="quizid" REFTABLE="guidedquiz" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="varname" UNIQUE="false" FIELDS="varname"/>
+      </INDEXES>
     </TABLE>
+
     <TABLE NAME="guidedquiz_val" COMMENT="Values for the quiz vars" PREVIOUS="guidedquiz_var" NEXT="guidedquiz_var_arg">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="attemptid"/>
@@ -158,21 +171,27 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="guidedquizvarid"/>
+
         <KEY NAME="guidedquizvarid" TYPE="foreign" FIELDS="guidedquizvarid" REFTABLE="guidedquiz_var" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="guidedquiz_var_arg" COMMENT="Stores the programmedresp question arguments value of guidedquiz variables" PREVIOUS="guidedquiz_val" NEXT="guidedquiz_remaining_attempt"> 
-      <FIELDS> 
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quizid"/> 
-        <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="type"/> 
-        <FIELD NAME="type" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="/var/" SEQUENCE="false" ENUM="true" ENUMVALUES="'var', 'concatvar'" PREVIOUS="quizid" NEXT="instanceid"/> 
-        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="Depends on the type field, it could point to guidedquiz_var or to question_programmedresp_conc" PREVIOUS="type" NEXT="programmedrespargid"/> 
-        <FIELD NAME="programmedrespargid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="instanceid"/> 
-      </FIELDS> 
-      <KEYS> 
-        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="programmedrespargid"/> 
-        <KEY NAME="programmedrespargid" TYPE="foreign" FIELDS="programmedrespargid" REFTABLE="question_programmedresp_arg" REFFIELDS="id" PREVIOUS="primary"/> 
+    <TABLE NAME="guidedquiz_var_arg" COMMENT="Stores the programmedresp question arguments value of guidedquiz variables" PREVIOUS="guidedquiz_val" NEXT="guidedquiz_remaining_attempt">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quizid"/>
+        <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="type"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="/var/" SEQUENCE="false" ENUM="true" ENUMVALUES="'var', 'concatvar'" PREVIOUS="quizid" NEXT="instanceid"/>
+        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="Depends on the type field, it could point to guidedquiz_var or to question_programmedresp_conc" PREVIOUS="type" NEXT="programmedrespargid"/>
+
+        <FIELD NAME="programmedrespargid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="instanceid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="programmedrespargid"/>
+        <KEY NAME="programmedrespargid" TYPE="foreign" FIELDS="programmedrespargid" REFTABLE="question_programmedresp_arg" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="quizid_programmedrespargid" UNIQUE="false" FIELDS="quizid, programmedrespargid"/>
+      </INDEXES>
+
     </TABLE>
     <TABLE NAME="guidedquiz_remaining_attempt" COMMENT="The remaining attempts of a guided quiz question instance" PREVIOUS="guidedquiz_var_arg">
       <FIELDS>
@@ -182,8 +201,8 @@
         <FIELD NAME="remainingattempts" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" ENUM="false" PREVIOUS="question"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
 
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>
@@ -192,6 +211,7 @@
       <SENTENCES>
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'add', 'guidedquiz', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'update', 'guidedquiz', 'name')" />
+
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'view', 'guidedquiz', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'report', 'guidedquiz', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'attempt', 'guidedquiz', 'name')" />
@@ -201,6 +221,7 @@
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'preview', 'guidedquiz', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'start attempt', 'guidedquiz', 'name')" />
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'close attempt', 'guidedquiz', 'name')" />
+
         <SENTENCE TEXT="(module, action, mtable, field) VALUES ('guidedquiz', 'continue attempt', 'guidedquiz', 'name')" />
       </SENTENCES>
     </STATEMENT>
