@@ -324,11 +324,12 @@
         }
         $options->validation = QUESTION_EVENTVALIDATE === $states[$i]->event;
         $options->history = ($isteacher and !$attempt->preview) ? 'all' : 'graded';
-        // Print the question
-        print_question($questions[$i], $states[$i], $number, $quiz, $options);
         // guidedquiz mod
         // display correct response if it's not the latests question
         if ($quiz->showcorrectresponses) {
+        	
+            // Print the question
+            print_question($questions[$i], $states[$i], $number, $quiz, $options);
                     
             $correctresponses = $QTYPES[$questions[$i]->qtype]->get_correct_responses($questions[$i], $states[$i]);
             if ($correctresponses) {
