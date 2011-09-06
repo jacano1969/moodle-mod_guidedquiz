@@ -246,12 +246,12 @@
             		
             		// Getting the programmedrespid to get the programmedresp argument id
             		$programmedrespid = get_field('question_programmedresp', 'id', 'question', $instance->question);
-            		$argkey = $varargs[$i]['#']['ARGKEY']['0']['#'];
+            		$argkey = $varargs[$j]['#']['ARGKEY']['0']['#'];
             		$newvararg->programmedrespargid = get_field('question_programmedresp_arg', 'id', 'programmedrespid', $programmedrespid, 'argkey', $argkey);
             		
             		// Getting the var new id
-            		$newvararg->type = $varargs[$i]['#']['TYPE']['0']['#'];
-            		$varname = $varargs[$i]['#']['VARNAME']['0']['#'];
+            		$newvararg->type = $varargs[$j]['#']['TYPE']['0']['#'];
+            		$varname = $varargs[$j]['#']['VARNAME']['0']['#'];
             		if ($newvararg->type == 'var') {
             			$newvararg->instanceid = get_field('guidedquiz_var', 'id', 'quizid', $quiz_id, 'varname', $varname);
             		} else {
