@@ -387,7 +387,7 @@ function guidedquiz_print_question_list($quiz, $pageurl, $allowdelete=true, $sho
         		$strassignvars = get_string('assignvars', 'guidedquiz');
         		$popupoptions = 'menubar=0,location=0,scrollbars,status,resizable,width=600,height=500';
         		echo '<a title="'.$strassignvars.'" href="#" 
-        		         onclick="return openpopup(\'/mod/guidedquiz/assignvars.php?quizid='.$quiz->id.'&questionid='.$question->id.'\', \'assignvars\', \''.$popupoptions.'\', 0);"
+        		         onclick="return openpopup(\'/mod/guidedquiz/assignvars.php?quizid='.$quiz->id.'&questionid='.$question->id.'\', \'assignvars\', \''.$popupoptions.'\', 0);">
                         <img src="'.$CFG->pixpath.'/i/payment.gif" class="iconsmall" alt='.$strassignvars.'" /></a>';
         	}
 
