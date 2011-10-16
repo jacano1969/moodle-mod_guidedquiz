@@ -392,7 +392,7 @@
 			                    // Concat var
 			                    } else {
 			                    	
-			                    	$concatvarname = get_field('question_programmedresp_conc', 'name', 'origin', 'quiz', 'instanceid', $vararg->instanceid);
+			                    	$concatvarname = get_field('question_programmedresp_conc', 'name', 'id', $vararg->instanceid);
 			                    	fwrite ($bf, full_tag("VARNAME", 8, false, $concatvarname));
 			                    	fwrite ($bf, full_tag("TYPE", 8, false, 'concatvar'));
 			                    }
@@ -407,7 +407,7 @@
 	                fwrite ($bf, end_tag("VARARGS", 6, true));
                 }
                 // guidedquiz mod end
-                
+
                 //End question instance
                 $status = fwrite ($bf,end_tag("QUESTION_INSTANCE",5,true));
             }
