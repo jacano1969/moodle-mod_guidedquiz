@@ -29,7 +29,7 @@ if (!$guidedquizvars) {
 	print_error('errornoquizvars', 'guidedquiz');
 }
 
-$concatvars = get_records_select('question_programmedresp_conc', "origin = 'quiz' AND instanceid = '$quizid'");
+$concatvars = get_records_select('qtype_programmedresp_conc', "origin = 'quiz' AND instanceid = '$quizid'");
 
 // Preprocess quiz vars -> options
 foreach ($guidedquizvars as $guidedquizvar) {

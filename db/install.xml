@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/guidedquiz/db" VERSION="20110906" COMMENT="XMLDB file for Moodle mod/guidedquiz"
+<XMLDB PATH="mod/guidedquiz/db" VERSION="20111020" COMMENT="XMLDB file for Moodle mod/guidedquiz"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -180,13 +180,13 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="quizid"/>
         <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="id" NEXT="type"/>
         <FIELD NAME="type" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="/var/" SEQUENCE="false" ENUM="true" ENUMVALUES="'var', 'concatvar'" PREVIOUS="quizid" NEXT="instanceid"/>
-        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="Depends on the type field, it could point to guidedquiz_var or to question_programmedresp_conc" PREVIOUS="type" NEXT="programmedrespargid"/>
+        <FIELD NAME="instanceid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="Depends on the type field, it could point to guidedquiz_var or to qtype_programmedresp_conc" PREVIOUS="type" NEXT="programmedrespargid"/>
 
         <FIELD NAME="programmedrespargid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" PREVIOUS="instanceid"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="programmedrespargid"/>
-        <KEY NAME="programmedrespargid" TYPE="foreign" FIELDS="programmedrespargid" REFTABLE="question_programmedresp_arg" REFFIELDS="id" PREVIOUS="primary"/>
+        <KEY NAME="programmedrespargid" TYPE="foreign" FIELDS="programmedrespargid" REFTABLE="qtype_programmedresp_arg" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="quizid_programmedrespargid" UNIQUE="false" FIELDS="quizid, programmedrespargid"/>

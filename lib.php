@@ -145,7 +145,7 @@ function guidedquiz_delete_instance($id) {
         }
         delete_records('guidedquiz_var', 'quizid', $quiz->id);
         delete_records('guidedquiz_var_arg', 'quizid', $quiz->id);
-        delete_records('question_programmedresp_conc', 'origin', 'quiz', 'instanceid', $quiz->id);
+        delete_records('qtype_programmedresp_conc', 'origin', 'quiz', 'instanceid', $quiz->id);
     }
     // guidedquiz mod end
     
@@ -995,12 +995,12 @@ function guidedquiz_store_vars($quizid) {
         
         
         // Inserting/Updating concat vars
-        delete_records('question_programmedresp_conc', 'origin', 'quiz', 'instanceid', $quizid);
+        delete_records('qtype_programmedresp_conc', 'origin', 'quiz', 'instanceid', $quizid);
         if (!empty($concatvars)) {
         	foreach ($concatvars as $obj) {
         		$obj->origin = 'quiz';
         		$obj->instanceid = $quizid;
-        		if (!insert_record('question_programmedresp_conc', $obj)) {
+        		if (!insert_record('qtype_programmedresp_conc', $obj)) {
         			print_error('errordb', 'qtype_programmedresp');
         		}
         	}

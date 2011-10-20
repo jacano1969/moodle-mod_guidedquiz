@@ -183,7 +183,7 @@
             $var->name = backup_todb($varinfo['#']['NAME']['0']['#']);
             $var->vars = backup_todb($varinfo['#']['VARS']['0']['#']);
             
-            if (!insert_record('question_programmedresp_conc', $var)) {
+            if (!insert_record('qtype_programmedresp_conc', $var)) {
                 $status = false;
             }
         }
@@ -245,9 +245,9 @@
             		unset($newvararg);
             		
             		// Getting the programmedrespid to get the programmedresp argument id
-            		$programmedrespid = get_field('question_programmedresp', 'id', 'question', $instance->question);
+            		$programmedrespid = get_field('qtype_programmedresp', 'id', 'question', $instance->question);
             		$argkey = $varargs[$j]['#']['ARGKEY']['0']['#'];
-            		$newvararg->programmedrespargid = get_field('question_programmedresp_arg', 'id', 'programmedrespid', $programmedrespid, 'argkey', $argkey);
+            		$newvararg->programmedrespargid = get_field('qtype_programmedresp_arg', 'id', 'programmedrespid', $programmedrespid, 'argkey', $argkey);
             		
             		// Getting the var new id
             		$newvararg->type = $varargs[$j]['#']['TYPE']['0']['#'];
@@ -255,7 +255,7 @@
             		if ($newvararg->type == 'var') {
             			$newvararg->instanceid = get_field('guidedquiz_var', 'id', 'quizid', $quiz_id, 'varname', $varname);
             		} else {
-            			$newvararg->instanceid = get_field('question_programmedresp_conc', 'id', 'origin', 'quiz', 'instanceid', $quiz_id, 'name', $varname);
+            			$newvararg->instanceid = get_field('qtype_programmedresp_conc', 'id', 'origin', 'quiz', 'instanceid', $quiz_id, 'name', $varname);
             		}
 
             		$newvararg->quizid = $quiz_id;

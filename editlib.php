@@ -52,8 +52,8 @@ function guidedquiz_delete_quiz_question($id, &$quiz) {
     
     // Look for guidedquiz vars assigned to guidedquiz args of the question
     // TODO: Add index gva => quizid
-    $sql = "SELECT gva.id FROM {$CFG->prefix}question_programmedresp p 
-            JOIN {$CFG->prefix}question_programmedresp_arg pa ON pa.programmedrespid = p.id
+    $sql = "SELECT gva.id FROM {$CFG->prefix}qtype_programmedresp p 
+            JOIN {$CFG->prefix}qtype_programmedresp_arg pa ON pa.programmedrespid = p.id
             JOIN {$CFG->prefix}guidedquiz_var_arg gva ON gva.programmedrespargid = pa.id 
             WHERE p.question = '$question' AND gva.quizid = '$quiz->instance'";
     $guidedquizvarargs = get_records_sql($sql);

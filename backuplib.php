@@ -294,7 +294,7 @@
         
         // Guidedquiz concat vars
         $where = "origin = 'quiz' AND instanceid = '$quiz->id'";
-        if ($concatvars = get_records_select('question_programmedresp_conc', $where)) {
+        if ($concatvars = get_records_select('qtype_programmedresp_conc', $where)) {
         	fwrite($bf, start_tag("CONCATVARS", 4, true));
         	foreach ($concatvars as $concatvar) {
         		fwrite($bf, start_tag("CONCATVAR", 5, true));
@@ -369,8 +369,8 @@
                 fwrite ($bf,full_tag("NATTEMPTS",6,false,$que_ins->nattempts));
                 
                 // Getting the guidedguiz vars arguments in the guidedquiz vars & concatvars
-                $programmedrespid = get_field('question_programmedresp', 'id', 'question', $que_ins->question);
-                $args = get_records_select('question_programmedresp_arg', "programmedrespid = '$programmedrespid' AND type = " . PROGRAMMEDRESP_ARG_GUIDEDQUIZ);
+                $programmedrespid = get_field('qtype_programmedresp', 'id', 'question', $que_ins->question);
+                $args = get_records_select('qtype_programmedresp_arg', "programmedrespid = '$programmedrespid' AND type = " . PROGRAMMEDRESP_ARG_GUIDEDQUIZ);
                 if ($args) {
                 	
                 	fwrite ($bf, start_tag("VARARGS", 6, true));
@@ -392,7 +392,7 @@
 			                    // Concat var
 			                    } else {
 			                    	
-			                    	$concatvarname = get_field('question_programmedresp_conc', 'name', 'id', $vararg->instanceid);
+			                    	$concatvarname = get_field('qtype_programmedresp_conc', 'name', 'id', $vararg->instanceid);
 			                    	fwrite ($bf, full_tag("VARNAME", 8, false, $concatvarname));
 			                    	fwrite ($bf, full_tag("TYPE", 8, false, 'concatvar'));
 			                    }

@@ -1008,11 +1008,11 @@ function guidedquiz_get_question_guidedquiz_args($questionid, $allfields = false
 	} else {
 		$select = 'pra.*, prf.name, prf.description, prf.params';
 	}
-    $sql = "SELECT ".$select." FROM {$CFG->prefix}question_programmedresp pr
-            JOIN {$CFG->prefix}question_programmedresp_arg pra ON pra.programmedrespid = pr.id ";
+    $sql = "SELECT ".$select." FROM {$CFG->prefix}qtype_programmedresp pr
+            JOIN {$CFG->prefix}qtype_programmedresp_arg pra ON pra.programmedrespid = pr.id ";
 
     if ($allfields) {
-    	$sql.= "JOIN {$CFG->prefix}question_programmedresp_f prf ON prf.id = pr.programmedrespfid ";
+    	$sql.= "JOIN {$CFG->prefix}qtype_programmedresp_f prf ON prf.id = pr.programmedrespfid ";
     }
     $sql.= "WHERE pr.question = '$questionid' AND pra.type = ".PROGRAMMEDRESP_ARG_GUIDEDQUIZ;
     
