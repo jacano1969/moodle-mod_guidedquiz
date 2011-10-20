@@ -1,7 +1,16 @@
-Quiz module for Moodle 1.9 modified and renamed to guidedquiz
+##
+# Moodle - Modules - Guided quiz
+#
+# Core quiz module renamed and modified
+#
+# @package mod
+# @subpackage guidedquiz
+# @copyright 2011 David Monllaó
+# @license http://www.gnu.org/licenses/gpl-2.0.txt
+##
 
-TODO
-- Security checkings
+
+QUIZ CORE CHANGES
 
 backuplib.php
 - New fields added
