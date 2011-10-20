@@ -26,6 +26,21 @@ function xmldb_guidedquiz_upgrade($oldversion=0) {
         $result = $result && rename_field($table, $field, 'instanceid');
     }
     
+    if ($result && $oldversion < 2011102001) {
+    	
+    	// Drop old key
+    	$table = new XMLDBTable('guidedquiz_var_arg');
+        $key = new XMLDBKey('programmedrespargid');
+        $key->setAttributes(XMLDB_KEY_FOREIGN, array('programmedrespargid'), 'question_programmedresp_arg', array('id'));
+        $result = $result && drop_key($table, $key);
+        
+        // Add new key
+    	$table = new XMLDBTable('guidedquiz_var_arg');
+        $key = new XMLDBKey('programmedrespargid');
+        $key->setAttributes(XMLDB_KEY_FOREIGN, array('programmedrespargid'), 'qtype_programmedresp_arg', array('id'));
+        $result = $result && add_key($table, $key);
+    }
+    
     return $result;
 }
 
