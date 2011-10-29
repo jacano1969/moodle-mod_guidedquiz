@@ -1,7 +1,7 @@
 ##
-# Moodle - Modules - Guided quiz
+# Moodle - Modules - Sections quiz
 #
-# Core quiz module renamed and modified
+# Core quiz module modified to display questions sequentially
 #
 # @package mod
 # @subpackage guidedquiz
@@ -9,8 +9,35 @@
 # @license http://www.gnu.org/licenses/gpl-2.0.txt
 ##
 
+Quiz modification to display questions sequentially, there is a number of attempts and an attempt 
+penalization for each question instance. Users can only pass to the next question when he/she 
+finds the correct answer, skip the question (max penalization applied) or reach the maximum number 
+of attempts per question.
 
-QUIZ CORE CHANGES
+
+REQUIREMENTS
+* Compatible with Moodle 1.9.x releases
+* Users with Javascript/AJAX support enabled
+
+
+PROGRAMMED RESPONSES QUESTION TYPE LINKAGE
+There is a linkage between this module and the programmed responses question type, this module 
+can define "global" variables and they can be referenced from the function arguments of the 
+programmed responses question instances of the quiz  
+
+
+INSTALL
+Follow the usual installation instructions
+
+
+CREDITS
+Tool designed by Josep Maria Mateo, Carme Olivé and Dolors Puigjaner, members of DEQ <http://www.etseq.urv.es/DEQ/> and 
+DEIM <http://deim.urv.cat> departments of the Universitat Rovira i Virgili.
+
+Consultoria Mosaic <http://www.consultoriamosaic.net>
+
+
+CORE QUIZ CHANGES LOG
 
 backuplib.php
 - New fields added
