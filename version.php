@@ -17,9 +17,10 @@ if (!defined('MATURITY_RC')) {
 }
 
 // To avoid the M&P warning (yes, sad but true http://www.youtube.com/watch?v=l8BRbM52gpc)
-$plugin->maturity = MATURITY_RC;
+$module->maturity = MATURITY_RC;
 
 // To avoid M&P warnings
 $plugin->version = $module->version;
 $plugin->release = $module->release;
 $plugin->requires = $module->requires;
+$plugin->maturity = $module->maturity;
