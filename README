@@ -10,7 +10,7 @@
 ##
 
 Quiz modification to display questions sequentially, there is a number of attempts and an attempt 
-penalization for each question instance. Users can only pass to the next question when he/she 
+penalization for each question instance. Users can only pass to the next question when they 
 finds the correct answer, skip the question (max penalization applied) or reach the maximum number 
 of attempts per question.
 
@@ -23,16 +23,20 @@ REQUIREMENTS
 PROGRAMMED RESPONSES QUESTION TYPE LINKAGE
 There is a linkage between this module and the programmed responses question type, this module 
 can define "global" variables and they can be referenced from the function arguments of the 
-programmed responses question instances of the quiz  
+programmed responses question instances of the quiz.  
 
+The variables can be added to the quiz text following the next format: {$varname} the variables 
+names only accepts alphanumeric characters, each variable has four attributes, maximum value, 
+minimum value, increment and the number of values, to define both scalar and vectorial variables. 
 
 INSTALL
 Follow the usual installation instructions
 
 
 CREDITS
-Tool designed by Josep Maria Mateo, Carme Olivé and Dolors Puigjaner, members of DEQ <http://www.etseq.urv.es/DEQ/> and 
-DEIM <http://deim.urv.cat> departments of the Universitat Rovira i Virgili.
+Tool designed by Josep Maria Mateo, Carme Olivé and Dolors Puigjaner, members of DEQ 
+<http://www.etseq.urv.es/DEQ/> and DEIM <http://deim.urv.cat> departments of the 
+Universitat Rovira i Virgili.
 
 Consultoria Mosaic <http://www.consultoriamosaic.net>
 
@@ -75,7 +79,8 @@ attempt.php
 - Respect show previous questions setting value
 - Respect the show correct values setting value
 - Allow users to pass to the next question (question value overwrite by a '') it depends on the 
-show previous questions and show correct values values to display the correct response after answering
+show previous questions and show correct values values to display the correct response after 
+answering
 - Take into account the spent nattempts
 - Take into account the penalty
 - Check the page the user tries to access
