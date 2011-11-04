@@ -970,42 +970,67 @@ function guidedquiz_store_vars($quizid) {
         	$concatvars[$varname]->name = $varname;
         	$concatvars[$varname]->vars = programmedresp_serialize(optional_param($varname, false, PARAM_ALPHANUM));
         }
-        
-        // Inserting into DB
-        if (!empty($vars)) {
-	        foreach ($vars as $varname => $var) {
-	            $var->quizid = $quizid;
-	            $var->varname = $varname;
-	            
-	            // Update
-	            if ($var->id = get_field('guidedquiz_var', 'id', 'quizid', $var->quizid, 'varname', $var->varname)) {
-	
-	                if (!update_record('guidedquiz_var', $var)) {
-	                    print_error('errordb', 'qtype_programmedresp');
-	                }
-	                
-	            // Insert
-	            } else {
-	                if (!$vars[$varname]->id = insert_record('guidedquiz_var', $var)) {
-	                    print_error('errordb', 'qtype_programmedresp');
-	                }
-	            }   
-	        }
+    }
+    
+    // Inserting into DB
+    if (!empty($vars)) {
+        foreach ($vars as $varname => $var) {
+            $var->quizid = $quizid;
+            $var->varname = $varname;
+            
+            // Update
+            if ($var->id = get_field('guidedquiz_var', 'id', 'quizid', $var->quizid, 'varname', $var->varname)) {
+
+                if (!update_record('guidedquiz_var', $var)) {
+                    print_error('errordb', 'qtype_programmedresp');
+                }
+                
+            // Insert
+            } else {
+                if (!$vars[$varname]->id = insert_record('guidedquiz_var', $var)) {
+                    print_error('errordb', 'qtype_programmedresp');
+                }
+            }   
         }
+    }
         
         
-        // Inserting/Updating concat vars
-        delete_records('qtype_programmedresp_conc', 'origin', 'quiz', 'instanceid', $quizid);
-        if (!empty($concatvars)) {
-        	foreach ($concatvars as $obj) {
-        		$obj->origin = 'quiz';
-        		$obj->instanceid = $quizid;
-        		if (!insert_record('qtype_programmedresp_conc', $obj)) {
-        			print_error('errordb', 'qtype_programmedresp');
-        		}
+    // Concat vars
+        
+    // If there are previous concat vars delete the non used
+    $sql = "origin = 'quiz' AND instanceid = '$quizid'";
+    $quizoldconcatvars = get_records_select('qtype_programmedresp_conc', $sql, '', 'id, name');
+    if ($quizoldconcatvars) {
+        foreach ($quizoldconcatvars as $quizoldconcatvar) {
+        	if (empty($concatvars[$quizoldconcatvar->name])) {
+        		delete_records('qtype_programmedresp_conc', 'id', $quizoldconcatvar->id);
         	}
         }
     }
+        
+    // Insert / update
+    if (!empty($concatvars)) {
+        foreach ($concatvars as $obj) {
+        	$obj->origin = 'quiz';
+        	$obj->instanceid = $quizid;
+        	
+        	// Update
+        	if ($dbobj = get_record('qtype_programmedresp_conc', 'origin', 'quiz', 'instanceid', $quizid, 'name', $obj->name)) {
+        		
+        		$dbobj->vars = $obj->vars;
+        		$result = update_record('qtype_programmedresp_conc', $dbobj);
+        		
+        	// Insert
+        	} else {
+        		$result = insert_record('qtype_programmedresp_conc', $obj);
+        	}
+        	
+        	if (!$result) {
+                    print_error('errordb', 'qtype_programmedresp');
+        	}
+        }
+    }
+
 }
 // guidedquiz mod end
 
