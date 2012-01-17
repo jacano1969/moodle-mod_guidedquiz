@@ -9,7 +9,7 @@ $module->version  = 2011102001;   // The (date) version of this module
 $module->requires = 2007101509;   // Requires this Moodle version
 $module->cron     = 0;            // How often should cron check this module (seconds)?
 
-$module->release = '1.3(Build: 2011102001)';
+$module->release = '1.4(Build: 2011102001)';
 
 // To avoid 1.9 Notice
 if (!defined('MATURITY_RC')) {
